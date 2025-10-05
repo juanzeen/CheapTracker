@@ -1,14 +1,13 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
-class User(models.Model):
-    user_roles = {
-        "ADM": "Admin",
-        "SHOP": "Shopkeeper",
-        "CARR": "Carrier",
-    }
+class UserRoles(models.TextChoices):
+    MAN = 'Man', 'Manager'
+    SHOP = 'Shop', 'Shopkeeper'
+    CARR = 'Carr', 'Carrier'
 
-    role = models.CharField(max_length=4, choices=user_roles)
+class User(models.Model):
+    role = models.CharField(max_length=4, choices=UserRoles.choices)
     name = models.CharField(max_length=100)
     age = models.PositiveIntegerField(MaxValueValidator(120))
     email = models.CharField(max_length=254)
@@ -50,8 +49,8 @@ class Truck(models.Model):
     carrier = models.ForeignKey(Carrier, on_delete=models.CASCADE)
     plate = models.CharField(max_length=7)
     axles_count = models.IntegerField(validators=[MinValueValidator(2),MaxValueValidator(11)])
-    cargo_lenght = models.FloatField(MinValueValidator(0.01))
-    cargo_widht = models.FloatField(MinValueValidator(0.01))
+    cargo_length = models.FloatField(MinValueValidator(0.01))
+    cargo_width = models.FloatField(MinValueValidator(0.01))
     cargo_height = models.FloatField(MinValueValidator(0.01))
     max_payload_kg = models.FloatField(MinValueValidator(0.01))
     cargo_volume_m3 = models.FloatField(blank=True, null=True)
@@ -62,5 +61,68 @@ class Truck(models.Model):
     max_fuel_capacity = models.PositiveIntegerField()
 
     def save(self, *args, **kwargs):
-        self.cargo_volume_m3 = self.cargo_lenght * self.cargo_widht * self.cargo_height
+        self.cargo_volume_m3 = self.cargo_length * self.cargo_width * self.cargo_height
+        super().save(*args, **kwargs)
+
+class TripStatus(models.TextChoices):
+    PLANN = 'Plan', 'Planned'
+    IN_TR = 'InTr', 'In_Transit'
+    COMP = 'Comp', 'Completed'
+    CANC = 'Canc', 'Cancelled'
+
+class Trip(models.Model):
+    truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
+    origin_depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
+    scheduled_date = models.DateTimeField()
+    departure_date = models.DateTimeField()
+    arrival_date = models.DateTimeField()
+    total_loaded_weight_kg = models.FloatField(MinValueValidator(0.01))
+    total_loaded_volume_m3 = models.FloatField(MinValueValidator(0.01))
+    excess_weight_flag = models.BooleanField(default=False)
+    excess_weight_fine_amount = models.FloatField(MinValueValidator(0.01))
+    carbon_kg_co2 = models.FloatField()
+    status = models.CharField(max_length=4, choices=TripStatus.choices)
+
+class OrderStatus(models.TextChoices):
+    PEND = 'Pend', 'Pending'
+    SCHE = 'Sche', 'Scheduled'
+    SHIP = 'Ship', 'Shipped'
+    DELI = 'Deli', 'Delivered'
+    CANC = 'Canc', 'Cancelled'
+
+class Order(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=4, choices=OrderStatus.choices)
+    total_weight_kg = models.FloatField(MinValueValidator(0.01))
+    total_volume_m3 = models.FloatField(MinValueValidator(0.01))
+    total_boxes = models.IntegerField(MinValueValidator(1))
+    scheduled = models.BooleanField()
+
+class Delivery(models.Model):
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    delivered_at = models.DateTimeField()
+
+class BoxSize(models.TextChoices):
+    SMA = 'Sma', 'Small'
+    MED = 'Med', 'Medium'
+    BIG = 'Big', 'Big'
+    LAR = 'Lar', 'Large'
+    CUS = 'Cus', 'Custom'
+
+class Box(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    size = models.CharField(max_length=3, choices=BoxSize.choices)
+    length = models.FloatField(MinValueValidator(0.01))
+    width = models.FloatField(MinValueValidator(0.01))
+    height = models.FloatField(MinValueValidator(0.01))
+    payload_kg = models.FloatField(MinValueValidator(0.01))
+    volume_m3 = models.FloatField(blank=True, null=True)
+    was_delivered = models.BooleanField()
+
+    def save(self, *args, **kwargs):
+        self.volume_m3 = self.length * self.width * self.height
         super().save(*args, **kwargs)
