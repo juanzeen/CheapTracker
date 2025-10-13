@@ -31,7 +31,7 @@ class Address(models.Model):
     neighborhood = models.CharField(max_length=100)
     city = models.CharField(max_length=100)
     state = models.CharField(max_length=50)
-    cep = models.CharField(max_length=10, unique=True)
+    cep = models.CharField(max_length=10)
     country = models.CharField(max_length=100, default='Brasil')
 
 class Store(models.Model):
