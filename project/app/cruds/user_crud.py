@@ -15,8 +15,8 @@ class UserCrud:
         return User.objects.all()
     
     @staticmethod
-    def read_email(user_email):
-        return User.objects.filter(email=user_email)
+    def read_by_email(user_email):
+        return User.objects.get(email=user_email)
     
     @staticmethod
     def update(user_id, **kwargs):
