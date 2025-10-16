@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.contrib.auth.hashers import make_password
 
 class UserRoles(models.TextChoices):
     MAN = 'Man', 'Manager'
@@ -10,9 +11,18 @@ class User(models.Model):
     role = models.CharField(max_length=4, choices=UserRoles.choices)
     name = models.CharField(max_length=100)
     age = models.PositiveIntegerField(MaxValueValidator(120))
-    email = models.CharField(max_length=254)
+    email = models.CharField(max_length=254, unique=True)
     password_hash = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self, *args, **kwargs):
+        if self.role not in [choice[0] for choice in UserRoles.choices]:
+            raise ValueError(f'Invalid Role: {self.role}')
+        
+        if not self.password_hash.startswith('pbkdf2_'):
+            self.password_hash = make_password(self.password_hash)
+
+        super().save(*args, **kwargs)
 
 class Address(models.Model):
     street = models.CharField(max_length=150)
@@ -47,7 +57,7 @@ class Carrier(models.Model):
 
 class Truck(models.Model):
     carrier = models.ForeignKey(Carrier, on_delete=models.CASCADE)
-    plate = models.CharField(max_length=7)
+    plate = models.CharField(max_length=7, unique=True)
     axles_count = models.IntegerField(validators=[MinValueValidator(2),MaxValueValidator(11)])
     cargo_length = models.FloatField(MinValueValidator(0.01))
     cargo_width = models.FloatField(MinValueValidator(0.01))
@@ -83,6 +93,13 @@ class Trip(models.Model):
     carbon_kg_co2 = models.FloatField()
     status = models.CharField(max_length=4, choices=TripStatus.choices)
 
+    def save(self, *args, **kwargs):
+        if self.status not in [choice[0] for choice in TripStatus.choices]:
+            raise ValueError(f'Invalid Status: {self.status}')
+
+        super().save(*args, **kwargs)
+
+
 class OrderStatus(models.TextChoices):
     PEND = 'Pend', 'Pending'
     SCHE = 'Sche', 'Scheduled'
@@ -99,6 +116,12 @@ class Order(models.Model):
     total_volume_m3 = models.FloatField(MinValueValidator(0.01))
     total_boxes = models.IntegerField(MinValueValidator(1))
     scheduled = models.BooleanField()
+
+    def save(self, *args, **kwargs):
+        if self.status not in [choice[0] for choice in OrderStatus.choices]:
+            raise ValueError(f'Invalid Status: {self.status}')
+
+        super().save(*args, **kwargs)
 
 class Delivery(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
@@ -125,4 +148,8 @@ class Box(models.Model):
 
     def save(self, *args, **kwargs):
         self.volume_m3 = self.length * self.width * self.height
+
+        if self.size not in [choice[0] for choice in BoxSize.choices]:
+            raise ValueError(f'Invalid Size: {self.size}')
+        
         super().save(*args, **kwargs)
