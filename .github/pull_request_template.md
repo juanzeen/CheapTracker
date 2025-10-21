@@ -5,7 +5,7 @@
 - Colocar caminho do arquivo de configurações que foi alterado, e o que foi feito.
 
 ## A fazer:
-- [] Colocar coisas que têm que ser adicionadas no PR
+- [ ] Colocar coisas que têm que ser adicionadas no PR
 
 ## Imagens e Vídeos:
 - Caso tenha alguma imagem, adicionar nessa seção
