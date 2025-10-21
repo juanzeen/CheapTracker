@@ -14,19 +14,52 @@ class BaseView(View):
   def ErrorJsonResponse(self, message, status=400):
     return JsonResponse({'error': message}, status=status, safe=False)
 
+# class AuthBaseView(BaseView):
+#   def is_authenticated(self, request):
+#     if request.user.is_authenticated:
+#       return True
+#     return False
 
-class UserAPIView(BaseView):
+
+class UsersAPIView(BaseView):
   def get(self, request, *args, **kwargs):
     users = UserCrud.read().values('name', 'role', 'email')
     if not users:
-      return self.ErrorJsonResponse("Nenhum usuário encontrado!")
+      return self.ErrorJsonResponse("Userss not founded!")
 
     return self.SuccesJsonResponse(list(users))
 
   def post(self, request, *args, **kwargs):
     try:
       data = json.loads(request.body)
-      new_user = UserCrud.create(data['role'], data['name'], data['age'], data['email'], data['password'])
+      UserCrud.create(data['role'], data['name'], data['age'], data['email'], data['password'])
       return self.SuccesJsonResponse({"name": data.get('name'), "email": data.get('email'), "role": data.get('role')}, 201)
     except KeyError as e:
-      return self.ErrorJsonResponse(list(e.args))
+      return self.ErrorJsonResponse(e.args)
+
+class UserAPIView(BaseView):
+  def get(self, request, *args, **kwargs):
+    try:
+      user = UserCrud.read_by_email(kwargs['email'])
+      return self.SuccesJsonResponse({"name": user.name, "email": user.email, "role": user.role}, 200)
+    except User.DoesNotExist:
+      return self.ErrorJsonResponse("User not founded!", 404)
+
+  def put(self, request, *args, **kwargs):
+    try:
+      data = json.loads(request.body)
+      user = UserCrud.read_by_email(kwargs['email'])
+      UserCrud.update(user.id, **data)
+      return self.SuccesJsonResponse({"message": "User successfully updated!", "data": data })
+    except KeyError as e:
+      return self.ErrorJsonResponse(e.args)
+    except User.DoesNotExist:
+      return self.ErrorJsonResponse("User not founded!")
+
+  def delete(self, request, *args, **kwargs):
+    try:
+      user = UserCrud.read_by_email(kwargs['email'])
+      UserCrud.delete(user.id)
+      return self.SuccesJsonResponse("User successfully deleted!")
+    except User.DoesNotExist:
+      return self.ErrorJsonResponse("User not founded!", 404)

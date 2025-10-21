@@ -1,4 +1,4 @@
-from app.views import UserAPIView
+from app.views import UsersAPIView, UserAPIView
 
 """
 URL configuration for project project.
@@ -21,5 +21,6 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users', UserAPIView.as_view(), name = 'Users-API')
+    path('api/users', UsersAPIView.as_view(), name = 'Users-API'),
+    path('api/users/<str:email>', UserAPIView.as_view(), name = 'User-API')
 ]
