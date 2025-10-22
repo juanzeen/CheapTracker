@@ -87,22 +87,22 @@ if 'test' in sys.argv:
         }
     }
 
+else:
+    database_name = os.getenv('POSTGRES_DB')
+    port = os.getenv('PORT')
+    db_password = os.getenv('POSTGRES_PASSWORD')
+    db_user = os.getenv('POSTGRES_USER')
 
-database_name = os.getenv('POSTGRES_DB')
-port = os.getenv('PORT')
-db_password = os.getenv('POSTGRES_PASSWORD')
-db_user = os.getenv('POSTGRES_USER')
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': 'localhost',
-        'NAME': database_name,
-        'USER': db_user,
-        'PASSWORD': db_password,
-        'PORT': port
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'HOST': 'localhost',
+            'NAME': database_name,
+            'USER': db_user,
+            'PASSWORD': db_password,
+            'PORT': port
+        }
     }
-}
 
 
 # Password validation
