@@ -1,4 +1,4 @@
-from app.views import UsersAPIView, UserAPIView
+from app.views import UsersAPIView, UserAPIView, ChangePasswordView
 
 """
 URL configuration for project project.
@@ -21,6 +21,7 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/users', UsersAPIView.as_view(), name = 'Users-API'),
-    path('api/users/<str:email>', UserAPIView.as_view(), name = 'User-API')
+    path('api/users', UsersAPIView.as_view(), name = 'Users Routes'),
+    path('api/users/<str:email>', UserAPIView.as_view(), name = 'User Route'),
+    path('api/users/change-password/<str:email>', ChangePasswordView.as_view(), name = 'Change Password Route')
 ]

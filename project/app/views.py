@@ -6,12 +6,12 @@ from .cruds.user_crud import UserCrud
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-@method_decorator(csrf_exempt, name='dispatch')
+#@method_decorator(csrf_exempt, name='dispatch')
 class BaseView(View):
-  def SuccesJsonResponse(self, data, status=200):
-    return JsonResponse(data, status=status, safe=False)
+  def SuccessJsonResponse(self, message='Success in operation!', data={}, status=200):
+    return JsonResponse({'message': message, 'data': data}, status=status, safe=False)
 
-  def ErrorJsonResponse(self, message, status=400):
+  def ErrorJsonResponse(self, message='Fail in operation!', status=400):
     return JsonResponse({'error': message}, status=status, safe=False)
 
 # class AuthBaseView(BaseView):
@@ -23,17 +23,17 @@ class BaseView(View):
 
 class UsersAPIView(BaseView):
   def get(self, request, *args, **kwargs):
-    users = UserCrud.read().values('name', 'role', 'email')
+    users = UserCrud.read().values()
     if not users:
-      return self.ErrorJsonResponse("Userss not founded!")
+      return self.ErrorJsonResponse("Users not founded!")
 
-    return self.SuccesJsonResponse(list(users))
+    return self.SuccessJsonResponse('Users successfully retrieved!',list(users))
 
   def post(self, request, *args, **kwargs):
     try:
       data = json.loads(request.body)
       UserCrud.create(data['role'], data['name'], data['age'], data['email'], data['password'])
-      return self.SuccesJsonResponse({"name": data.get('name'), "email": data.get('email'), "role": data.get('role')}, 201)
+      return self.SuccessJsonResponse("User successfully created!",{"name": data.get('name'), "email": data.get('email'), "role": data.get('role')}, 201)
     except KeyError as e:
       return self.ErrorJsonResponse(e.args)
 
@@ -41,7 +41,7 @@ class UserAPIView(BaseView):
   def get(self, request, *args, **kwargs):
     try:
       user = UserCrud.read_by_email(kwargs['email'])
-      return self.SuccesJsonResponse({"name": user.name, "email": user.email, "role": user.role}, 200)
+      return self.SuccessJsonResponse("User successfully retrieved!",{"name": user.name, "email": user.email, "role": user.role}, 200)
     except User.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!", 404)
 
@@ -50,7 +50,7 @@ class UserAPIView(BaseView):
       data = json.loads(request.body)
       user = UserCrud.read_by_email(kwargs['email'])
       UserCrud.update(user.id, **data)
-      return self.SuccesJsonResponse({"message": "User successfully updated!", "data": data })
+      return self.SuccessJsonResponse({"message": "User successfully updated!", "data": data })
     except KeyError as e:
       return self.ErrorJsonResponse(e.args)
     except User.DoesNotExist:
@@ -60,6 +60,16 @@ class UserAPIView(BaseView):
     try:
       user = UserCrud.read_by_email(kwargs['email'])
       UserCrud.delete(user.id)
-      return self.SuccesJsonResponse("User successfully deleted!")
+      return self.SuccessJsonResponse("User successfully deleted!")
     except User.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!", 404)
+
+class ChangePasswordView(BaseView):
+  def put(self, request, *args, **kwargs):
+    try:
+      data = json.loads(request.body)
+      user = UserCrud.read_by_email(kwargs['email'])
+      UserCrud.change_password(user.id, data.get('old_password'), data.get('new_password'))
+      return self.SuccessJsonResponse("Password successfully changed!", {"new_password": data.get('new_password')})
+    except ValueError as e:
+      return self.ErrorJsonResponse("Invalid old password!")
