@@ -109,12 +109,12 @@ class OrderStatus(models.TextChoices):
 
 class Order(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=4, choices=OrderStatus.choices)
-    total_weight_kg = models.FloatField(MinValueValidator(0.01))
-    total_volume_m3 = models.FloatField(MinValueValidator(0.01))
-    total_boxes = models.IntegerField(MinValueValidator(1))
+    total_weight_kg = models.FloatField(MinValueValidator(0.0))
+    total_volume_m3 = models.FloatField(MinValueValidator(0.0))
+    total_boxes = models.PositiveIntegerField()
     scheduled = models.BooleanField()
 
     def save(self, *args, **kwargs):
