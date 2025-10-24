@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import sys
 
 load_dotenv()
 
@@ -78,21 +79,30 @@ WSGI_APPLICATION = 'project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-database_name = os.getenv('POSTGRES_DB')
-port = os.getenv('PORT')
-db_password = os.getenv('POSTGRES_PASSWORD')
-db_user = os.getenv('POSTGRES_USER')
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'HOST': 'localhost',
-        'NAME': database_name,
-        'USER': db_user,
-        'PASSWORD': db_password,
-        'PORT': port
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory',
+        }
     }
-}
+
+else:
+    database_name = os.getenv('POSTGRES_DB')
+    port = os.getenv('PORT')
+    db_password = os.getenv('POSTGRES_PASSWORD')
+    db_user = os.getenv('POSTGRES_USER')
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql_psycopg2',
+            'HOST': 'localhost',
+            'NAME': database_name,
+            'USER': db_user,
+            'PASSWORD': db_password,
+            'PORT': port
+        }
+    }
 
 
 # Password validation
