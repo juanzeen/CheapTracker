@@ -1,12 +1,12 @@
 import json
 from django.http import JsonResponse
 from django.views import View
-from .models import User
-from .cruds.user_crud import UserCrud
+from app.models import Usuario
+from app.cruds.user_crud import UserCrud
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-#@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class BaseView(View):
   def SuccessJsonResponse(self, message='Success in operation!', data={}, status=200):
     return JsonResponse({'message': message, 'data': data}, status=status, safe=False)
@@ -42,7 +42,7 @@ class UserAPIView(BaseView):
     try:
       user = UserCrud.read_by_email(kwargs['email'])
       return self.SuccessJsonResponse("User successfully retrieved!",{"name": user.name, "email": user.email, "role": user.role}, 200)
-    except User.DoesNotExist:
+    except Usuario.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!", 404)
 
   def put(self, request, *args, **kwargs):
@@ -53,7 +53,7 @@ class UserAPIView(BaseView):
       return self.SuccessJsonResponse({"message": "User successfully updated!", "data": data })
     except KeyError as e:
       return self.ErrorJsonResponse(e.args)
-    except User.DoesNotExist:
+    except Usuario.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!")
 
   def delete(self, request, *args, **kwargs):
@@ -61,7 +61,7 @@ class UserAPIView(BaseView):
       user = UserCrud.read_by_email(kwargs['email'])
       UserCrud.delete(user.id)
       return self.SuccessJsonResponse("User successfully deleted!")
-    except User.DoesNotExist:
+    except Usuario.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!", 404)
 
 class ChangePasswordView(BaseView):
