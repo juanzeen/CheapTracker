@@ -16,6 +16,13 @@ class OrderCrud:
         return Order.objects.all()
     
     @staticmethod
+    def read_by_id(order_id):
+        try:
+            return Order.objects.get(id=order_id)
+        except Order.DoesNotExist:
+            raise ValueError("Order not found")
+        
+    @staticmethod
     def read_orders_by_store(store_id):
         try:
             store = Store.objects.get(id=store_id)

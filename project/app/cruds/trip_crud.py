@@ -25,6 +25,13 @@ class TripCrud:
         return Trip.objects.all()
     
     @staticmethod
+    def read_by_id(trip_id):
+        try:
+            return Trip.objects.get(id=trip_id)
+        except Trip.DoesNotExist:
+            raise ValueError("Trip not found")
+    
+    @staticmethod
     def read_by_status(status_option):
         if status_option not in ["Plan", "InTr", "Comp", "Canc"]:
             raise ValueError("Status option must be: Plan, InTr, Comp or Canc")
