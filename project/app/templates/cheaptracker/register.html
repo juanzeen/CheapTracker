@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="login-form">
+    <h3>Crie sua conta!</h3>
+    <form action="/login" method="post">
+      <div class="input-container">
+        <label for="">Nome</label>
+        <input type="text">
+      </div>
+      <div class="input-container">
+        <label for="">Idade</label>
+        <input type="text">
+      </div>
+      <div class="input-container">
+        <label for="">Email</label>
+        <input type="text">
+      </div>
+      <div class="input-container">
+        <label for="">Senha</label>
+        <input type="text">
+      </div>
+      <div class="input-container">
+        <label for="">Tipo de serviço</label>
+        <div class="radio-box">
+          <div class="input-container">
+            <label for="Shop">Loja</label>
+            <input type="radio" name="role" value="Shop">
+          </div>
+          <div class="input-container">
+            <label for="Man">Depósito</label>
+            <input type="radio" name="role" value="Man">
+          </div>
+          <div class="input-container">
+            <label for="Carr">Transportadora</label>
+            <input type="radio" name="role" value="Carr">
+          </div>
+
+
+
+        </div>
+      </div>
+    </form>
+    <a href="/login" class="switch-form-link">Já possuo uma conta!</a>
+  </div>
+</div>
+
+{%endblock%}

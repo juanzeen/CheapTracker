@@ -7,5 +7,14 @@ class BaseAuthTemplateView(TemplateView, LoginRequiredMixin):
   login_url = '/login/'
   pass
 
-class HomeView(TemplateView):
+class HomeTemplateView(TemplateView):
   template_name = 'cheaptracker/home.html'
+
+class LoginTemplateView(TemplateView):
+  template_name = 'cheaptracker/login.html'
+
+class RegisterTemplateView(TemplateView):
+  template_name = 'cheaptracker/register.html'
+
+class DashboardTemplateView(TemplateView):
+  template_name = 'cheaptracker/dashboard.html'
