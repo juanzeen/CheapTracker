@@ -1,5 +1,6 @@
-from app.views.api_views import UsersAPIView, UserAPIView, ChangePasswordView
-from app.views.templates_views import Test
+from app.views.api_views import UsersAPIView, UserAPIView, ChangePasswordView, LoginView, LogoutView
+from app.views.templates_views import HomeView
+
 
 """
 URL configuration for project project.
@@ -25,5 +26,7 @@ urlpatterns = [
     path('api/users', UsersAPIView.as_view(), name = 'Users Routes'),
     path('api/users/<str:email>', UserAPIView.as_view(), name = 'User Route'),
     path('api/users/change-password/<str:email>', ChangePasswordView.as_view(), name = 'Change Password Route'),
-    path('', Test, name = "View com template test")
+    path('api/auth/login', LoginView.as_view(), name = 'Login Route'),
+    path('api/auth/logout', LogoutView.as_view(), name = 'Logout Route'),
+    path('', HomeView.as_view(), name = "View com template test")
     ]

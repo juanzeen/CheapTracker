@@ -1,0 +1,128 @@
+:root {
+  --main-bg: #e8e7e7;
+  --dark-red: #a22c2c;
+  --acent-red: #ff3131;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Montserrat";
+}
+
+button{
+  border: none;
+  outline: none;
+  cursor: pointer
+}
+
+body {
+  background-color: var(--main-bg);
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 40px;
+}
+
+h2{
+  font-size: 1.7em;
+}
+
+.home-title-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  gap: 12px;
+
+  & h1 {
+    font-size: 48px;
+    color: var(--dark-red);
+  }
+}
+
+.main-infos-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.roles-infos-container {
+  width: 90%;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.role-card {
+  width: 30%;
+  min-height: 120px;
+  padding: 4px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  gap: 4px 2px;
+  border-radius: 8px;
+  background-color: #E4E4E5;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+
+  & h3 {
+    color: var(--dark-red);
+  }
+}
+
+.auth-container{
+  width: 70%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  gap: 20px;
+
+  > p {
+    text-align: center;
+    border-bottom: 2px solid var(--dark-red);
+    padding-bottom: 8px;
+  }
+}
+.auth-buttons-container{
+  width: 30%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.red-btn {
+  min-width: 70px;
+  border-radius: 50px;
+  padding: 8px 4px;
+  background-color: var(--dark-red);
+  color: var(--main-bg);
+  transition-duration: 0.3s;
+
+
+  > p {
+    font-size: 16px;
+    font-style: bold;
+  }
+}
+
+.red-btn:hover {
+  background-color: var(--acent-red);
+  border-color: var(--main-bg);
+  letter-spacing: 2px;
+}
