@@ -196,3 +196,34 @@ h2 {
 .switch-form-link:hover{
   color: var(--acent-red);
 }
+
+/*Dashboard*/
+.user-infos-container{
+  display: flex;
+  width: 70%;
+  justify-content: space-around;
+  align-items: center;
+  border: 1px solid #777;
+  border-radius: 8px;
+  padding: 8px;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+
+  & .infos-col{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 12px;
+
+    > h2 {
+      color: var(--dark-red);
+    }
+
+  }
+}
+
+.action-buttons-container{
+  display: flex;
+  width: 40%;
+  justify-content: space-around;
+  align-items: center;
+}

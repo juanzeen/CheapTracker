@@ -2,5 +2,53 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<div class="container">
+  {% if user.is_authenticated %}
+        <div class="user-infos-container">
+          <div class="infos-col">
+            <h2 class="text-3xl font-bold">
+              Bem-vindo(a), {{ user.name }}!
+          </h2>
+          <p>Email: {{ user.email }}</p>
+          </div>
+          <div class="infos-col">
+            <p>Nível de Acesso (Role): {{ user.role }}</p>
+            <p>Idade: {{ user.age }}</p>
+          </div>
+        </div>
 
+    {% endif %}
+    <div class="action-buttons-container">
+      {%if user.role == "Shop" %}
+      <button class="red-btn">Adicionar loja</button>
+      <button class="red-btn">Criar pedido</button>
+      {%elif user.role == "Man"%}
+      <button class="red-btn">Adicionar depósito</button>
+      <button class="red-btn">Gerenciar pedidos</button>
+      <button class="red-btn">Criar viagem</button>
+      {%elif user.role == "Carr"%}
+      <button class="red-btn">Adicionar caminhão</button>
+      <button class="red-btn">Gerenciar caminhões</button>
+      {% endif %}
+      <button class="red-btn" id="logout-btn">Logout</button>
+    </div>
+</div>
+
+<script>
+  const logoutButton = document.querySelector("#logout-btn")
+  logoutButton.addEventListener("click", () => {
+    try{
+      fetch("api/auth/logout", {method: "POST"}).then(res => res.json()).then(data => {
+        if(data.message == "User successfully logged out!"){
+          alert("Logout realizado com sucesso!")
+          window.location.href = "/"
+          }
+        })
+    }catch{
+      alert("Erro ao tentar fazer logout!")
+    }
+
+
+  })
+</script>
 {%endblock%}

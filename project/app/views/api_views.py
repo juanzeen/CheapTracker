@@ -83,7 +83,7 @@ class LoginView(BaseView):
     user = authenticate(email=data['email'], password=data['password'])
     if user is not None:
       login(request, user)
-      return self.SuccessJsonResponse("User successfully logged in!", {"authenticate return": model_to_dict(user)})
+      return self.SuccessJsonResponse("User successfully logged in!", model_to_dict(user))
     return self.ErrorJsonResponse("Invalid credentials!")
 
 class LogoutView(BaseView):

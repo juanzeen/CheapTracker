@@ -64,10 +64,11 @@
         if(!data.error){
           console.log(data.message)
           window.location.href = "/login"
+          alert("Conta criada com sucesso!")
         }
       })
     } catch{
-      console.log("Error trying to get the server!")
+      alert("Erro ao criar a conta!")
     }
   })
 </script>
