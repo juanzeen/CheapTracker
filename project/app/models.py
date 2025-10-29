@@ -126,16 +126,14 @@ class TripStatus(models.TextChoices):
     CANC = 'Canc', 'Cancelled'
 
 class Trip(models.Model):
-    truck = models.ForeignKey(Truck, on_delete=models.CASCADE)
-    origin_depot = models.ForeignKey(Depot, on_delete=models.CASCADE)
-    scheduled_date = models.DateTimeField()
+    truck = models.ForeignKey(Truck, on_delete=models.SET_NULL, null=True)
+    origin_depot = models.ForeignKey(Depot, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     departure_date = models.DateTimeField()
     arrival_date = models.DateTimeField()
     total_loaded_weight_kg = models.FloatField(MinValueValidator(0.01))
     total_loaded_volume_m3 = models.FloatField(MinValueValidator(0.01))
-    excess_weight_flag = models.BooleanField(default=False)
-    excess_weight_fine_amount = models.FloatField(MinValueValidator(0.01))
-    carbon_kg_co2 = models.FloatField()
+    carbon_kg_co2 = models.FloatField(null=True)
     status = models.CharField(max_length=4, choices=TripStatus.choices)
 
     def save(self, *args, **kwargs):
@@ -154,12 +152,12 @@ class OrderStatus(models.TextChoices):
 
 class Order(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
+    trip = models.ForeignKey(Trip, on_delete=models.CASCADE, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=4, choices=OrderStatus.choices)
-    total_weight_kg = models.FloatField(MinValueValidator(0.01))
-    total_volume_m3 = models.FloatField(MinValueValidator(0.01))
-    total_boxes = models.IntegerField(MinValueValidator(1))
+    total_weight_kg = models.FloatField(MinValueValidator(0.0))
+    total_volume_m3 = models.FloatField(MinValueValidator(0.0))
+    total_boxes = models.PositiveIntegerField()
     scheduled = models.BooleanField()
 
     def save(self, *args, **kwargs):
@@ -172,7 +170,7 @@ class Delivery(models.Model):
     trip = models.ForeignKey(Trip, on_delete=models.CASCADE)
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    delivered_at = models.DateTimeField()
+    delivered_at = models.DateTimeField(null=True)
 
 class BoxSize(models.TextChoices):
     SMA = 'Sma', 'Small'
