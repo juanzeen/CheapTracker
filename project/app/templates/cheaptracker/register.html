@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Register{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="login-form">
+    <h3>Crie sua conta!</h3>
+    <form id="register-form">
+      <div class="input-container">
+        <label for="name">Nome</label>
+        <input type="text" value="" name="name">
+      </div>
+      <div class="input-container">
+        <label for="age">Idade</label>
+        <input type="text" value="" name="age">
+      </div>
+      <div class="input-container">
+        <label for="email">Email</label>
+        <input type="email" value="" name="email">
+      </div>
+      <div class="input-container">
+        <label for="">Senha</label>
+        <input type="password" value="" name="password">
+      </div>
+      <div class="input-container">
+        <label for="">Tipo de serviço</label>
+        <div class="radio-box">
+          <div class="input-container">
+            <label for="Shop">Loja</label>
+            <input type="radio" name="role" value="Shop">
+          </div>
+          <div class="input-container">
+            <label for="Man">Depósito</label>
+            <input type="radio" name="role" value="Man">
+          </div>
+          <div class="input-container">
+            <label for="Carr">Transportadora</label>
+            <input type="radio" name="role" value="Carr">
+          </div>
+        </div>
+      </div>
+      <button class="red-btn" type="submit">Enviar!</button>
+    </form>
+    <a href="/login" class="switch-form-link">Já possuo uma conta!</a>
+  </div>
+</div>
+
+<script>
+  const loginForm = document.getElementById('register-form')
+  document.addEventListener("submit", (e) => {
+    e.preventDefault()
+    const formData = new FormData(loginForm)
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = fetch("/api/users", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }).then(res => res.json()).then(data => {
+        if(!data.error){
+          console.log(data.message)
+          window.location.href = "/login"
+          alert("Conta criada com sucesso!")
+        }
+      })
+    } catch{
+      alert("Erro ao criar a conta!")
+    }
+  })
+</script>
+{%endblock%}

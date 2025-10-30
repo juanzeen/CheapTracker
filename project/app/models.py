@@ -1,28 +1,73 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth.models import BaseUserManager, PermissionsMixin, AbstractBaseUser
 
 class UserRoles(models.TextChoices):
     MAN = 'Man', 'Manager'
     SHOP = 'Shop', 'Shopkeeper'
     CARR = 'Carr', 'Carrier'
+    ADM = 'Adm', 'Administrator'
 
-class User(models.Model):
+
+class Manager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('The Email field must be set.')
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save()
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('role', UserRoles.ADM)
+
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have staff permission!')
+
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have superuser permission!')
+
+
+        return self.create_user(email, password, **extra_fields)
+
+
+class Usuario(AbstractBaseUser, PermissionsMixin):
     role = models.CharField(max_length=4, choices=UserRoles.choices)
     name = models.CharField(max_length=100)
     age = models.PositiveIntegerField(MaxValueValidator(120))
     email = models.CharField(max_length=254, unique=True)
-    password_hash = models.CharField(max_length=128)
+    #password_hash = models.CharField(max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
 
-    def save(self, *args, **kwargs):
-        if self.role not in [choice[0] for choice in UserRoles.choices]:
-            raise ValueError(f'Invalid Role: {self.role}')
-        
-        if not self.password_hash.startswith('pbkdf2_'):
-            self.password_hash = make_password(self.password_hash)
+    is_staff = models.BooleanField(
+        default=False,
+        help_text='Gives to user access to admin field.'
+    )
+    is_active = models.BooleanField(
+        default=True,
+        help_text='Indicates if user is active or no.'
+    )
 
-        super().save(*args, **kwargs)
+    objects = Manager()
+
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['role', 'name', 'age']
+
+    def __str__(self):
+        return self.email
+
+    # def save(self, *args, **kwargs):
+    #     if self.role not in [choice[0] for choice in UserRoles.choices]:
+    #         raise ValueError(f'Invalid Role: {self.role}')
+
+    #     if not self.password_hash.startswith('pbkdf2_'):
+    #         self.password_hash = make_password(self.password_hash)
+
+    #     super().save(*args, **kwargs)
 
 class Address(models.Model):
     street = models.CharField(max_length=150)
@@ -35,21 +80,21 @@ class Address(models.Model):
     country = models.CharField(max_length=100, default='Brasil')
 
 class Store(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     contact = models.CharField(max_length=254)
     registration = models.CharField(max_length=128)
 
 class Depot(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     contact = models.CharField(max_length=254)
     registration = models.CharField(max_length=128)
 
 class Carrier(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
     contact = models.CharField(max_length=254)
@@ -149,5 +194,5 @@ class Box(models.Model):
 
         if self.size not in [choice[0] for choice in BoxSize.choices]:
             raise ValueError(f'Invalid Size: {self.size}')
-        
+
         super().save(*args, **kwargs)

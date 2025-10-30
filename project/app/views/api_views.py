@@ -1,12 +1,14 @@
 import json
 from django.http import JsonResponse
 from django.views import View
-from .models import User
-from .cruds.user_crud import UserCrud
+from app.models import Usuario
+from app.cruds.user_crud import UserCrud
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import authenticate, login, logout
+from django.forms.models import model_to_dict
 
-#@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class BaseView(View):
   def SuccessJsonResponse(self, message='Success in operation!', data={}, status=200):
     return JsonResponse({'message': message, 'data': data}, status=status, safe=False)
@@ -37,12 +39,13 @@ class UsersAPIView(BaseView):
     except KeyError as e:
       return self.ErrorJsonResponse(e.args)
 
+
 class UserAPIView(BaseView):
   def get(self, request, *args, **kwargs):
     try:
       user = UserCrud.read_by_email(kwargs['email'])
       return self.SuccessJsonResponse("User successfully retrieved!",{"name": user.name, "email": user.email, "role": user.role}, 200)
-    except User.DoesNotExist:
+    except Usuario.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!", 404)
 
   def put(self, request, *args, **kwargs):
@@ -53,7 +56,7 @@ class UserAPIView(BaseView):
       return self.SuccessJsonResponse({"message": "User successfully updated!", "data": data })
     except KeyError as e:
       return self.ErrorJsonResponse(e.args)
-    except User.DoesNotExist:
+    except Usuario.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!")
 
   def delete(self, request, *args, **kwargs):
@@ -61,7 +64,7 @@ class UserAPIView(BaseView):
       user = UserCrud.read_by_email(kwargs['email'])
       UserCrud.delete(user.id)
       return self.SuccessJsonResponse("User successfully deleted!")
-    except User.DoesNotExist:
+    except Usuario.DoesNotExist:
       return self.ErrorJsonResponse("User not founded!", 404)
 
 class ChangePasswordView(BaseView):
@@ -73,3 +76,20 @@ class ChangePasswordView(BaseView):
       return self.SuccessJsonResponse("Password successfully changed!", {"new_password": data.get('new_password')})
     except ValueError as e:
       return self.ErrorJsonResponse("Invalid old password!")
+
+class LoginView(BaseView):
+  def post(self, request, *args, **kwargs):
+    data = json.loads(request.body)
+    user = authenticate(email=data['email'], password=data['password'])
+    if user is not None:
+      login(request, user)
+      return self.SuccessJsonResponse("User successfully logged in!", model_to_dict(user))
+    return self.ErrorJsonResponse("Invalid credentials!")
+
+class LogoutView(BaseView):
+  def post(self, request, *args, **kwargs):
+   try:
+     logout(request)
+     return self.SuccessJsonResponse("User successfully logged out!")
+   except Exception as e:
+     return self.ErrorJsonResponse("Error logging out!", e.args[0])

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+{% block title %}CheapTracker{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="home-title-container">
+    <h1>CheapTracker</h1>
+    <p>O seu software de otimização de rotas e integração de serviços!</p>
+  </div>
+
+  <div class="main-infos-container">
+    <h2>Encontre o serviço ideal para você</h2>
+    <div class="roles-infos-container">
+      <div class="role-card">
+        <h3>Lojista</h3>
+        <p>
+          Registre a sua loja, crie seus pedidos e aproveite o melhor do
+          CheapTracker
+        </p>
+      </div>
+      <div class="role-card">
+        <h3>Gestor de Depósito</h3>
+        <p>
+          Cadastre o seu depósito e veja quais pedidos são compatíveis com o seu
+          negócio, deixe que todo o resto tomamos conta pra você!
+        </p>
+      </div>
+      <div class="role-card">
+        <h3>Transportadora</h3>
+        <p>
+          Adicione seus caminhões, atualize o status deles e envie eles para
+          atender as viagens com rota mais otimizada do pedaço!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="auth-container">
+    <h2>Crie a sua conta!</h2>
+    <p>
+      Não perca mais tempo e aproveite os nossos serviços! Caso ainda não tenha
+      uma conta, não exite em criar, vai levar menos de 2 minutos! Se já
+      possuir, faça login e veja as novidades na sua dashboard!
+    </p>
+    <div class="auth-buttons-container">
+      <a href="/login">
+        <button class="red-btn">
+        <p>Entrar</p>
+        </button>
+      </a>
+      <a href="/register">
+        <button class="red-btn">
+          <p>Criar conta</p>
+        </button>
+      </a>
+    </div>
+  </div>
+</div>
+
+{%endblock%}

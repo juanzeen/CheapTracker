@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="login-form">
+    <h3>Faça seu login!</h3>
+    <form id="login-form">
+      <div class="input-container">
+        <label for="">Email</label>
+        <input type="email" name="email">
+      </div>
+      <div class="input-container">
+        <label for="">Senha</label>
+        <input type="password" name="password">
+      </div>
+      <button class="red-btn" type="submit">Enviar!</button>
+    </form>
+    <a href="/register" class="switch-form-link">Crie sua conta!</a>
+  </div>
+</div>
+
+<script>
+  const loginForm = document.getElementById('login-form')
+  document.addEventListener("submit", (e) => {
+    e.preventDefault()
+    const formData = new FormData(loginForm)
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      const res = fetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }).then(res => res.json()).then(data => {
+        if(!data.error){
+          console.log(data.message)
+          window.location.href = "/dashboard"
+        }
+      })
+    } catch{
+      console.log("Error trying to get the server!")
+    }
+  })
+</script>
+
+{%endblock%}
