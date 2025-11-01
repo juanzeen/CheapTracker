@@ -25,6 +25,8 @@ urlpatterns = [
     #API routes
     path('admin/', admin.site.urls),
     path('api/users', UsersAPIView.as_view(), name = 'Users Routes'),
+    #Rotas com <> são rotas que recebem parametros de URL
+    #<tipo_variavel:nome_variavel>
     path('api/users/<str:email>', UserAPIView.as_view(), name = 'User Route'),
     path('api/users/change-password/<str:email>', ChangePasswordView.as_view(), name = 'Change Password Route'),
     path('api/auth/login', LoginView.as_view(), name = 'Login Route'),

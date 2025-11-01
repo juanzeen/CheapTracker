@@ -14,6 +14,20 @@ class BasicUserCrudTest(TestCase):
     self.assertEqual(user.name, "User Test")
 
   def test_retriver_users(self):
-    """Testing if the user has been retrieved by use crud"""
+    """Testing if the user has been retrieved by user crud"""
     users = UserCrud.read()
     self.assertGreater(len(users), 0)
+
+  def test_update_user(self):
+    """Testing if the user has been updated by user crud"""
+    user = UserCrud.read_by_email("emaildeexemplo@gmail.com")
+    updatedUser = UserCrud.update(user.id, name="User Test With Changes", age=22)
+    self.assertEqual(updatedUser.name, "User Test With Changes")
+    self.assertEqual(updatedUser.age, 22)
+
+  def test_delete_user(self):
+    """Testing if the user has been deleted by user crud"""
+    user = UserCrud.read_by_email("emaildeexemplo@gmail.com")
+    UserCrud.delete(user.id)
+    with self.assertRaises(user.DoesNotExist):
+      UserCrud.read_by_email("emaildeexemplo@gmail.com")
