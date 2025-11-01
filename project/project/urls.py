@@ -1,4 +1,4 @@
-from app.views.api_views import UsersAPIView, UserAPIView, ChangePasswordView, LoginView, LogoutView
+from app.views.api_views import UsersAPIView, UserAPIView, ChangePasswordView, LoginView, LogoutView, AddressesAPIView, AddressAPIView
 from app.views.templates_views import HomeTemplateView, LoginTemplateView, RegisterTemplateView, DashboardTemplateView
 
 
@@ -31,6 +31,8 @@ urlpatterns = [
     path('api/users/change-password/<str:email>', ChangePasswordView.as_view(), name = 'Change Password Route'),
     path('api/auth/login', LoginView.as_view(), name = 'Login Route'),
     path('api/auth/logout', LogoutView.as_view(), name = 'Logout Route'),
+    path('api/addresses/', AddressesAPIView.as_view(), name = 'Address Create Route'),
+    path('api/address/<int:id>', AddressAPIView.as_view(), name = 'Address Detail Route'),
 
     #Front-end Views
     path('', HomeTemplateView.as_view(), name = "View com template test"),
