@@ -29,5 +29,5 @@ class BasicUserCrudTest(TestCase):
     """Testing if the user has been deleted by user crud"""
     user = UserCrud.read_by_email("emaildeexemplo@gmail.com")
     UserCrud.delete(user.id)
-    with self.assertRaises(user.DoesNotExist):
+    with self.assertRaises(user.__class__.DoesNotExist):
       UserCrud.read_by_email("emaildeexemplo@gmail.com")
