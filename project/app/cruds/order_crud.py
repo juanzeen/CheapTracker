@@ -1,4 +1,4 @@
-from ..models import Order, Store
+from ..models import Order, Store, Trip
 
 class OrderCrud:
     @staticmethod
@@ -30,6 +30,19 @@ class OrderCrud:
             raise ValueError("Store not found")
 
         return Order.objects.filter(store=store)
+    
+    @staticmethod
+    def read_orders_by_trip(trip_id):
+        try:
+            trip = Trip.objects.get(id=trip_id)
+        except Trip.DoesNotExist:
+            raise ValueError("Trip not found")
+        
+        return Order.objects.filter(trip=trip)
+    
+    @staticmethod
+    def read_pend_orders():
+        return Order.objects.filter(status="Pend")
     
     @staticmethod
     def delete(order_id):

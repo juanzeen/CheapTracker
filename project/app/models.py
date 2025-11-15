@@ -129,10 +129,11 @@ class Trip(models.Model):
     truck = models.ForeignKey(Truck, on_delete=models.SET_NULL, null=True)
     origin_depot = models.ForeignKey(Depot, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    departure_date = models.DateTimeField()
-    arrival_date = models.DateTimeField()
+    departure_date = models.DateTimeField(null=True)
+    arrival_date = models.DateTimeField(null=True)
     total_loaded_weight_kg = models.FloatField(MinValueValidator(0.01))
     total_loaded_volume_m3 = models.FloatField(MinValueValidator(0.01))
+    total_distance_km = models.FloatField()
     carbon_kg_co2 = models.FloatField(null=True)
     status = models.CharField(max_length=4, choices=TripStatus.choices)
 
