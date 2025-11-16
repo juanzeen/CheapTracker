@@ -76,9 +76,9 @@ class TripService:
             raise ValueError("Addresses out of range — all addresses must be in the same area")
 
         addresses = []
-        addresses.append(AddressCrud.f_address(origin_depot.address.id))
+        addresses.append(AddressCrud.formatted_address(origin_depot.address.id))
         for selected_order in selected_orders:
-            addresses.append(AddressCrud.f_address(selected_order.address.id))    
+            addresses.append(AddressCrud.formatted_address(selected_order.address.id))    
 
         area = f"{origin_depot.address.city}, {origin_depot.address.state}, {origin_depot.address.country}"
         
@@ -162,7 +162,7 @@ class TripService:
         if truck.is_active == True:
             raise ValueError("This Truck is already on a trip")
         
-        origin_depot, selected_orders = DepotService.depot_select_orders(depot_id, orders_id_list)
+        origin_depot, selected_orders = DepotService.select_orders(depot_id, orders_id_list)
 
         cargo_weight_kg = 0
         cargo_volume_m3 = 0

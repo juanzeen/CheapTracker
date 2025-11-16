@@ -25,7 +25,7 @@ class AddressCrud:
         Address.objects.get(id=address_id).delete()
 
     @staticmethod
-    def f_address(address_id):
+    def formatted_address(address_id):
         try:
             address = Address.objects.get(id=address_id)
         except Address.DoesNotExist:

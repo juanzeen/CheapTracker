@@ -3,7 +3,7 @@ from ..cruds.order_crud import OrderCrud
 
 class DepotService: 
     @staticmethod
-    def depot_select_orders(depot_id, orders_id_list):
+    def select_orders(depot_id, orders_id_list):
         try:
             depot = Depot.objects.get(id=depot_id)
         except Depot.DoesNotExist:
