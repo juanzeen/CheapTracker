@@ -16,10 +16,7 @@ from app.views.api.places_views import (
     CarriersApiView,
 )
 
-from app.views.api.order_views import (
-    OrdersApiView,
-    OrderApiView
-)
+from app.views.api.order_views import OrdersApiView, OrderApiView
 from app.views.templates_views import (
     HomeTemplateView,
     LoginTemplateView,
@@ -39,33 +36,44 @@ urlpatterns = [
         ChangePasswordView.as_view(),
         name="Change Password Route",
     ),
-    #auth routes
+    # auth routes
     path("api/auth/login", LoginView.as_view(), name="Login Route"),
     path("api/auth/logout", LogoutView.as_view(), name="Logout Route"),
-    #addressess routes
+    # addressess routes
     path("api/addresses", AddressesAPIView.as_view(), name="Address Create Route"),
     path("api/address/<int:id>", AddressAPIView.as_view(), name="Address Detail Route"),
-    #stores routes
+    # stores routes
     path("api/stores", StoresApiView.as_view(), name="Stores Route"),
     path("api/stores/<int:id>", StoreApiView.as_view(), name="Store Route"),
-    path("api/store/<int:id>/orders>", OrdersApiView.as_view(), name="Orders By Store Route"),
-    #depots routes
+    path(
+        "api/store/<int:id>/orders>",
+        OrdersApiView.as_view(),
+        name="Orders By Store Route",
+    ),
+    # depots routes
     path("api/depots", DepotsApiView.as_view(), name="Depots Route"),
     path("api/depots/<int:id>", DepotApiView.as_view(), name="Depot Route"),
-    #carrier routes
+    # carrier routes
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
     path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
-    #order routes
+    # order routes
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
     path("api/pend-orders", OrdersApiView.as_view(), name="Pendent Orders Route"),
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
     path("api/order/<int:id>", OrderApiView.as_view(), name="Order Route"),
-    path("api/order/<int:id>/add-box", OrderApiView.as_view(), name="Order Add Box Route"),
-    path("api/order/<int:id>/remove-box", OrderApiView.as_view(), name="Order Remove Box Route"),
-    #trip routes
-    path("api/trip/<id:int>/orders", OrdersApiView.as_view(), name="Orders By Trip Route"),
-    #delivery routes
-
+    path(
+        "api/order/<int:id>/add-box", OrderApiView.as_view(), name="Order Add Box Route"
+    ),
+    path(
+        "api/order/<int:id>/remove-box",
+        OrderApiView.as_view(),
+        name="Order Remove Box Route",
+    ),
+    # trip routes
+    path(
+        "api/trip/<id:int>/orders", OrdersApiView.as_view(), name="Orders By Trip Route"
+    ),
+    # delivery routes
     # Front-end Views
     path("", HomeTemplateView.as_view(), name="View com template test"),
     path("login", LoginTemplateView.as_view(), name="Login View"),
