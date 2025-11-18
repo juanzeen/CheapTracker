@@ -1,42 +1,50 @@
-from app.views.api_views import UsersAPIView, UserAPIView, ChangePasswordView, LoginView, LogoutView, AddressesAPIView, AddressAPIView
-from app.views.templates_views import HomeTemplateView, LoginTemplateView, RegisterTemplateView, DashboardTemplateView
-
-
-"""
-URL configuration for project project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+from app.views.api_views import (
+    UsersAPIView,
+    UserAPIView,
+    ChangePasswordView,
+    LoginView,
+    LogoutView,
+    AddressesAPIView,
+    AddressAPIView,
+    StoresApiView,
+    StoreApiView,
+    DepotsApiView,
+    DepotApiView,
+    CarrierApiView,
+    CarriersApiView,
+)
+from app.views.templates_views import (
+    HomeTemplateView,
+    LoginTemplateView,
+    RegisterTemplateView,
+    DashboardTemplateView,
+)
 from django.contrib import admin
 from django.urls import path
 
 urlpatterns = [
-    #API routes
-    path('admin/', admin.site.urls),
-    path('api/users', UsersAPIView.as_view(), name = 'Users Routes'),
-    #Rotas com <> são rotas que recebem parametros de URL
-    #<tipo_variavel:nome_variavel>
-    path('api/users/<str:email>', UserAPIView.as_view(), name = 'User Route'),
-    path('api/users/change-password/<str:email>', ChangePasswordView.as_view(), name = 'Change Password Route'),
-    path('api/auth/login', LoginView.as_view(), name = 'Login Route'),
-    path('api/auth/logout', LogoutView.as_view(), name = 'Logout Route'),
-    path('api/addresses/', AddressesAPIView.as_view(), name = 'Address Create Route'),
-    path('api/address/<int:id>', AddressAPIView.as_view(), name = 'Address Detail Route'),
-
-    #Front-end Views
-    path('', HomeTemplateView.as_view(), name = "View com template test"),
-    path('login', LoginTemplateView.as_view(), name = 'Login View'),
-    path('register', RegisterTemplateView.as_view(), name = 'Register View'),
-    path('dashboard', DashboardTemplateView.as_view(), name = 'Dashboard View'),
-    ]
+    # API routes
+    path("admin/", admin.site.urls),
+    path("api/users", UsersAPIView.as_view(), name="Users Routes"),
+    path("api/users/<str:email>", UserAPIView.as_view(), name="User Route"),
+    path(
+        "api/users/change-password/<str:email>",
+        ChangePasswordView.as_view(),
+        name="Change Password Route",
+    ),
+    path("api/auth/login", LoginView.as_view(), name="Login Route"),
+    path("api/auth/logout", LogoutView.as_view(), name="Logout Route"),
+    path("api/addresses", AddressesAPIView.as_view(), name="Address Create Route"),
+    path("api/address/<int:id>", AddressAPIView.as_view(), name="Address Detail Route"),
+    path("api/stores", StoresApiView.as_view(), name="Stores Route"),
+    path("api/stores/<int:id>", StoreApiView.as_view(), name="Store Route"),
+    path("api/depots", DepotsApiView.as_view(), name="Depots Route"),
+    path("api/depots/<int:id>", DepotApiView.as_view(), name="Depot Route"),
+    path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
+    path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
+    # Front-end Views
+    path("", HomeTemplateView.as_view(), name="View com template test"),
+    path("login", LoginTemplateView.as_view(), name="Login View"),
+    path("register", RegisterTemplateView.as_view(), name="Register View"),
+    path("dashboard", DashboardTemplateView.as_view(), name="Dashboard View"),
+]

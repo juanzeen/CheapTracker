@@ -2,6 +2,7 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.hashers import check_password
 from ..models import User
 
+
 class AuthUser:
     @staticmethod
     def login_user(request, email, password):
@@ -14,7 +15,7 @@ class AuthUser:
                 return {"success": False, "error": "Incorrect password"}
         except User.DoesNotExist:
             return {"sucess": False, "error": "User not found"}
-    
+
     @staticmethod
     def logout_user(request):
         logout(request)

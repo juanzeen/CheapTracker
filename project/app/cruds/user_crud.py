@@ -2,13 +2,16 @@ from ..models import Usuario
 from ..models import Manager
 from django.contrib.auth.hashers import check_password
 
+
 class UserCrud:
     @staticmethod
     def create(role, name, age, email, password):
         if len(password) < 8:
             raise ValueError("The password must contain at least 8 characters")
 
-        return Usuario.objects.create_user(email=email, role=role, name=name, age=age, password=password)
+        return Usuario.objects.create_user(
+            email=email, role=role, name=name, age=age, password=password
+        )
 
     @staticmethod
     def read():
