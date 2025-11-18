@@ -2,6 +2,7 @@ import json
 from .base_views import AuthBaseView
 from app.cruds.order_crud import OrderCrud
 from app.cruds.store_crud import StoreCrud
+from app.cruds.trip_crud import TripCrud
 from django.forms.models import model_to_dict
 
 
@@ -41,3 +42,46 @@ class OrderApiView(AuthBaseView):
             )
         except ValueError:
             return self.ErrorJsonResponse("Order not founded!", 404)
+
+
+class OrdersByTrip(AuthBaseView):
+    def get(self, request, *args, **kwargs):
+        try:
+            orders = OrderCrud.read_orders_by_trip(kwargs["id"]).values()
+            trip = TripCrud.read_by_id(kwargs["id"])
+            if not orders:
+                return self.ErrorJsonResponse("Orders not founded!")
+
+            return self.SuccessJsonResponse(
+                f"Orders for the trip with the truck {trip.truck.plate} successfully retrieved!",
+                list(orders),
+            )
+        except ValueError:
+            return self.ErrorJsonResponse("Trip not founded!", 404)
+
+
+class OrdersByStore(AuthBaseView):
+    def get(self, request, *args, **kwargs):
+        try:
+            orders = OrderCrud.read_orders_by_store(kwargs["id"]).values()
+            store = StoreCrud.read_by_id(kwargs["id"])
+            if not orders:
+                return self.ErrorJsonResponse("Orders not founded!", 404)
+
+            return self.SuccessJsonResponse(
+                f"Orders associated to {store.name} successfully retrieved!",
+                list(orders),
+            )
+        except ValueError:
+            return self.ErrorJsonResponse("Store not founded!", 404)
+
+
+class PendentOrders(AuthBaseView):
+    def get(self, request, *args, **kwargs):
+        orders = OrderCrud.read_pend_orders().values()
+        if not orders:
+            return self.ErrorJsonResponse("Orders not founded!")
+
+        return self.SuccessJsonResponse(
+            "Pendent orders successfully retrieved!", list(orders)
+        )
