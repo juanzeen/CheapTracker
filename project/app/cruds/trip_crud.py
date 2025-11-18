@@ -3,9 +3,14 @@ from ..models import Trip, Truck, Depot
 
 class TripCrud:
     @staticmethod
-    def create(truck_id, depot_id,
-               total_loaded_weight_kg, total_loaded_volume_m3,
-               total_distance_km, carbon_kg_co2):
+    def create(
+        truck_id,
+        depot_id,
+        total_loaded_weight_kg,
+        total_loaded_volume_m3,
+        total_distance_km,
+        carbon_kg_co2,
+    ):
         try:
             truck = Truck.objects.get(id=truck_id)
         except Truck.DoesNotExist:
@@ -16,12 +21,17 @@ class TripCrud:
         except Depot.DoesNotExist:
             raise ValueError("Depot not found")
 
-        return Trip.objects.create(truck=truck, origin_depot=depot,
-                                   departure_date=None, arrival_date=None,
-                                   total_loaded_weight_kg=total_loaded_weight_kg,
-                                   total_loaded_volume_m3=total_loaded_volume_m3,
-                                   total_distance_km = total_distance_km,
-                                   carbon_kg_co2=carbon_kg_co2, status="Plan")
+        return Trip.objects.create(
+            truck=truck,
+            origin_depot=depot,
+            departure_date=None,
+            arrival_date=None,
+            total_loaded_weight_kg=total_loaded_weight_kg,
+            total_loaded_volume_m3=total_loaded_volume_m3,
+            total_distance_km=total_distance_km,
+            carbon_kg_co2=carbon_kg_co2,
+            status="Plan",
+        )
 
     @staticmethod
     def read():

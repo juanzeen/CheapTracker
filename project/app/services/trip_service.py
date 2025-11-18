@@ -13,6 +13,7 @@ import osmnx as ox
 import heapq
 import matplotlib.pyplot as plt
 
+
 def pathing_route_dijkstra(G, start, target, weight="length"):
     dist = {node: float("inf") for node in G.nodes()}
     dist[start] = 0
@@ -68,13 +69,15 @@ class TripService:
     def define_route(origin_depot, selected_orders):
         if not all(
             (
-            order.store.address.city == origin_depot.address.city and
-            order.store.address.state == origin_depot.address.state and
-            order.store.address.country == origin_depot.address.country
+                order.store.address.city == origin_depot.address.city
+                and order.store.address.state == origin_depot.address.state
+                and order.store.address.country == origin_depot.address.country
             )
             for order in selected_orders
         ):
-            raise ValueError("Addresses out of range — all addresses must be in the same area")
+            raise ValueError(
+                "Addresses out of range — all addresses must be in the same area"
+            )
 
         addresses = []
         addresses.append(AddressCrud.formatted_address(origin_depot.address.id))
@@ -119,7 +122,9 @@ class TripService:
 
             segment_paths.append(chosen_path)
 
-        chosen_distance, return_path = pathing_route_dijkstra(G, nodes[route_order[-1]], nodes[0])
+        chosen_distance, return_path = pathing_route_dijkstra(
+            G, nodes[route_order[-1]], nodes[0]
+        )
         segment_paths.append(return_path)
         route_order.append(0)
         total_distance += chosen_distance
@@ -131,23 +136,33 @@ class TripService:
             else:
                 print(f"{i}° stop: {addresses[idx]}")
 
-        total_distance = round(total_distance/1000, 1)
+        total_distance = round(total_distance / 1000, 1)
         print(f"Distance traveled on the trip: {total_distance} km")
 
         fig, ax = ox.plot_graph(G, node_size=0, show=False, close=False)
 
         for path in segment_paths:
-            ox.plot_graph_route(G, path, ax=ax, node_size=0, route_linewidth=3, show=False, close=False)
+            ox.plot_graph_route(
+                G, path, ax=ax, node_size=0, route_linewidth=3, show=False, close=False
+            )
 
-        x = [G.nodes[n]['x'] for n in nodes]
-        y = [G.nodes[n]['y'] for n in nodes]
+        x = [G.nodes[n]["x"] for n in nodes]
+        y = [G.nodes[n]["y"] for n in nodes]
         ax.scatter(x, y, s=120, c="red", zorder=5)
 
         for stop_number, node_index in enumerate(route_order):
             node = nodes[node_index]
-            x = G.nodes[node]['x']
-            y = G.nodes[node]['y']
-            ax.text(x, y, str(stop_number), fontsize=11, color="yellow", weight="bold", zorder=10)
+            x = G.nodes[node]["x"]
+            y = G.nodes[node]["y"]
+            ax.text(
+                x,
+                y,
+                str(stop_number),
+                fontsize=11,
+                color="yellow",
+                weight="bold",
+                zorder=10,
+            )
 
         plt.show()
 
@@ -163,7 +178,9 @@ class TripService:
         if truck.is_active == True:
             raise ValueError("This Truck is already on a trip")
 
-        origin_depot, selected_orders = DepotService.select_orders(depot_id, orders_id_list)
+        origin_depot, selected_orders = DepotService.select_orders(
+            depot_id, orders_id_list
+        )
 
         cargo_weight_kg = 0
         cargo_volume_m3 = 0
@@ -172,28 +189,37 @@ class TripService:
             cargo_weight_kg += order.total_weight_kg
             cargo_volume_m3 += order.total_volume_m3
 
-        if not (cargo_weight_kg <= truck.max_payload_kg) and (cargo_volume_m3 <= truck.cargo_volume_m3):
+        if not (cargo_weight_kg <= truck.max_payload_kg) and (
+            cargo_volume_m3 <= truck.cargo_volume_m3
+        ):
             raise ValueError("The selected orders exceed the chosen truck's capacity")
 
-        route_order, total_distance, fig = TripService.define_route(origin_depot, selected_orders)
+        route_order, total_distance, fig = TripService.define_route(
+            origin_depot, selected_orders
+        )
 
-        match(truck.euro):
+        match (truck.euro):
             case 5:
                 carbon_kg_co2 = total_distance * 0.83
             case 6:
                 carbon_kg_co2 = total_distance * 0.75
 
-        trip = TripCrud.create(truck_id=truck.id, depot_id=depot_id,
-                        departure_date=departure_date,
-                        total_loaded_weight_kg=cargo_weight_kg,
-                        total_loaded_volume_m3=cargo_volume_m3,
-                        total_distance_km=total_distance,
-                        carbon_kg_co2=carbon_kg_co2)
+        trip = TripCrud.create(
+            truck_id=truck.id,
+            depot_id=depot_id,
+            departure_date=departure_date,
+            total_loaded_weight_kg=cargo_weight_kg,
+            total_loaded_volume_m3=cargo_volume_m3,
+            total_distance_km=total_distance,
+            carbon_kg_co2=carbon_kg_co2,
+        )
 
         for order in selected_orders:
-            order.status = 'Sche'
+            order.status = "Sche"
             order.save()
-            DeliveryCrud.create(trip_id=trip.id, store_id=order.store.id, order_id=order.id)
+            DeliveryCrud.create(
+                trip_id=trip.id, store_id=order.store.id, order_id=order.id
+            )
 
         return trip, route_order, fig
 
@@ -212,17 +238,16 @@ class TripService:
         if Trip.origin_depot != depot:
             raise ValueError("This trip does not correspond to this depot")
 
-        if trip.status != 'Plan':
+        if trip.status != "Plan":
             raise ValueError("The trip must be planned to be started")
-
 
         orders = OrderCrud.read_orders_by_trip(trip_id)
         for order in orders:
-            order.status = 'Ship'
+            order.status = "Ship"
             order.save()
 
         trip.departure_date = datetime.now()
-        trip.status = 'InTr'
+        trip.status = "InTr"
         trip.save()
 
         return trip
@@ -242,12 +267,14 @@ class TripService:
         if Trip.origin_depot != depot:
             raise ValueError("This trip does not correspond to this depot")
 
-        if trip.status != 'InTr':
+        if trip.status != "InTr":
             raise ValueError("The trip must be in transit to be ended")
 
         deliveries = DeliveryCrud.delivery_by_trip(trip_id=trip_id)
         if not all(delivery.delivered_at for delivery in deliveries):
-            raise ValueError("A trip must have all deliveries completed in order to be ended")
+            raise ValueError(
+                "A trip must have all deliveries completed in order to be ended"
+            )
 
         orders = OrderCrud.read_orders_by_trip(trip_id)
         for order in orders:
@@ -255,11 +282,11 @@ class TripService:
             for box in boxes:
                 box.was_delivered = True
                 box.save()
-            order.status = 'Deli'
+            order.status = "Deli"
             order.save()
 
         trip.arrival_date = datetime.now()
-        trip.status = 'Comp'
+        trip.status = "Comp"
         trip.save()
 
         return trip
@@ -279,19 +306,19 @@ class TripService:
         if Trip.origin_depot != depot:
             raise ValueError("This trip does not correspond to this depot")
 
-        if trip.status != 'Plan':
+        if trip.status != "Plan":
             raise ValueError("The trip must be planned to be calceled")
 
         orders = OrderCrud.read_orders_by_trip(trip_id)
         for order in orders:
-            order.status = 'Pend'
+            order.status = "Pend"
             order.save()
 
         deliveries = DeliveryCrud.delivery_by_trip(trip_id=trip_id)
         for delivery in deliveries:
             DeliveryCrud.delete(delivery.id)
 
-        trip.status = 'Canc'
+        trip.status = "Canc"
         trip.save()
 
     @staticmethod
@@ -311,7 +338,7 @@ class TripService:
         except Delivery.DoesNotExist:
             raise ValueError("Delivery not found")
 
-        if trip.status != 'InTr':
+        if trip.status != "InTr":
             raise ValueError("Trip must be in transit to confirm a delivery")
 
         if trip.truck != truck:
@@ -322,9 +349,6 @@ class TripService:
 
         delivery.delivered_at = datetime.now()
         delivery.save()
-
-
-
 
     """@staticmethod
     def simulate_trip(trip_id, traffic_status):

@@ -44,13 +44,13 @@ class OrderCrud:
             trip = Trip.objects.get(id=trip_id)
         except Trip.DoesNotExist:
             raise ValueError("Trip not found")
-        
+
         return Order.objects.filter(trip=trip)
-    
+
     @staticmethod
     def read_pend_orders():
         return Order.objects.filter(status="Pend")
-    
+
     @staticmethod
     def delete(order_id):
         try:
