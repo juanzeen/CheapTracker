@@ -65,3 +65,15 @@ class DeliveryCrud:
             return False
         else:
             return True
+
+    @staticmethod
+    def delete(delivery_id):
+        try:
+            delivery = Delivery.objects.get(id=delivery_id)
+        except Delivery.DoesNotExist:
+            raise ValueError("Delivery not found")
+
+        if delivery.delivered_at:
+            raise ValueError("This delivery has already been delivered")
+
+        delivery.delete()
