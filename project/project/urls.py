@@ -1,9 +1,11 @@
-from app.views.api_views import (
+from app.views.api.user_views import (
     UsersAPIView,
     UserAPIView,
     ChangePasswordView,
     LoginView,
-    LogoutView,
+    LogoutView
+)
+from app.views.api.places_views import (
     AddressesAPIView,
     AddressAPIView,
     StoresApiView,
