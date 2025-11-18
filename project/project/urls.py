@@ -3,7 +3,7 @@ from app.views.api.user_views import (
     UserAPIView,
     ChangePasswordView,
     LoginView,
-    LogoutView
+    LogoutView,
 )
 from app.views.api.places_views import (
     AddressesAPIView,
@@ -44,6 +44,8 @@ urlpatterns = [
     path("api/depots/<int:id>", DepotApiView.as_view(), name="Depot Route"),
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
     path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
+    path("api/orders", CarrierApiView.as_view(), name="Orders Route"),
+    path("api/order/<int:id>", CarrierApiView.as_view(), name="Order Route"),
     # Front-end Views
     path("", HomeTemplateView.as_view(), name="View com template test"),
     path("login", LoginTemplateView.as_view(), name="Login View"),

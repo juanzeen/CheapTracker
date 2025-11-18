@@ -5,6 +5,7 @@ from app.cruds.user_crud import UserCrud
 from django.contrib.auth import authenticate, login, logout
 from django.forms.models import model_to_dict
 
+
 class LoginView(BaseView):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
@@ -51,6 +52,7 @@ class UsersAPIView(BaseView):
             )
         except KeyError as e:
             return self.ErrorJsonResponse(data=e.args)
+
 
 class UserAPIView(AuthBaseView):
     def get(self, request, *args, **kwargs):

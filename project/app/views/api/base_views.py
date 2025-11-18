@@ -3,6 +3,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.http import JsonResponse
 
+
 @method_decorator(csrf_exempt, name="dispatch")
 class BaseView(View):
     def SuccessJsonResponse(self, message="Success in operation!", data={}, status=200):
@@ -12,6 +13,7 @@ class BaseView(View):
 
     def ErrorJsonResponse(self, message="Fail in operation!", status=400):
         return JsonResponse({"error": message}, status=status, safe=False)
+
 
 @method_decorator(csrf_exempt, name="dispatch")
 class AuthBaseView(BaseView):

@@ -8,6 +8,7 @@ from app.cruds.depot_crud import DepotCrud
 from app.cruds.carrier_crud import CarrierCrud
 from django.forms.models import model_to_dict
 
+
 class AddressesAPIView(AuthBaseView):
     def post(self, request, *args, **kwargs):
         try:
@@ -37,7 +38,7 @@ class AddressesAPIView(AuthBaseView):
                 201,
             )
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
     def get(self, request, *args, **kwargs):
         addresses = AddressCrud.read().values()
@@ -47,7 +48,6 @@ class AddressesAPIView(AuthBaseView):
         return self.SuccessJsonResponse(
             "Addresses successfully retrieved!", list(addresses)
         )
-
 
 
 class AddressAPIView(AuthBaseView):
@@ -80,7 +80,7 @@ class AddressAPIView(AuthBaseView):
                 {"message": "Address successfully updated!", "data": data}
             )
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
         except Address.DoesNotExist:
             return self.ErrorJsonResponse("Address not found")
 
@@ -94,6 +94,7 @@ class AddressAPIView(AuthBaseView):
 
 
 # Places views
+
 
 class StoresApiView(AuthBaseView):
     def get(self, request, *args, **kwargs):
@@ -112,18 +113,17 @@ class StoresApiView(AuthBaseView):
                     "To create a Store, the user role must be: Shop", 401
                 )
 
-            address = model_to_dict(AddressCrud.read_by_id(data.get("address_id")))
             StoreCrud.create(
                 user["email"],
                 data["name"],
-                address["cep"],
-                address["street"],
-                address["number"],
-                address["complement"],
-                address["neighborhood"],
-                address["city"],
-                address["state"],
-                address["country"],
+                data["cep"],
+                data["street"],
+                data["number"],
+                data["complement"],
+                data["neighborhood"],
+                data["city"],
+                data["state"],
+                data["country"],
                 data["contact"],
                 data["registration"],
             )
@@ -139,7 +139,7 @@ class StoresApiView(AuthBaseView):
         except Usuario.DoesNotExist:
             return self.ErrorJsonResponse("User not founded!", 404)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
 class StoreApiView(AuthBaseView):
@@ -161,7 +161,7 @@ class StoreApiView(AuthBaseView):
             StoreCrud.update(store.id, **data)
             return self.SuccessJsonResponse("Store successfully updated!", data)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
         except ValueError:
             return self.ErrorJsonResponse("Store not founded!", 404)
 
@@ -173,8 +173,7 @@ class StoreApiView(AuthBaseView):
         except ValueError:
             return self.ErrorJsonResponse("Store not founded!", 404)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
-
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
 class DepotsApiView(AuthBaseView):
@@ -194,18 +193,17 @@ class DepotsApiView(AuthBaseView):
                     "To create a Depot, the user role must be: Man", 401
                 )
 
-            address = model_to_dict(AddressCrud.read_by_id(data.get("address_id")))
             DepotCrud.create(
                 user["email"],
                 data["name"],
-                address["cep"],
-                address["street"],
-                address["number"],
-                address["complement"],
-                address["neighborhood"],
-                address["city"],
-                address["state"],
-                address["country"],
+                data["cep"],
+                data["street"],
+                data["number"],
+                data["complement"],
+                data["neighborhood"],
+                data["city"],
+                data["state"],
+                data["country"],
                 data["contact"],
                 data["registration"],
             )
@@ -221,7 +219,7 @@ class DepotsApiView(AuthBaseView):
         except Usuario.DoesNotExist:
             return self.ErrorJsonResponse("User not founded!", 404)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
 class DepotApiView(AuthBaseView):
@@ -243,7 +241,7 @@ class DepotApiView(AuthBaseView):
             DepotCrud.update(depot.id, **data)
             return self.SuccessJsonResponse("Depot successfully updated!", data)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
         except ValueError:
             return self.ErrorJsonResponse("Depot not founded!", 404)
 
@@ -255,8 +253,7 @@ class DepotApiView(AuthBaseView):
         except ValueError:
             return self.ErrorJsonResponse("Depot not founded!", 404)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
-
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
 class CarriersApiView(AuthBaseView):
@@ -278,18 +275,17 @@ class CarriersApiView(AuthBaseView):
                     "To create a Carrier, the user role must be: Carr", 401
                 )
 
-            address = model_to_dict(AddressCrud.read_by_id(data.get("address_id")))
             CarrierCrud.create(
                 user["email"],
                 data["name"],
-                address["cep"],
-                address["street"],
-                address["number"],
-                address["complement"],
-                address["neighborhood"],
-                address["city"],
-                address["state"],
-                address["country"],
+                data["cep"],
+                data["street"],
+                data["number"],
+                data["complement"],
+                data["neighborhood"],
+                data["city"],
+                data["state"],
+                data["country"],
                 data["contact"],
                 data["registration"],
             )
@@ -305,7 +301,7 @@ class CarriersApiView(AuthBaseView):
         except Usuario.DoesNotExist:
             return self.ErrorJsonResponse("User not founded!", 404)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
 class CarrierApiView(AuthBaseView):
@@ -327,7 +323,7 @@ class CarrierApiView(AuthBaseView):
             CarrierCrud.update(carrier.id, **data)
             return self.SuccessJsonResponse("Carrier successfully updated!", data)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
         except ValueError:
             return self.ErrorJsonResponse("Carrier not founded!", 404)
 
@@ -339,4 +335,4 @@ class CarrierApiView(AuthBaseView):
         except ValueError:
             return self.ErrorJsonResponse("Carrier not founded!", 404)
         except KeyError as e:
-            return self.ErrorJsonResponse(data=e.args)
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
