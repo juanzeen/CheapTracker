@@ -4,3 +4,7 @@ psycopg2==2.9.10
 psycopg2-binary==2.9.10
 python-dotenv==1.1.1
 sqlparse==0.5.3
+geopy==2.4.1
+matplotlib==3.10.7
+osmnx==2.0.6
+scikit-learn==1.7.2
