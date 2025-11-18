@@ -29,5 +29,5 @@ jobs:
       run: |
         python project/manage.py test app.tests
     - name: Check Identation
-    run: |
+      run: |
         black . --check
