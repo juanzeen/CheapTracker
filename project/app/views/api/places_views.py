@@ -107,14 +107,14 @@ class StoresApiView(AuthBaseView):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            user = model_to_dict(UserCrud.read_by_email(data["user"]))
-            if user["role"] != "Shop":
+            user = model_to_dict(UserCrud.read_by_email(request.user))
+            if not user["role"] == "Shop":
                 return self.ErrorJsonResponse(
                     "To create a Store, the user role must be: Shop", 401
                 )
 
             StoreCrud.create(
-                user["email"],
+                request.user,
                 data["name"],
                 data["cep"],
                 data["street"],
@@ -187,14 +187,14 @@ class DepotsApiView(AuthBaseView):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            user = model_to_dict(UserCrud.read_by_email(data["user"]))
+            user = model_to_dict(UserCrud.read_by_email(request.user))
             if user["role"] != "Man":
                 return self.ErrorJsonResponse(
                     "To create a Depot, the user role must be: Man", 401
                 )
 
             DepotCrud.create(
-                user["email"],
+                request.user,
                 data["name"],
                 data["cep"],
                 data["street"],
@@ -269,14 +269,14 @@ class CarriersApiView(AuthBaseView):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            user = model_to_dict(UserCrud.read_by_email(data["user"]))
+            user = model_to_dict(UserCrud.read_by_email(request.user))
             if user["role"] != "Carr":
                 return self.ErrorJsonResponse(
                     "To create a Carrier, the user role must be: Carr", 401
                 )
 
             CarrierCrud.create(
-                user["email"],
+                request.user,
                 data["name"],
                 data["cep"],
                 data["street"],
