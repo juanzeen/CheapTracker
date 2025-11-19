@@ -32,7 +32,7 @@ from app.views.templates_views import (
     LoginTemplateView,
     RegisterTemplateView,
     DashboardTemplateView,
-    CreatePlaceTemplateView
+    CreatePlaceTemplateView,
 )
 from django.contrib import admin
 from django.urls import path
