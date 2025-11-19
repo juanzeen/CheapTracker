@@ -3,6 +3,7 @@ from .address_crud import AddressCrud
 from .user_crud import UserCrud
 from ..exception_errors import UserRoleError, UpdateError
 
+
 class StoreCrud:
     @staticmethod
     def create(

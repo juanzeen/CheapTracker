@@ -7,7 +7,13 @@ from ..cruds.truck_crud import TruckCrud
 from ..cruds.depot_crud import DepotCrud
 from ..models import Trip, Truck, Depot, Delivery
 from ..services.depot_service import DepotService
-from ..exception_errors import RangeError, StatusError, CapacityError, BelongError, RemainingDeliveriesError
+from ..exception_errors import (
+    RangeError,
+    StatusError,
+    CapacityError,
+    BelongError,
+    RemainingDeliveriesError,
+)
 
 import time
 from datetime import datetime, timedelta
@@ -210,14 +216,16 @@ class TripService:
         if not (trip.total_loaded_weight_kg <= truck.max_payload_kg) and (
             trip.total_loaded_volume_m3 <= truck.cargo_volume_m3
         ):
-            raise CapacityError("The selected orders exceed the chosen truck's capacity")
+            raise CapacityError(
+                "The selected orders exceed the chosen truck's capacity"
+            )
 
         if trip.origin_depot != depot:
             raise BelongError("This trip does not correspond to this depot")
 
         if trip.status != "Plan":
             raise StatusError("The trip status must be planned to be started")
-        
+
         match (truck.euro):
             case 5:
                 carbon_kg_co2 = trip.total_distance_km * 0.83

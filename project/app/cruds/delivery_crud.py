@@ -19,7 +19,7 @@ class DeliveryCrud:
     @staticmethod
     def read():
         return Delivery.objects.all()
-    
+
     @staticmethod
     def read_by_id(delivery_id):
         try:
@@ -59,6 +59,8 @@ class DeliveryCrud:
         delivery = DeliveryCrud.read_by_id(delivery_id)
 
         if delivery.delivered_at:
-            raise DeleteError("Delete delivery denied. This delivery has already been delivered")
+            raise DeleteError(
+                "Delete delivery denied. This delivery has already been delivered"
+            )
 
         delivery.delete()

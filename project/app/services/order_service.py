@@ -3,6 +3,7 @@ from ..cruds.box_crud import BoxCrud
 from ..cruds.order_crud import OrderCrud
 from ..exception_errors import StatusError, BelongError
 
+
 class OrderService:
     @staticmethod
     def add_box(

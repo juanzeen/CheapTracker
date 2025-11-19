@@ -2,6 +2,7 @@ from ..models import Box
 from .order_crud import OrderCrud
 from ..exception_errors import DeleteError
 
+
 class BoxCrud:
     @staticmethod
     def create(order_id, size, length, width, height, payload_kg):
@@ -76,7 +77,7 @@ class BoxCrud:
     @staticmethod
     def read():
         return Box.objects.all()
-    
+
     @staticmethod
     def read_by_id(box_id):
         try:

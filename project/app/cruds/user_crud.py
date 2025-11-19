@@ -23,7 +23,7 @@ class UserCrud:
             return Usuario.objects.get(email=user_email)
         except Usuario.DoesNotExist:
             raise ValueError("User not found")
-        
+
     @staticmethod
     def read_by_id(user_id):
         try:

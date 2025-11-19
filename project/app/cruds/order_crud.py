@@ -3,6 +3,7 @@ from .store_crud import StoreCrud
 from .trip_crud import TripCrud
 from ..exception_errors import DeleteError
 
+
 class OrderCrud:
     @staticmethod
     def create(store_id):
