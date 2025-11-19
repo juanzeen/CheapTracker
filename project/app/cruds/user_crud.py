@@ -19,11 +19,21 @@ class UserCrud:
 
     @staticmethod
     def read_by_email(user_email):
-        return Usuario.objects.get(email=user_email)
+        try:
+            return Usuario.objects.get(email=user_email)
+        except Usuario.DoesNotExist:
+            raise ValueError("User not found")
+        
+    @staticmethod
+    def read_by_id(user_id):
+        try:
+            return Usuario.objects.get(id=user_id)
+        except Usuario.DoesNotExist:
+            raise ValueError("User not found")
 
     @staticmethod
     def update(user_id, **kwargs):
-        user = Usuario.objects.get(id=user_id)
+        user = UserCrud.read_by_id(user_id)
         for key, value in kwargs.items():
             if key == "password_hash":
                 raise KeyError("Change password denied")
@@ -35,11 +45,12 @@ class UserCrud:
 
     @staticmethod
     def delete(user_id):
-        Usuario.objects.get(id=user_id).delete()
+        user = UserCrud.read_by_id(user_id)
+        user.delete()
 
     @staticmethod
     def change_password(user_id, old_password, new_password):
-        user = Usuario.objects.get(id=user_id)
+        user = UserCrud.read_by_id(user_id)
 
         if not check_password(old_password, user.password_hash):
             raise ValueError("Incorrect password!")

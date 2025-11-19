@@ -40,12 +40,11 @@ class DepotCrud:
         return Depot.objects.all()
 
     @staticmethod
-    def read_by_id(carrier_id):
+    def read_by_id(depot_id):
         try:
-            depot = Depot.objects.all(id=carrier_id)
-            return depot
+            return Depot.objects.get(id=depot_id)
         except Depot.DoesNotExist:
-            raise ValueError
+            raise ValueError("Depot not found")
 
     @staticmethod
     def read_depots_by_email(user_email):
@@ -54,7 +53,7 @@ class DepotCrud:
 
     @staticmethod
     def update(depot_id, **kwargs):
-        depot = Depot.objects.get(id=depot_id)
+        depot = DepotCrud.read_by_id(depot_id)
         address = depot.address
         for key, value in kwargs.items():
             if key in [
@@ -79,5 +78,5 @@ class DepotCrud:
 
     @staticmethod
     def delete(depot_id):
-        depot = Depot.objects.get(id=depot_id)
+        depot = DepotCrud.read_by_id(depot_id)
         AddressCrud.delete(depot.address.id)

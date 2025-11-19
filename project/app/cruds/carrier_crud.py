@@ -42,10 +42,9 @@ class CarrierCrud:
     @staticmethod
     def read_by_id(carrier_id):
         try:
-            carrier = Carrier.objects.get(id=carrier_id)
-            return carrier
+            return Carrier.objects.get(id=carrier_id)
         except Carrier.DoesNotExist:
-            raise ValueError
+            raise ValueError("Carrier not found")
 
     @staticmethod
     def read_carriers_by_email(user_email):
@@ -54,7 +53,7 @@ class CarrierCrud:
 
     @staticmethod
     def update(carrier_id, **kwargs):
-        carrier = Carrier.objects.get(id=carrier_id)
+        carrier = CarrierCrud.read_by_id(carrier_id)
         address = carrier.address
         for key, value in kwargs.items():
             if key in [
@@ -79,5 +78,5 @@ class CarrierCrud:
 
     @staticmethod
     def delete(carrier_id):
-        carrier = Carrier.objects.get(id=carrier_id)
+        carrier = CarrierCrud.read_by_id(carrier_id)
         AddressCrud.delete(carrier.address.id)

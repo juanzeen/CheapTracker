@@ -24,11 +24,11 @@ class AddressCrud:
         try:
             return Address.objects.get(id=address_id)
         except Address.DoesNotExist:
-            raise ValueError
+            raise ValueError("Address not found")
 
     @staticmethod
     def update(address_id, **kwargs):
-        address = Address.objects.get(id=address_id)
+        address = AddressCrud.read_by_id(address_id)
         for key, value in kwargs.items():
             setattr(address, key, value)
 
@@ -37,13 +37,11 @@ class AddressCrud:
 
     @staticmethod
     def delete(address_id):
-        Address.objects.get(id=address_id).delete()
+        address = AddressCrud.read_by_id(address_id)
+        address.delete()
 
     @staticmethod
     def formatted_address(address_id):
-        try:
-            address = Address.objects.get(id=address_id)
-        except Address.DoesNotExist:
-            raise ValueError("Address not found")
+        address = AddressCrud.read_by_id(address_id)
 
         return f"{address.street}, {address.number}, {address.neighborhood}, {address.city}, {address.state}, {address.cep}, {address.country}"

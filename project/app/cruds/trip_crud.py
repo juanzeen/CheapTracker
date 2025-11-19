@@ -1,4 +1,5 @@
-from ..models import Trip, Truck, Depot
+from ..models import Trip
+from .depot_crud import DepotCrud
 
 
 class TripCrud:
@@ -9,10 +10,7 @@ class TripCrud:
         total_loaded_volume_m3,
         total_distance_km,
     ):
-        try:
-            depot = Depot.objects.get(id=depot_id)
-        except Depot.DoesNotExist:
-            raise ValueError("Depot not found")
+        depot = DepotCrud.read_by_id(depot_id)
 
         return Trip.objects.create(
             truck=None,
@@ -45,39 +43,8 @@ class TripCrud:
         return Trip.objects.filter(status=status_option)
 
     @staticmethod
-    def update(trip_id, **kwargs):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
-
-        for key, value in kwargs.items():
-            if key == "truck_id":
-                try:
-                    Truck.objects.get(id=value)
-                except Truck.DoesNotExist:
-                    raise ValueError("Truck not found")
-
-                setattr(trip, key, value)
-
-            elif key == "depot_id":
-                raise KeyError("Change depot trip denied. Create a new trip")
-
-            elif key in ["departure_date", "arrival_date"]:
-                setattr(trip, key, value)
-
-            else:
-                raise KeyError("Update denied")
-
-        trip.save()
-        return trip
-
-    @staticmethod
     def delete(trip_id):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
+        trip = TripCrud.read_by_id(trip_id)
 
         if trip.status in ["InTr", "Comp"]:
             raise ValueError(
