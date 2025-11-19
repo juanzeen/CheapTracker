@@ -3,6 +3,7 @@ from .base_views import AuthBaseView
 from app.cruds.order_crud import OrderCrud
 from app.cruds.store_crud import StoreCrud
 from app.cruds.trip_crud import TripCrud
+from app.services.order_service import OrderService
 from django.forms.models import model_to_dict
 
 
@@ -44,7 +45,7 @@ class OrderApiView(AuthBaseView):
             return self.ErrorJsonResponse("Order not founded!", 404)
 
 
-class OrdersByTrip(AuthBaseView):
+class OrdersByTripView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         try:
             orders = OrderCrud.read_orders_by_trip(kwargs["id"]).values()
@@ -60,7 +61,7 @@ class OrdersByTrip(AuthBaseView):
             return self.ErrorJsonResponse("Trip not founded!", 404)
 
 
-class OrdersByStore(AuthBaseView):
+class OrdersByStoreView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         try:
             orders = OrderCrud.read_orders_by_store(kwargs["id"]).values()
@@ -76,7 +77,7 @@ class OrdersByStore(AuthBaseView):
             return self.ErrorJsonResponse("Store not founded!", 404)
 
 
-class PendentOrders(AuthBaseView):
+class PendentOrdersView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         orders = OrderCrud.read_pend_orders().values()
         if not orders:
@@ -85,3 +86,40 @@ class PendentOrders(AuthBaseView):
         return self.SuccessJsonResponse(
             "Pendent orders successfully retrieved!", list(orders)
         )
+
+
+class AddBoxView(AuthBaseView):
+    def post(self, request, *args, **kwargs):
+        try:
+            order = OrderCrud.read_by_id(kwargs["id"])
+            data = json.loads(request.body)
+            if data["box_size"] == "Cus":
+                box = OrderService.add_box(
+                    kwargs["id"],
+                    data["box_size"],
+                    data["length"],
+                    data["width"],
+                    data["height"],
+                    data["payload_kg"],
+                )
+                return self.SuccessJsonResponse("Custom box successfully added!", model_to_dict(box), 201)
+            if data["box_size"] != "Cus":
+                box = OrderService.add_box(kwargs["id"], data["box_size"])
+                return self.SuccessJsonResponse(
+                    f"{data["box_size"]} box successfully added!",
+                    model_to_dict(box),
+                    201
+                )
+        except KeyError as e:
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")
+
+
+class RemoveBoxView(AuthBaseView):
+    def post(self, request, *args, **kwargs):
+        try:
+            data = json.loads(request.body)
+            OrderService.remove_box(kwargs["id"], data["box_id"])
+            order = OrderCrud.read_by_id(kwargs["id"])
+            return self.SuccessJsonResponse("Box successfully removed!", model_to_dict(order))
+        except KeyError as e:
+            return self.ErrorJsonResponse(f"The {e.args} field was not received!")

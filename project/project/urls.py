@@ -19,9 +19,11 @@ from app.views.api.places_views import (
 from app.views.api.order_views import (
     OrdersApiView,
     OrderApiView,
-    PendentOrders,
-    OrdersByStore,
-    OrdersByTrip,
+    PendentOrdersView,
+    OrdersByStoreView,
+    OrdersByTripView,
+    AddBoxView,
+    RemoveBoxView,
 )
 from app.views.templates_views import (
     HomeTemplateView,
@@ -53,7 +55,7 @@ urlpatterns = [
     path("api/store/<int:id>", StoreApiView.as_view(), name="Store Route"),
     path(
         "api/store/<int:id>/orders",
-        OrdersByStore.as_view(),
+        OrdersByStoreView.as_view(),
         name="Orders By Store Route",
     ),
     # depots routes
@@ -64,20 +66,24 @@ urlpatterns = [
     path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
     # order routes
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
-    path("api/pendent-orders", PendentOrders.as_view(), name="Pendent Orders Route"),
+    path(
+        "api/pendent-orders", PendentOrdersView.as_view(), name="Pendent Orders Route"
+    ),
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
     path("api/order/<int:id>", OrderApiView.as_view(), name="Order Route"),
     path(
-        "api/order/<int:id>/add-box", OrderApiView.as_view(), name="Order Add Box Route"
+        "api/order/<int:id>/add-box", AddBoxView.as_view(), name="Order Add Box Route"
     ),
     path(
         "api/order/<int:id>/remove-box",
-        OrderApiView.as_view(),
+        RemoveBoxView.as_view(),
         name="Order Remove Box Route",
     ),
     # trip routes
     path(
-        "api/trip/<int:id>/orders", OrdersByTrip.as_view(), name="Orders By Trip Route"
+        "api/trip/<int:id>/orders",
+        OrdersByTripView.as_view(),
+        name="Orders By Trip Route",
     ),
     # delivery routes
     # Front-end Views
