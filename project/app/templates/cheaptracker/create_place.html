@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Create Place{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="login-form" style="min-height: 600px; width: 600px;">
+    {%if user.role == "Shop" %}
+    <h3>Crie uma nova Loja!</h3>
+    {%elif user.role == "Man"%}
+    <h3>Crie um novo Depósito!</h3>
+    {%elif user.role == "Carr"%}
+    <h3>Crie uma nova Transportadora!</h3>
+    {% endif %}
+    <form id="create-place-form">
+      <h4>Endereço</h4>
+      <div class="input-container">
+        <label for="street">Rua</label>
+        <input type="text" name="street">
+      </div>
+      <div class="input-container">
+        <label for="number">Número</label>
+        <input type="text" name="number">
+      </div>
+      <div class="input-container">
+        <label for="complement">Complemento</label>
+        <input type="text" name="complement">
+      </div>
+      <div class="input-container">
+        <label for="neighborhood">Bairro</label>
+        <input type="text" name="neighborhood">
+      </div>
+      <div class="input-container">
+        <label for="city">Cidade</label>
+        <input type="text" name="city">
+      </div>
+      <div class="input-container">
+        <label for="state">Estado</label>
+        <input type="text" name="state">
+      </div>
+      <div class="input-container">
+        <label for="cep">CEP</label>
+        <input type="text" name="cep">
+      </div>
+      <div class="input-container">
+        <label for="country">País</label>
+        <input type="text" name="country" value="Brasil">
+      </div>
+
+      {%if user.role == "Shop" %}
+      <h4 style="margin-top: 20px;">Informações da Loja</h4>
+      {%elif user.role == "Man"%}
+      <h4 style="margin-top: 20px;">Informações do Depósito</h4>
+      {%elif user.role == "Carr"%}
+      <h4 style="margin-top: 20px;">Informações da Transportadora</h4>
+      {% endif %}
+      <div class="input-container">
+        <label for="name">Nome da Loja</label>
+        <input type="text" name="name">
+      </div>
+      <div class="input-container">
+        <label for="contact">Contato</label>
+        <input type="text" name="contact">
+      </div>
+      <div class="input-container">
+        <label for="registration">Registro</label>
+        <input type="text" name="registration">
+      </div>
+
+      <button class="red-btn" type="submit" style="margin-top: 20px;">Criar!</button>
+      <a href="/dashboard" style="text-align: center;">Voltar para o Dashboard</a>
+    </form>
+  </div>
+</div>
+
+<script>
+  const createPlaceForm = document.getElementById('create-place-form');
+  const userRole = "{{ user.role|escapejs }}";
+
+  const getUserPlaceType = (role) =>{
+    switch(role){
+      case "Shop":
+        return "stores"
+        break
+      case "Man":
+        return "depots"
+        break
+      case "Carr":
+        return "carriers"
+        break
+    }
+  }
+
+  createPlaceForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const formData = new FormData(createPlaceForm);
+    const data = Object.fromEntries(formData.entries());
+    const placeType = getUserPlaceType(userRole)
+
+
+    try {
+      fetch(`/api/${placeType}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+          // Include bearer token if authentication is required
+          // "Authorization": "Bearer " + localStorage.getItem("access_token")
+        }
+      }).then(res => res.json()).then(data => {
+        if (data.error) {
+          alert("Error: " + data.error);
+        } else {
+          alert(data.message);
+          window.location.href = "/dashboard";
+        }
+      });
+    } catch (error) {
+      console.log("Error trying to send the request:", error);
+      alert("An error occurred. Please try again.");
+    }
+  });
+</script>
+
+{%endblock%}

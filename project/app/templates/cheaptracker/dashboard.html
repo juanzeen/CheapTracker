@@ -20,13 +20,14 @@
     {% endif %}
     <div class="action-buttons-container">
       {%if user.role == "Shop" %}
-      <button class="red-btn">Adicionar loja</button>
+      <a href="/create-place" class="red-btn">Adicionar loja</a>
       <button class="red-btn">Criar pedido</button>
       {%elif user.role == "Man"%}
-      <button class="red-btn">Adicionar depósito</button>
+      <a href="/create-place" class="red-btn">Adicionar depósito</a>
       <button class="red-btn">Gerenciar pedidos</button>
       <button class="red-btn">Criar viagem</button>
       {%elif user.role == "Carr"%}
+      <a href="/create-place" class="red-btn">Adicionar transportadora</a>
       <button class="red-btn">Adicionar caminhão</button>
       <button class="red-btn">Gerenciar caminhões</button>
       {% endif %}
