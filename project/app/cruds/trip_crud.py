@@ -4,32 +4,25 @@ from ..models import Trip, Truck, Depot
 class TripCrud:
     @staticmethod
     def create(
-        truck_id,
         depot_id,
         total_loaded_weight_kg,
         total_loaded_volume_m3,
         total_distance_km,
-        carbon_kg_co2,
     ):
-        try:
-            truck = Truck.objects.get(id=truck_id)
-        except Truck.DoesNotExist:
-            raise ValueError("Truck not found")
-
         try:
             depot = Depot.objects.get(id=depot_id)
         except Depot.DoesNotExist:
             raise ValueError("Depot not found")
 
         return Trip.objects.create(
-            truck=truck,
+            truck=None,
             origin_depot=depot,
             departure_date=None,
             arrival_date=None,
             total_loaded_weight_kg=total_loaded_weight_kg,
             total_loaded_volume_m3=total_loaded_volume_m3,
             total_distance_km=total_distance_km,
-            carbon_kg_co2=carbon_kg_co2,
+            carbon_kg_co2=None,
             status="Plan",
         )
 
