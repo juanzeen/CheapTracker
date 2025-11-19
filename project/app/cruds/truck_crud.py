@@ -57,6 +57,10 @@ class TruckCrud:
         return Truck.objects.all()
 
     @staticmethod
+    def read_by_plate(plate):
+        return Truck.objects.get(plate=plate)
+
+    @staticmethod
     def read_trucks_by_carrier(carrier_id):
         carrier = Carrier.objects.get(id=carrier_id)
         return Truck.objects.filter(carrier=carrier)

@@ -16,6 +16,8 @@ from app.views.api.places_views import (
     CarriersApiView,
 )
 
+from app.views.api.truck_views import TrucksApiView, TruckApiView
+
 from app.views.api.order_views import (
     OrdersApiView,
     OrderApiView,
@@ -64,6 +66,9 @@ urlpatterns = [
     # carrier routes
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
     path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
+    # truck routes
+    path("api/trucks", TrucksApiView.as_view(), name="Trucks Route"),
+    path("api/truck/<str:plate>", TruckApiView.as_view(), name="Truck Route"),
     # order routes
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
     path(

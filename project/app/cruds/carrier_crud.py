@@ -42,7 +42,7 @@ class CarrierCrud:
     @staticmethod
     def read_by_id(carrier_id):
         try:
-            carrier = Carrier.objects.all(id=carrier_id)
+            carrier = Carrier.objects.get(id=carrier_id)
             return carrier
         except Carrier.DoesNotExist:
             raise ValueError

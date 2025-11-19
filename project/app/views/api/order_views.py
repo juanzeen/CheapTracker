@@ -102,13 +102,15 @@ class AddBoxView(AuthBaseView):
                     data["height"],
                     data["payload_kg"],
                 )
-                return self.SuccessJsonResponse("Custom box successfully added!", model_to_dict(box), 201)
+                return self.SuccessJsonResponse(
+                    "Custom box successfully added!", model_to_dict(box), 201
+                )
             if data["box_size"] != "Cus":
                 box = OrderService.add_box(kwargs["id"], data["box_size"])
                 return self.SuccessJsonResponse(
                     f"{data["box_size"]} box successfully added!",
                     model_to_dict(box),
-                    201
+                    201,
                 )
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
@@ -120,6 +122,8 @@ class RemoveBoxView(AuthBaseView):
             data = json.loads(request.body)
             OrderService.remove_box(kwargs["id"], data["box_id"])
             order = OrderCrud.read_by_id(kwargs["id"])
-            return self.SuccessJsonResponse("Box successfully removed!", model_to_dict(order))
+            return self.SuccessJsonResponse(
+                "Box successfully removed!", model_to_dict(order)
+            )
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
