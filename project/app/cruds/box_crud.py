@@ -1,6 +1,6 @@
 from ..models import Box
 from .order_crud import OrderCrud
-
+from ..exception_errors import DeleteError
 
 class BoxCrud:
     @staticmethod
@@ -94,9 +94,9 @@ class BoxCrud:
     def delete(box_id):
         box = BoxCrud.read_by_id(box_id)
 
-        if box.order.status in ["Ship", "Deli"]:
-            raise KeyError(
-                "Delete box denied. Box has already been shipped or delivered."
+        if box.order.status in ["Sche", "Ship", "Deli"]:
+            raise DeleteError(
+                "Delete box denied. Order box has already been scheduled, shipped or delivered."
             )
 
         box.delete()

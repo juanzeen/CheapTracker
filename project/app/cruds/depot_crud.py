@@ -1,7 +1,7 @@
 from ..models import Depot
 from .address_crud import AddressCrud
 from .user_crud import UserCrud
-
+from ..exception_errors import UserRoleError, UpdateError
 
 class DepotCrud:
     @staticmethod
@@ -21,7 +21,7 @@ class DepotCrud:
     ):
         user = UserCrud.read_by_email(user_email)
         if user.role != "Man":
-            raise ValueError("To create a Depot, the user role must be: Man")
+            raise UserRoleError("To create a Depot, the user role must be: Man")
 
         address = AddressCrud.create(
             street, number, complement, neighborhood, city, state, cep, country
@@ -68,7 +68,7 @@ class DepotCrud:
             ]:
                 setattr(address, key, value)
             elif key == "user":
-                raise KeyError("Update user denied")
+                raise UpdateError("Update user denied")
             else:
                 setattr(depot, key, value)
 

@@ -1,5 +1,6 @@
 from ..models import Truck, Carrier
 from .carrier_crud import CarrierCrud
+from ..exception_errors import BelongError
 
 
 class TruckCrud:
@@ -76,7 +77,7 @@ class TruckCrud:
 
         truck = TruckCrud.read_by_plate(plate)
         if truck.carrier.id != current_carrier_id:
-            raise ValueError("This truck does not belong to this carrier")
+            raise BelongError("This truck does not belong to this carrier")
 
         try:
             new_carrier = Carrier.objects.get(id=new_carrier_id)
@@ -88,7 +89,7 @@ class TruckCrud:
             truck.save()
             return truck
         else:
-            raise ValueError("The carriers entered are not from the same user")
+            raise BelongError("The carriers entered are not from the same user")
 
     @staticmethod
     def delete(plate):

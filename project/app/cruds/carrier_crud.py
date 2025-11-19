@@ -1,7 +1,7 @@
 from ..models import Carrier
 from .address_crud import AddressCrud
 from .user_crud import UserCrud
-
+from ..exception_errors import UserRoleError, UpdateError
 
 class CarrierCrud:
     @staticmethod
@@ -21,7 +21,7 @@ class CarrierCrud:
     ):
         user = UserCrud.read_by_email(user_email)
         if user.role != "Carr":
-            raise ValueError("To create a Carrier, the user role must be: Carr")
+            raise UserRoleError("To create a Carrier, the user role must be: Carr")
 
         address = AddressCrud.create(
             street, number, complement, neighborhood, city, state, cep, country
@@ -68,7 +68,7 @@ class CarrierCrud:
             ]:
                 setattr(address, key, value)
             elif key == "user":
-                raise KeyError("Update user denied")
+                raise UpdateError("Update user denied")
             else:
                 setattr(carrier, key, value)
 
