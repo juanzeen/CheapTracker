@@ -9,3 +9,15 @@ class UpdateError(Exception):
 
 class BelongError(Exception):
     pass
+
+class StatusError(Exception):
+    pass
+
+class RangeError(Exception):
+    pass
+
+class CapacityError(Exception):
+    pass
+
+class RemainingDeliveriesError(Exception):
+    pass

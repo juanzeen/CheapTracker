@@ -1,19 +1,17 @@
 from ..models import Order, Box
 from ..cruds.box_crud import BoxCrud
-
+from ..cruds.order_crud import OrderCrud
+from ..exception_errors import StatusError, BelongError
 
 class OrderService:
     @staticmethod
     def add_box(
         order_id, box_size, length=None, width=None, height=None, payload_kg=None
     ):
-        try:
-            order = Order.objects.get(id=order_id)
-        except Order.DoesNotExist:
-            raise ValueError("Order not found")
+        order = OrderCrud.read_by_id(order_id)
 
         if order.status != "Pend":
-            raise ValueError("Order status must be Pending to add a box")
+            raise StatusError("Order status must be Pending to add a box")
 
         box = BoxCrud.create(
             order_id=order_id,
@@ -33,21 +31,14 @@ class OrderService:
 
     @staticmethod
     def remove_box(order_id, box_id):
-        try:
-            order = Order.objects.get(id=order_id)
-        except Order.DoesNotExist:
-            raise ValueError("Order not found")
-
-        try:
-            box = Box.objects.get(id=box_id)
-        except Box.DoesNotExist:
-            raise ValueError("Box not found")
+        order = OrderCrud.read_by_id(order_id)
+        box = BoxCrud.read_by_id(box_id)
 
         if box.order.id != order_id:
-            raise ValueError("This box does not belong to this order")
+            raise BelongError("This box does not belong to this order")
 
         if order.status != "Pend":
-            raise ValueError("Order status must be Pending to add a box")
+            raise StatusError("Order status must be Pending to delete a box")
 
         order.total_weight_kg -= box.payload_kg
         order.total_volume_m3 -= box.volume_m3

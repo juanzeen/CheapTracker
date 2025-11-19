@@ -1,13 +1,14 @@
 from django.contrib.auth import login, logout
 from django.contrib.auth.hashers import check_password
 from ..models import User
+from ..cruds.user_crud import UserCrud
 
 
 class AuthUser:
     @staticmethod
     def login_user(request, email, password):
+        user = UserCrud.read_by_email(email)
         try:
-            user = User.objects.get(email=email)
             if check_password(password, user.password_hash):
                 login(request, user)
                 return {"success": True, "user": user}
