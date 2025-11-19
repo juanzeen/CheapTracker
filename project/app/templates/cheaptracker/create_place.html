@@ -5,7 +5,13 @@
 
 <div class="container">
   <div class="login-form" style="min-height: 600px; width: 600px;">
+    {%if user.role == "Shop" %}
     <h3>Crie uma nova Loja!</h3>
+    {%elif user.role == "Man"%}
+    <h3>Crie um novo Depósito!</h3>
+    {%elif user.role == "Carr"%}
+    <h3>Crie uma nova Transportadora!</h3>
+    {% endif %}
     <form id="create-place-form">
       <h4>Endereço</h4>
       <div class="input-container">
@@ -43,10 +49,6 @@
 
       <h4 style="margin-top: 20px;">Informações da Loja</h4>
       <div class="input-container">
-        <label for="user">Email do Usuário</label>
-        <input type="email" name="user">
-      </div>
-      <div class="input-container">
         <label for="name">Nome da Loja</label>
         <input type="text" name="name">
       </div>
@@ -66,13 +68,31 @@
 
 <script>
   const createPlaceForm = document.getElementById('create-place-form');
+  const userRole = "{{ user.role|escapejs }}";
+
+  const getUserPlaceType = (role) =>{
+    switch(role){
+      case "Shop":
+        return "stores"
+        break
+      case "Man":
+        return "depots"
+        break
+      case "Carr":
+        return "carriers"
+        break
+    }
+  }
+
   createPlaceForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const formData = new FormData(createPlaceForm);
     const data = Object.fromEntries(formData.entries());
+    const placeType = getUserPlaceType(userRole)
+
 
     try {
-      fetch("/api/stores", {
+      fetch(`/api/${placeType}`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {

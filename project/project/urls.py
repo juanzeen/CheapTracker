@@ -32,9 +32,7 @@ from app.views.templates_views import (
     LoginTemplateView,
     RegisterTemplateView,
     DashboardTemplateView,
-    CreateStoreTemplateView,
-    CreateCarrierTemplateView,
-    CreateDepotTemplateView
+    CreatePlaceTemplateView
 )
 from django.contrib import admin
 from django.urls import path
@@ -99,7 +97,5 @@ urlpatterns = [
     path("login", LoginTemplateView.as_view(), name="Login View"),
     path("register", RegisterTemplateView.as_view(), name="Register View"),
     path("dashboard", DashboardTemplateView.as_view(), name="Dashboard View"),
-    path("create-store", CreateStoreTemplateView.as_view(), name="Create Place View"),
-    path("create-depot", CreateDepotTemplateView.as_view(), name="Create Place View"),
-    path("create-store", CreateCarrierTemplateView.as_view(), name="Create Place View"),
+    path("create-place", CreatePlaceTemplateView.as_view(), name="Create Place View"),
 ]

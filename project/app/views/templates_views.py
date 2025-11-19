@@ -23,10 +23,5 @@ class DashboardTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/dashboard.html"
 
 
-class CreateStoreTemplateView(BaseAuthTemplateView):
-    template_name = "cheaptracker/create_store.html"
-
-class CreateDepotTemplateView(BaseAuthTemplateView):
-    template_name = "cheaptracker/create_depot.html"
-class CreateCarrierTemplateView(BaseAuthTemplateView):
-    template_name = "cheaptracker/create_carrier.html"
+class CreatePlaceTemplateView(BaseAuthTemplateView):
+    template_name = "cheaptracker/create_place.html"
