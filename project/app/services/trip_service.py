@@ -3,8 +3,17 @@ from ..cruds.delivery_crud import DeliveryCrud
 from ..cruds.order_crud import OrderCrud
 from ..cruds.address_crud import AddressCrud
 from ..cruds.box_crud import BoxCrud
+from ..cruds.truck_crud import TruckCrud
+from ..cruds.depot_crud import DepotCrud
 from ..models import Trip, Truck, Depot, Delivery
 from ..services.depot_service import DepotService
+from ..exception_errors import (
+    RangeError,
+    StatusError,
+    CapacityError,
+    BelongError,
+    RemainingDeliveriesError,
+)
 
 import time
 from datetime import datetime, timedelta
@@ -52,10 +61,7 @@ def pathing_route_dijkstra(G, start, target, weight="length"):
 class TripService:
     @staticmethod
     def remaining_deliveries(trip_id):
-        try:
-            Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
+        TripCrud.read_by_id(trip_id)
 
         deliveries_list = DeliveryCrud.delivery_by_trip(trip_id)
         remaining_deliveries_list = []
@@ -75,8 +81,8 @@ class TripService:
             )
             for order in selected_orders
         ):
-            raise ValueError(
-                "Addresses out of range — all addresses must be in the same area"
+            raise RangeError(
+                "Addresses out of range — all addresses must be in the same city"
             )
 
         addresses = []
@@ -86,7 +92,7 @@ class TripService:
 
         area = f"{origin_depot.address.city}, {origin_depot.address.state}, {origin_depot.address.country}"
 
-        geolocator = Nominatim(user_agent="cheaptracker")
+        geolocator = Nominatim(user_agent="cheaptracker", timeout=20)
 
         locations = [geolocator.geocode(address) for address in addresses]
 
@@ -169,15 +175,7 @@ class TripService:
         return route_order, total_distance, fig
 
     @staticmethod
-    def define_trip(truck_plate, depot_id, orders_id_list, departure_date):
-        try:
-            truck = Truck.objects.get(plate=truck_plate)
-        except Truck.DoesNotExist:
-            raise ValueError("Incorrect Plate or Truck not found")
-
-        if truck.is_active == True:
-            raise ValueError("This Truck is already on a trip")
-
+    def define_trip(depot_id, orders_id_list):
         origin_depot, selected_orders = DepotService.select_orders(
             depot_id, orders_id_list
         )
@@ -189,91 +187,87 @@ class TripService:
             cargo_weight_kg += order.total_weight_kg
             cargo_volume_m3 += order.total_volume_m3
 
-        if not (cargo_weight_kg <= truck.max_payload_kg) and (
-            cargo_volume_m3 <= truck.cargo_volume_m3
-        ):
-            raise ValueError("The selected orders exceed the chosen truck's capacity")
-
         route_order, total_distance, fig = TripService.define_route(
             origin_depot, selected_orders
         )
 
-        match (truck.euro):
-            case 5:
-                carbon_kg_co2 = total_distance * 0.83
-            case 6:
-                carbon_kg_co2 = total_distance * 0.75
-
         trip = TripCrud.create(
-            truck_id=truck.id,
             depot_id=depot_id,
-            departure_date=departure_date,
             total_loaded_weight_kg=cargo_weight_kg,
             total_loaded_volume_m3=cargo_volume_m3,
             total_distance_km=total_distance,
-            carbon_kg_co2=carbon_kg_co2,
         )
 
         for order in selected_orders:
             order.status = "Sche"
             order.save()
-            DeliveryCrud.create(
-                trip_id=trip.id, store_id=order.store.id, order_id=order.id
-            )
 
         return trip, route_order, fig
 
     @staticmethod
-    def start_trip(trip_id, depot_id):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
+    def start_trip(truck_plate, trip_id, depot_id):
+        truck = TruckCrud.read_by_plate(truck_plate)
+        trip = TripCrud.read_by_id(trip_id)
+        depot = DepotCrud.read_by_id(depot_id)
 
-        try:
-            depot = Depot.objects.get(id=depot_id)
-        except Depot.DoesNotExist:
-            raise ValueError("Depot not found")
+        if truck.is_active == True:
+            raise StatusError("Truck already being used")
 
-        if Trip.origin_depot != depot:
-            raise ValueError("This trip does not correspond to this depot")
+        if not (trip.total_loaded_weight_kg <= truck.max_payload_kg) and (
+            trip.total_loaded_volume_m3 <= truck.cargo_volume_m3
+        ):
+            raise CapacityError(
+                "The selected orders exceed the chosen truck's capacity"
+            )
+
+        if trip.origin_depot != depot:
+            raise BelongError("This trip does not correspond to this depot")
 
         if trip.status != "Plan":
-            raise ValueError("The trip must be planned to be started")
+            raise StatusError("The trip status must be planned to be started")
+
+        match (truck.euro):
+            case 5:
+                carbon_kg_co2 = trip.total_distance_km * 0.83
+            case 6:
+                carbon_kg_co2 = trip.total_distance_km * 0.75
 
         orders = OrderCrud.read_orders_by_trip(trip_id)
         for order in orders:
             order.status = "Ship"
             order.save()
+            DeliveryCrud.create(
+                trip_id=trip.id, store_id=order.store.id, order_id=order.id
+            )
 
+        trip.truck = truck
+        trip.carbon_kg_co2 = carbon_kg_co2
         trip.departure_date = datetime.now()
         trip.status = "InTr"
         trip.save()
+
+        truck.is_active = True
+        truck.total_trips += 1
+        truck.save()
 
         return trip
 
     @staticmethod
     def end_trip(trip_id, depot_id):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
+        trip = TripCrud.read_by_id(trip_id)
+        truck = TruckCrud.read_by_plate(trip.truck.plate)
+        depot = DepotCrud.read_by_id(depot_id)
 
-        try:
-            depot = Depot.objects.get(id=depot_id)
-        except Depot.DoesNotExist:
-            raise ValueError("Depot not found")
-
-        if Trip.origin_depot != depot:
-            raise ValueError("This trip does not correspond to this depot")
+        if trip.origin_depot != depot:
+            raise BelongError("This trip does not belong to this depot")
 
         if trip.status != "InTr":
-            raise ValueError("The trip must be in transit to be ended")
+            raise StatusError("The trip status must be in transit to be ended")
 
-        deliveries = DeliveryCrud.delivery_by_trip(trip_id=trip_id)
-        if not all(delivery.delivered_at for delivery in deliveries):
-            raise ValueError(
-                "A trip must have all deliveries completed in order to be ended"
+        remaining_deliveries = TripService.remaining_deliveries(trip_id)
+        if remaining_deliveries:
+            raise RemainingDeliveriesError(
+                "The trip must have all deliveries completed to be ended"
             )
 
         orders = OrderCrud.read_orders_by_trip(trip_id)
@@ -289,63 +283,44 @@ class TripService:
         trip.status = "Comp"
         trip.save()
 
+        truck.is_active = False
+        truck.save()
+
         return trip
 
     @staticmethod
     def cancel_trip(trip_id, depot_id):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
+        trip = TripCrud.read_by_id(trip_id)
+        depot = DepotCrud.read_by_id(depot_id)
 
-        try:
-            depot = Depot.objects.get(id=depot_id)
-        except Depot.DoesNotExist:
-            raise ValueError("Depot not found")
-
-        if Trip.origin_depot != depot:
-            raise ValueError("This trip does not correspond to this depot")
+        if trip.origin_depot != depot:
+            raise BelongError("This trip does not correspond to this depot")
 
         if trip.status != "Plan":
-            raise ValueError("The trip must be planned to be calceled")
+            raise StatusError("The trip status must be planned to be calceled")
 
         orders = OrderCrud.read_orders_by_trip(trip_id)
         for order in orders:
             order.status = "Pend"
             order.save()
 
-        deliveries = DeliveryCrud.delivery_by_trip(trip_id=trip_id)
-        for delivery in deliveries:
-            DeliveryCrud.delete(delivery.id)
-
         trip.status = "Canc"
         trip.save()
 
     @staticmethod
     def confirm_delivery(trip_id, truck_plate, delivery_id):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
-
-        try:
-            truck = Truck.objects.get(plate=truck_plate)
-        except Truck.DoesNotExist:
-            raise ValueError("Incorrect Plate or Truck not found")
-
-        try:
-            delivery = Delivery.objects.get(id=delivery_id)
-        except Delivery.DoesNotExist:
-            raise ValueError("Delivery not found")
+        trip = TripCrud.read_by_id(trip_id)
+        truck = TruckCrud.read_by_plate(truck_plate)
+        delivery = DeliveryCrud.read_by_id(delivery_id)
 
         if trip.status != "InTr":
-            raise ValueError("Trip must be in transit to confirm a delivery")
+            raise StatusError("Trip status must be in transit to confirm a delivery")
 
         if trip.truck != truck:
-            raise ValueError("This truck is not making this trip")
+            raise BelongError("This truck does not belong on this trip")
 
         if delivery.trip != trip:
-            raise ValueError("This delivery does not belong on this trip")
+            raise BelongError("This delivery does not belong on this trip")
 
         delivery.delivered_at = datetime.now()
         delivery.save()

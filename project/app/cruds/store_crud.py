@@ -1,6 +1,7 @@
 from ..models import Store
 from .address_crud import AddressCrud
 from .user_crud import UserCrud
+from ..exception_errors import UserRoleError, UpdateError
 
 
 class StoreCrud:
@@ -21,7 +22,7 @@ class StoreCrud:
     ):
         user = UserCrud.read_by_email(user_email)
         if user.role != "Shop":
-            raise ValueError("To create a Store, the user role must be: Shop")
+            raise UserRoleError("To create a Store, the user role must be: Shop")
 
         address = AddressCrud.create(
             street, number, complement, neighborhood, city, state, cep, country
@@ -44,7 +45,7 @@ class StoreCrud:
         try:
             return Store.objects.get(id=store_id)
         except Store.DoesNotExist:
-            raise ValueError
+            raise ValueError("Store not found")
 
     @staticmethod
     def read_stores_by_email(user_email):
@@ -53,9 +54,7 @@ class StoreCrud:
 
     @staticmethod
     def update(store_id, **kwargs):
-        store = Store.objects.get(id=store_id)
-        if not store:
-            return None
+        store = StoreCrud.read_by_id(store_id)
         address = store.address
         for key, value in kwargs.items():
             if key in [
@@ -70,7 +69,7 @@ class StoreCrud:
             ]:
                 setattr(address, key, value)
             elif key == "user":
-                raise KeyError("Update user denied")
+                raise UpdateError("Update user denied")
             else:
                 setattr(store, key, value)
 
@@ -80,5 +79,5 @@ class StoreCrud:
 
     @staticmethod
     def delete(store_id):
-        store = Store.objects.get(id=store_id)
+        store = StoreCrud.read_by_id(store_id)
         AddressCrud.delete(store.address.id)

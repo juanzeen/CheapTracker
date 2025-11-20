@@ -1,10 +1,12 @@
 from ..models import Truck, Carrier
+from .carrier_crud import CarrierCrud
+from ..exception_errors import BelongError
 
 
 class TruckCrud:
     @staticmethod
     def create(carrier_id, plate, category, release_year):
-        carrier = Carrier.objects.get(id=carrier_id)
+        carrier = CarrierCrud.read_by_id(carrier_id)
         match category:
             case "light":
                 return Truck.objects.create(
@@ -58,11 +60,14 @@ class TruckCrud:
 
     @staticmethod
     def read_by_plate(plate):
-        return Truck.objects.get(plate=plate)
+        try:
+            return Truck.objects.get(plate=plate)
+        except Truck.DoesNotExist:
+            raise ValueError("Truck not found")
 
     @staticmethod
     def read_trucks_by_carrier(carrier_id):
-        carrier = Carrier.objects.get(id=carrier_id)
+        carrier = CarrierCrud.read_by_id(carrier_id)
         return Truck.objects.filter(carrier=carrier)
 
     @staticmethod
@@ -70,9 +75,9 @@ class TruckCrud:
         if current_carrier_id == new_carrier_id:
             raise ValueError("The carrier IDs entered are the same")
 
-        truck = Truck.objects.get(plate=plate)
+        truck = TruckCrud.read_by_plate(plate)
         if truck.carrier.id != current_carrier_id:
-            raise ValueError("This truck does not belong to this carrier")
+            raise BelongError("This truck does not belong to this carrier")
 
         try:
             new_carrier = Carrier.objects.get(id=new_carrier_id)
@@ -84,8 +89,9 @@ class TruckCrud:
             truck.save()
             return truck
         else:
-            raise ValueError("The carriers entered are not from the same user")
+            raise BelongError("The carriers entered are not from the same user")
 
     @staticmethod
     def delete(plate):
-        Truck.objects.get(plate=plate).delete()
+        truck = TruckCrud.read_by_plate(plate)
+        truck.delete()

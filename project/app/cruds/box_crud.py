@@ -1,13 +1,12 @@
-from ..models import Box, Order
+from ..models import Box
+from .order_crud import OrderCrud
+from ..exception_errors import DeleteError
 
 
 class BoxCrud:
     @staticmethod
     def create(order_id, size, length, width, height, payload_kg):
-        try:
-            order = Order.objects.get(id=order_id)
-        except Order.DoesNotExist:
-            raise ValueError("Order ID not found")
+        order = OrderCrud.read_by_id(order_id)
 
         if size not in ["small", "medium", "big", "large", "custom"]:
             raise ValueError("Size must be: small, medium, big, large or custom")
@@ -80,24 +79,25 @@ class BoxCrud:
         return Box.objects.all()
 
     @staticmethod
-    def read_boxes_by_order(order_id):
+    def read_by_id(box_id):
         try:
-            order = Order.objects.get(id=order_id)
-        except Order.DoesNotExist:
-            raise ValueError("Order not found")
+            return Box.objects.get(id=box_id)
+        except Box.DoesNotExist:
+            raise ValueError("Box not found")
+
+    @staticmethod
+    def read_boxes_by_order(order_id):
+        order = OrderCrud.read_by_id(order_id)
 
         return Box.objects.filter(order=order)
 
     @staticmethod
     def delete(box_id):
-        try:
-            box = Box.objects.get(id=box_id)
-        except Box.DoesNotExist:
-            raise ValueError("Box not found")
+        box = BoxCrud.read_by_id(box_id)
 
-        if box.order.status in ["Ship", "Deli"]:
-            raise KeyError(
-                "Delete box denied. Box has already been shipped or delivered."
+        if box.order.status in ["Sche", "Ship", "Deli"]:
+            raise DeleteError(
+                "Delete box denied. Order box has already been scheduled, shipped or delivered."
             )
 
         box.delete()

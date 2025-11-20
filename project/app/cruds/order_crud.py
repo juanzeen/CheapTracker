@@ -1,13 +1,13 @@
-from ..models import Order, Store, Trip
+from ..models import Order
+from .store_crud import StoreCrud
+from .trip_crud import TripCrud
+from ..exception_errors import DeleteError
 
 
 class OrderCrud:
     @staticmethod
     def create(store_id):
-        try:
-            store = Store.objects.get(id=store_id)
-        except Store.DoesNotExist:
-            raise ValueError("Store not found")
+        store = StoreCrud.read_by_id(store_id)
 
         return Order.objects.create(
             store=store,
@@ -31,19 +31,13 @@ class OrderCrud:
 
     @staticmethod
     def read_orders_by_store(store_id):
-        try:
-            store = Store.objects.get(id=store_id)
-        except Store.DoesNotExist:
-            raise ValueError("Store not found")
+        store = StoreCrud.read_by_id(store_id)
 
         return Order.objects.filter(store=store)
 
     @staticmethod
     def read_orders_by_trip(trip_id):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
+        trip = TripCrud.read_by_id(trip_id)
 
         return Order.objects.filter(trip=trip)
 
@@ -53,12 +47,9 @@ class OrderCrud:
 
     @staticmethod
     def delete(order_id):
-        try:
-            order = Order.objects.get(id=order_id)
-        except Order.DoesNotExist:
-            raise ValueError("Order not found")
+        order = OrderCrud.read_by_id(order_id)
 
         if order.status != "Pend":
-            raise ValueError("Order status must be Pending to delete")
+            raise DeleteError("Order status must be Pending to delete")
 
         order.delete()

@@ -1,6 +1,7 @@
 from ..models import Depot
 from .address_crud import AddressCrud
 from .user_crud import UserCrud
+from ..exception_errors import UserRoleError, UpdateError
 
 
 class DepotCrud:
@@ -21,7 +22,7 @@ class DepotCrud:
     ):
         user = UserCrud.read_by_email(user_email)
         if user.role != "Man":
-            raise ValueError("To create a Depot, the user role must be: Man")
+            raise UserRoleError("To create a Depot, the user role must be: Man")
 
         address = AddressCrud.create(
             street, number, complement, neighborhood, city, state, cep, country
@@ -40,12 +41,11 @@ class DepotCrud:
         return Depot.objects.all()
 
     @staticmethod
-    def read_by_id(carrier_id):
+    def read_by_id(depot_id):
         try:
-            depot = Depot.objects.all(id=carrier_id)
-            return depot
+            return Depot.objects.get(id=depot_id)
         except Depot.DoesNotExist:
-            raise ValueError
+            raise ValueError("Depot not found")
 
     @staticmethod
     def read_depots_by_email(user_email):
@@ -54,7 +54,7 @@ class DepotCrud:
 
     @staticmethod
     def update(depot_id, **kwargs):
-        depot = Depot.objects.get(id=depot_id)
+        depot = DepotCrud.read_by_id(depot_id)
         address = depot.address
         for key, value in kwargs.items():
             if key in [
@@ -69,7 +69,7 @@ class DepotCrud:
             ]:
                 setattr(address, key, value)
             elif key == "user":
-                raise KeyError("Update user denied")
+                raise UpdateError("Update user denied")
             else:
                 setattr(depot, key, value)
 
@@ -79,5 +79,5 @@ class DepotCrud:
 
     @staticmethod
     def delete(depot_id):
-        depot = Depot.objects.get(id=depot_id)
+        depot = DepotCrud.read_by_id(depot_id)
         AddressCrud.delete(depot.address.id)
