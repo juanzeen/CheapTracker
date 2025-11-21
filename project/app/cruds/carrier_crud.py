@@ -1,7 +1,7 @@
 from ..models import Carrier
 from .address_crud import AddressCrud
 from .user_crud import UserCrud
-from ..exception_errors import UserRoleError, UpdateError
+from ..exception_errors import UserRoleError, PlacePermissionError
 
 
 class CarrierCrud:
@@ -69,7 +69,7 @@ class CarrierCrud:
             ]:
                 setattr(address, key, value)
             elif key == "user":
-                raise UpdateError("Update user denied")
+                raise PlacePermissionError("Update user denied. Update user is a User Permission")
             else:
                 setattr(carrier, key, value)
 

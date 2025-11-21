@@ -1,12 +1,8 @@
-class DeleteError(Exception):
-    pass
-
-
 class UserRoleError(Exception):
     pass
 
 
-class UpdateError(Exception):
+class PlacePermissionError(Exception):
     pass
 
 

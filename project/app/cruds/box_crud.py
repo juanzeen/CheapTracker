@@ -1,6 +1,6 @@
 from ..models import Box
 from .order_crud import OrderCrud
-from ..exception_errors import DeleteError
+from ..exception_errors import StatusError
 
 
 class BoxCrud:
@@ -96,7 +96,7 @@ class BoxCrud:
         box = BoxCrud.read_by_id(box_id)
 
         if box.order.status in ["Sche", "Ship", "Deli"]:
-            raise DeleteError(
+            raise StatusError(
                 "Delete box denied. Order box has already been scheduled, shipped or delivered."
             )
 

@@ -1,7 +1,7 @@
 from ..models import Order
 from .store_crud import StoreCrud
 from .trip_crud import TripCrud
-from ..exception_errors import DeleteError
+from ..exception_errors import StatusError
 
 
 class OrderCrud:
@@ -50,6 +50,6 @@ class OrderCrud:
         order = OrderCrud.read_by_id(order_id)
 
         if order.status != "Pend":
-            raise DeleteError("Order status must be Pending to delete")
+            raise StatusError("Order status must be Pending to delete")
 
         order.delete()
