@@ -13,6 +13,7 @@ from ..exception_errors import (
     CapacityError,
     BelongError,
     RemainingDeliveriesError,
+    SimulateTripError,
 )
 
 import time
@@ -325,15 +326,13 @@ class TripService:
         delivery.delivered_at = datetime.now()
         delivery.save()
 
-    """@staticmethod
-    def simulate_trip(trip_id, traffic_status):
-        try:
-            trip = Trip.objects.get(id=trip_id)
-        except Trip.DoesNotExist:
-            raise ValueError("Trip not found")
+    @staticmethod
+    def simulate_trip(trip_id, truck_plate, traffic_status):
+        trip = TripCrud.read_by_id(trip_id)
+        truck = TruckCrud.read_by_plate(truck_plate)
 
         if traffic_status not in ['light', 'medium', 'heavy']:
-            raise ValueError('Traffic Status must be: light, medium or heavy.')
+            raise StatusError('Traffic Status must be: light, medium or heavy.')
 
         match(traffic_status):
             case 'light':
@@ -343,24 +342,24 @@ class TripService:
             case 'heavy':
                 average_speed = 20
 
-        # simulation arrival time
+        departure_date = datetime.now()
         full_time_route = trip.total_distance_km/average_speed
-        hours = int(full_time_route)
+
+        days = full_time_route // 24
+        hours = int(full_time_route - (days * 24))
         minutes = round((full_time_route % 1) * 60)
 
-        arrival_date = trip.departure_date + timedelta(hours=hours, minutes=minutes)
+        arrival_date = departure_date + timedelta(days=days, hours=hours, minutes=minutes)
 
-        trip.arrival_date = arrival_date
-        trip.save()
+        match (truck.euro):
+            case 5:
+                carbon_kg_co2 = trip.total_distance_km * 0.83
+            case 6:
+                carbon_kg_co2 = trip.total_distance_km * 0.75
 
-        while True:
-            now = datetime.now()
-            if now >= arrival_date:
-                break
-
-            time.sleep(60)
-
-        trip_deliveries = DeliveryCrud.delivery_by_trip(trip_id=trip_id)
-        for delivery in trip_deliveries:
-            delivery.delivered_at = now
-            delivery.save()"""
+        print(f"Simulating Trip ID:{trip.id} with Truck Plate: {truck.plate}\n\n")
+        print(f"Total distance traveled on the Trip:\n{trip.total_distance_km} kms\n\n")
+        print(f"Departure:\n{departure_date.month} {departure_date.day} at {departure_date.hour}:{departure_date.minute}\n\n")
+        print(f"Arrival:\n{arrival_date.month} {arrival_date.day} at {arrival_date.hour}:{arrival_date.minute}\n\n")
+        print(f"Travel time:\n{days} day(s), {hours} hour(s) and {minutes} minute(s)\n\n")
+        print(f"Carbon emission:\n{carbon_kg_co2} kgCO2\n")

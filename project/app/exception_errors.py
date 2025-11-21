@@ -24,3 +24,7 @@ class CapacityError(Exception):
 
 class RemainingDeliveriesError(Exception):
     pass
+
+
+class SimulateTripError(Exception):
+    pass
