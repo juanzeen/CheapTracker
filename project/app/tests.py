@@ -16,7 +16,6 @@ from app.exception_errors import UserRoleError, UpdateError, BelongError, Delete
 from django.contrib.auth.hashers import check_password
 
 
-
 class BasicUserCrudTest(TestCase):
     "Tests to check users CRUD"
 
@@ -108,6 +107,7 @@ class AddressCrudTest(TestCase):
         formatted = AddressCrud.formatted_address(self.address.id)
         expected = "Rua Exemplo, 123, Bairro Exemplo, Cidade Exemplo, Estado Exemplo, 12345-678, Brasil"
         self.assertEqual(formatted, expected)
+
 
 class StoreCrudTest(TestCase):
     "Tests to check store CRUD"
@@ -211,6 +211,7 @@ class StoreCrudTest(TestCase):
         with self.assertRaises(ValueError):
             AddressCrud.read_by_id(address_id)
 
+
 class DepotCrudTest(TestCase):
     "Tests to check depot CRUD"
 
@@ -312,6 +313,7 @@ class DepotCrudTest(TestCase):
             DepotCrud.read_by_id(depot_id)
         with self.assertRaises(ValueError):
             AddressCrud.read_by_id(address_id)
+
 
 class CarrierCrudTest(TestCase):
     "Tests to check carrier CRUD"
@@ -415,23 +417,37 @@ class CarrierCrudTest(TestCase):
         with self.assertRaises(ValueError):
             AddressCrud.read_by_id(address_id)
 
+
 class TruckCrudTest(TestCase):
     "Tests to check truck CRUD"
 
     def setUp(self):
         self.user = UserCrud.create(
-            role="Carr", name="Carrier User", age=35, email="carrieruser@test.com", password="password"
+            role="Carr",
+            name="Carrier User",
+            age=35,
+            email="carrieruser@test.com",
+            password="password",
         )
         self.carrier1 = CarrierCrud.create(
             user_email="carrieruser@test.com",
             name="Fast Carrier",
             contact="555666777",
             registration="5566778899",
-            street="Carrier Ave", number="200", complement="", neighborhood="Transport Hub",
-            city="Carrierville", state="Carrierland", cep="98765-432", country="Carrierland"
+            street="Carrier Ave",
+            number="200",
+            complement="",
+            neighborhood="Transport Hub",
+            city="Carrierville",
+            state="Carrierland",
+            cep="98765-432",
+            country="Carrierland",
         )
         self.truck = TruckCrud.create(
-            carrier_id=self.carrier1.id, plate="TRK1234", category="medium", release_year=2020
+            carrier_id=self.carrier1.id,
+            plate="TRK1234",
+            category="medium",
+            release_year=2020,
         )
 
     def test_create_light_truck(self):
@@ -467,37 +483,67 @@ class TruckCrudTest(TestCase):
         """Testing successfully changing a truck's carrier"""
         carrier2 = CarrierCrud.create(
             user_email=self.user.email,
-            name="Slower Carrier", contact="111222333", registration="11223344",
-            street="Slow Lane", number="10", complement="", neighborhood="Suburb",
-            city="Carrierville", state="Carrierland", cep="98765-111", country="Carrierland"
+            name="Slower Carrier",
+            contact="111222333",
+            registration="11223344",
+            street="Slow Lane",
+            number="10",
+            complement="",
+            neighborhood="Suburb",
+            city="Carrierville",
+            state="Carrierland",
+            cep="98765-111",
+            country="Carrierland",
         )
-        updated_truck = TruckCrud.change_carrier_truck(self.truck.plate, self.carrier1.id, carrier2.id)
+        updated_truck = TruckCrud.change_carrier_truck(
+            self.truck.plate, self.carrier1.id, carrier2.id
+        )
         self.assertEqual(updated_truck.carrier.id, carrier2.id)
 
     def test_change_carrier_same_id_fails(self):
         """Testing failure when new and current carrier IDs are the same"""
-        with self.assertRaisesMessage(ValueError, "The carrier IDs entered are the same"):
-            TruckCrud.change_carrier_truck(self.truck.plate, self.carrier1.id, self.carrier1.id)
+        with self.assertRaisesMessage(
+            ValueError, "The carrier IDs entered are the same"
+        ):
+            TruckCrud.change_carrier_truck(
+                self.truck.plate, self.carrier1.id, self.carrier1.id
+            )
 
     def test_change_carrier_wrong_belong_fails(self):
         """Testing failure when truck does not belong to the specified carrier"""
         wrong_carrier_id = 999
         with self.assertRaises(BelongError):
-            TruckCrud.change_carrier_truck(self.truck.plate, wrong_carrier_id, self.carrier1.id)
+            TruckCrud.change_carrier_truck(
+                self.truck.plate, wrong_carrier_id, self.carrier1.id
+            )
 
     def test_change_carrier_different_user_fails(self):
         """Testing failure when carriers belong to different users"""
         other_user = UserCrud.create(
-            role="Carr", name="Other Carrier User", age=40, email="other@test.com", password="password"
+            role="Carr",
+            name="Other Carrier User",
+            age=40,
+            email="other@test.com",
+            password="password",
         )
         carrier3 = CarrierCrud.create(
             user_email=other_user.email,
-            name="Third Carrier", contact="444555666", registration="44556677",
-            street="Third St", number="30", complement="", neighborhood="Industrial",
-            city="Carrierville", state="Carrierland", cep="98765-222", country="Carrierland"
+            name="Third Carrier",
+            contact="444555666",
+            registration="44556677",
+            street="Third St",
+            number="30",
+            complement="",
+            neighborhood="Industrial",
+            city="Carrierville",
+            state="Carrierland",
+            cep="98765-222",
+            country="Carrierland",
         )
         with self.assertRaises(BelongError):
-            TruckCrud.change_carrier_truck(self.truck.plate, self.carrier1.id, carrier3.id)
+            TruckCrud.change_carrier_truck(
+                self.truck.plate, self.carrier1.id, carrier3.id
+            )
 
     def test_delete_truck(self):
         """Testing if a truck is deleted"""
@@ -506,18 +552,31 @@ class TruckCrudTest(TestCase):
         with self.assertRaises(ValueError):
             TruckCrud.read_by_plate(plate)
 
+
 class OrderCrudTest(TestCase):
     "Tests to check order CRUD"
 
     def setUp(self):
         user = UserCrud.create(
-            role="Shop", name="Shop User", age=30, email="shopuser@test.com", password="password"
+            role="Shop",
+            name="Shop User",
+            age=30,
+            email="shopuser@test.com",
+            password="password",
         )
         self.store = StoreCrud.create(
             user_email="shopuser@test.com",
-            name="My Test Store", contact="123456789", registration="987654321",
-            street="Main St", number="10", complement="", neighborhood="Downtown",
-            city="Testville", state="Testland", cep="12345-000", country="Testland"
+            name="My Test Store",
+            contact="123456789",
+            registration="987654321",
+            street="Main St",
+            number="10",
+            complement="",
+            neighborhood="Downtown",
+            city="Testville",
+            state="Testland",
+            cep="12345-000",
+            country="Testland",
         )
         self.order = OrderCrud.create(self.store.id)
 
@@ -562,18 +621,31 @@ class OrderCrudTest(TestCase):
         with self.assertRaises(DeleteError):
             OrderCrud.delete(self.order.id)
 
+
 class TripCrudTest(TestCase):
     "Tests to check trip CRUD"
 
     def setUp(self):
         user = UserCrud.create(
-            role="Man", name="Manager User", age=40, email="manageruser@test.com", password="password"
+            role="Man",
+            name="Manager User",
+            age=40,
+            email="manageruser@test.com",
+            password="password",
         )
         self.depot = DepotCrud.create(
             user_email="manageruser@test.com",
-            name="Main Depot", contact="111222333", registration="1122334455",
-            street="Depot St", number="100", complement="Warehouse 1", neighborhood="Industrial Park",
-            city="Depotville", state="Depotland", cep="54321-123", country="Depotland"
+            name="Main Depot",
+            contact="111222333",
+            registration="1122334455",
+            street="Depot St",
+            number="100",
+            complement="Warehouse 1",
+            neighborhood="Industrial Park",
+            city="Depotville",
+            state="Depotland",
+            cep="54321-123",
+            country="Depotland",
         )
         self.trip = TripCrud.create(
             depot_id=self.depot.id,
@@ -639,18 +711,31 @@ class TripCrudTest(TestCase):
         with self.assertRaises(ValueError):
             TripCrud.read_by_id(trip_id)
 
+
 class BoxCrudTest(TestCase):
     "Tests to check box CRUD"
 
     def setUp(self):
         user = UserCrud.create(
-            role="Shop", name="Shop User", age=30, email="shopuser@test.com", password="password"
+            role="Shop",
+            name="Shop User",
+            age=30,
+            email="shopuser@test.com",
+            password="password",
         )
         store = StoreCrud.create(
             user_email="shopuser@test.com",
-            name="My Test Store", contact="123456789", registration="987654321",
-            street="Main St", number="10", complement="", neighborhood="Downtown",
-            city="Testville", state="Testland", cep="12345-000", country="Testland"
+            name="My Test Store",
+            contact="123456789",
+            registration="987654321",
+            street="Main St",
+            number="10",
+            complement="",
+            neighborhood="Downtown",
+            city="Testville",
+            state="Testland",
+            cep="12345-000",
+            country="Testland",
         )
         self.order = OrderCrud.create(store.id)
 
@@ -705,27 +790,52 @@ class BoxCrudTest(TestCase):
         with self.assertRaises(DeleteError):
             BoxCrud.delete(box.id)
 
+
 class DeliveryCrudTest(TestCase):
     "Tests to check delivery CRUD"
 
     def setUp(self):
         shop_user = UserCrud.create(
-            role="Shop", name="Shop User", age=30, email="shopuser@test.com", password="password"
+            role="Shop",
+            name="Shop User",
+            age=30,
+            email="shopuser@test.com",
+            password="password",
         )
         manager_user = UserCrud.create(
-            role="Man", name="Manager User", age=40, email="manageruser@test.com", password="password"
+            role="Man",
+            name="Manager User",
+            age=40,
+            email="manageruser@test.com",
+            password="password",
         )
         self.store = StoreCrud.create(
             user_email="shopuser@test.com",
-            name="My Test Store", contact="123456789", registration="987654321",
-            street="Main St", number="10", complement="", neighborhood="Downtown",
-            city="Testville", state="Testland", cep="12345-000", country="Testland"
+            name="My Test Store",
+            contact="123456789",
+            registration="987654321",
+            street="Main St",
+            number="10",
+            complement="",
+            neighborhood="Downtown",
+            city="Testville",
+            state="Testland",
+            cep="12345-000",
+            country="Testland",
         )
         self.depot = DepotCrud.create(
             user_email="manageruser@test.com",
-            name="Main Depot", contact="111222333", registration="1122334455",
-            street="Depot St", number="100", complement="Warehouse 1", neighborhood="Industrial Park",
-            city="Depotville", state="Depotland", cep="54321-123", country="Depotland"
+            name="Main Depot",
+            contact="111222333",
+            registration="1122334455",
+            street="Depot St",
+            number="100",
+            complement="Warehouse 1",
+            neighborhood="Industrial Park",
+            city="Depotville",
+            state="Depotland",
+            cep="54321-123",
+            country="Depotland",
         )
         self.order = OrderCrud.create(self.store.id)
         self.trip = TripCrud.create(
@@ -770,6 +880,7 @@ class DeliveryCrudTest(TestCase):
         self.delivery.save()
         with self.assertRaises(DeleteError):
             DeliveryCrud.delete(self.delivery.id)
+
 
 class UserAPITest(TestCase):
     "Tests to check all the user API views"
@@ -837,20 +948,26 @@ class UserAPITest(TestCase):
         response = self.client.post(reverse("Logout Route"))
         self.assertEqual(response.status_code, 200)
         # Verify user is logged out by trying to access an authenticated view
-        response = self.client.get(reverse("User Route", kwargs={"email": "admin@test.com"}))
+        response = self.client.get(
+            reverse("User Route", kwargs={"email": "admin@test.com"})
+        )
         self.assertEqual(response.status_code, 401)
 
     def test_get_user_details_authenticated(self):
         """Testing getting user details when authenticated"""
         self.client.login(email="admin@test.com", password="adminpassword")
-        response = self.client.get(reverse("User Route", kwargs={"email": "admin@test.com"}))
+        response = self.client.get(
+            reverse("User Route", kwargs={"email": "admin@test.com"})
+        )
         self.assertEqual(response.status_code, 200)
         response_data = response.json()
         self.assertEqual(response_data["data"]["email"], "admin@test.com")
 
     def test_get_user_details_unauthenticated(self):
         """Testing getting user details when not authenticated"""
-        response = self.client.get(reverse("User Route", kwargs={"email": "admin@test.com"}))
+        response = self.client.get(
+            reverse("User Route", kwargs={"email": "admin@test.com"})
+        )
         self.assertEqual(response.status_code, 401)
 
     def test_update_user_details(self):
@@ -870,7 +987,11 @@ class UserAPITest(TestCase):
     def test_delete_user(self):
         """Testing deleting a user"""
         user_to_delete = UserCrud.create(
-            role="Shop", name="To Delete", age=30, email="todelete@test.com", password="password"
+            role="Shop",
+            name="To Delete",
+            age=30,
+            email="todelete@test.com",
+            password="password",
         )
         self.client.login(email="admin@test.com", password="adminpassword")
         response = self.client.delete(
@@ -895,7 +1016,11 @@ class UserAPITest(TestCase):
 
     def test_change_password_success(self):
         """Testing successful password change"""
-        first_login_response = self.client.post(reverse("Login Route"), data=json.dumps({"email": "admin@test.com", "password": "adminpassword"}), content_type="application/json")
+        first_login_response = self.client.post(
+            reverse("Login Route"),
+            data=json.dumps({"email": "admin@test.com", "password": "adminpassword"}),
+            content_type="application/json",
+        )
         self.assertEqual(first_login_response.status_code, 200)
         response = self.client.put(
             reverse("Change Password Route", kwargs={"email": "admin@test.com"}),
