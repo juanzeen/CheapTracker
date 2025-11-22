@@ -125,5 +125,7 @@ class RemoveBoxView(AuthBaseView):
             return self.SuccessJsonResponse(
                 "Box successfully removed!", model_to_dict(order)
             )
+        except ValueError as e:
+            return self.ErrorJsonResponse(e.args[0])
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")

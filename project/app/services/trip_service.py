@@ -13,10 +13,8 @@ from ..exception_errors import (
     CapacityError,
     BelongError,
     RemainingDeliveriesError,
-    SimulateTripError,
 )
 
-import time
 from datetime import datetime, timedelta
 from geopy.geocoders import Nominatim
 import osmnx as ox
@@ -218,7 +216,7 @@ class TripService:
             trip.total_loaded_volume_m3 <= truck.cargo_volume_m3
         ):
             raise CapacityError(
-                "The selected orders exceed the chosen truck's capacity"
+                f"The selected orders exceed the chosen truck's capacity in {trip.total_loaded_weight_kg - truck.max_payload_kg}kg and {trip.total_loaded_volume_m3 - truck.cargo_volume_m3}m3"
             )
 
         if trip.origin_depot != depot:
