@@ -7,7 +7,7 @@ from app.cruds.depot_crud import DepotCrud
 from app.cruds.carrier_crud import CarrierCrud
 from app.services.trip_service import TripService
 from django.forms.models import model_to_dict
-from exception_errors import RangeError, StatusError
+from app.exception_errors import RangeError, StatusError
 
 
 
