@@ -14,7 +14,7 @@ from app.views.api.places_views import (
     DepotApiView,
     CarrierApiView,
     CarriersApiView,
-    DefineTripAPIView
+    DefineTripAPIView,
 )
 
 from app.views.api.truck_views import TrucksApiView, TruckApiView
