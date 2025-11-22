@@ -12,7 +12,12 @@ from app.cruds.order_crud import OrderCrud
 from app.cruds.trip_crud import TripCrud
 from app.cruds.box_crud import BoxCrud
 from app.cruds.delivery_crud import DeliveryCrud
-from app.exception_errors import UserRoleError, StatusError, BelongError, PlacePermissionError
+from app.exception_errors import (
+    UserRoleError,
+    StatusError,
+    BelongError,
+    PlacePermissionError,
+)
 
 
 class BasicUserCrudTest(TestCase):
