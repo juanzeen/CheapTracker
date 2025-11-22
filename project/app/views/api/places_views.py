@@ -7,6 +7,9 @@ from app.cruds.depot_crud import DepotCrud
 from app.cruds.carrier_crud import CarrierCrud
 from app.services.trip_service import TripService
 from django.forms.models import model_to_dict
+from exception_errors import RangeError, StatusError
+
+
 
 
 class AddressesAPIView(AuthBaseView):
@@ -255,23 +258,22 @@ class DepotApiView(AuthBaseView):
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
-
-class DefinePathAPIView(AuthBaseView):
-    def post(self, request, *args, **kwargs):
-        try:
-            depot = DepotCrud.read_by_id(kwargs["id"])
-            data = json.loads(request.body)
-        except ValueError as e:
-            return self.ErrorJsonResponse(e.args[0])
-
-
 class DefineTripAPIView(AuthBaseView):
     def post(self, request, *args, **kwargs):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
-            data = json.loads(request.body)
+            orders = json.loads(request.body).get("orders")
+            trip, route_order, fig = TripService.define_trip(depot, orders)
+            return self.SuccessJsonResponse(f"Trip successfully defined!", {"trip": model_to_dict(trip), "route_order": route_order})
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
+        except KeyError as e:
+            return self.ErrorJsonResponse(e.args[0])
+        except RangeError as e:
+            return self.ErrorJsonResponse(e.args[0])
+        except StatusError as e:
+            return self.ErrorJsonResponse(e.args[0])
+
 
 
 class CarriersApiView(AuthBaseView):
