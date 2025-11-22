@@ -1,6 +1,6 @@
 from ..models import Trip
 from .depot_crud import DepotCrud
-from ..exception_errors import DeleteError
+from ..exception_errors import StatusError
 
 
 class TripCrud:
@@ -48,7 +48,7 @@ class TripCrud:
         trip = TripCrud.read_by_id(trip_id)
 
         if trip.status in ["InTr", "Comp"]:
-            raise DeleteError(
+            raise StatusError(
                 "Delete trip denied. This trip is in transit or has already "
                 "been completed"
             )

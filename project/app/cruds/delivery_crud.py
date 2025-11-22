@@ -2,7 +2,7 @@ from ..models import Delivery
 from .trip_crud import TripCrud
 from .store_crud import StoreCrud
 from .order_crud import OrderCrud
-from ..exception_errors import DeleteError
+from ..exception_errors import StatusError
 
 
 class DeliveryCrud:
@@ -59,7 +59,7 @@ class DeliveryCrud:
         delivery = DeliveryCrud.read_by_id(delivery_id)
 
         if delivery.delivered_at:
-            raise DeleteError(
+            raise StatusError(
                 "Delete delivery denied. This delivery has already been delivered"
             )
 

@@ -1,12 +1,8 @@
-class DeleteError(Exception):
-    pass
-
-
 class UserRoleError(Exception):
     pass
 
 
-class UpdateError(Exception):
+class PlacePermissionError(Exception):
     pass
 
 
@@ -27,4 +23,8 @@ class CapacityError(Exception):
 
 
 class RemainingDeliveriesError(Exception):
+    pass
+
+
+class SimulateTripError(Exception):
     pass
