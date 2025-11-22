@@ -17,7 +17,17 @@ from app.views.api.places_views import (
 )
 
 from app.views.api.truck_views import TrucksApiView, TruckApiView
-from app.views.api.trip_view import TripsAPIView, TripAPIView, TripsByStatusAPIView
+from app.views.api.trip_view import (
+    TripsAPIView,
+    TripAPIView,
+    TripsByStatusAPIView,
+    TripsRemainingDeliveriesAPIView,
+    StartTripsAPIView,
+    EndTripAPIView,
+    SimulateTripAPIView,
+    CancelTripAPIView,
+    ConfirmDeliveryInTripAPIView,
+)
 
 from app.views.api.order_views import (
     OrdersApiView,
@@ -65,6 +75,16 @@ urlpatterns = [
     # depots routes
     path("api/depots", DepotsApiView.as_view(), name="Depots Route"),
     path("api/depots/<int:id>", DepotApiView.as_view(), name="Depot Route"),
+    path(
+        "api/depots/<int:id>/define-route",
+        DepotApiView.as_view(),
+        name="Depot Define Path Route",
+    ),
+    path(
+        "api/depots/<int:id>/define-trip",
+        DepotApiView.as_view(),
+        name="Depot Define Trip Route",
+    ),
     # carrier routes
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
     path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
@@ -88,8 +108,34 @@ urlpatterns = [
     ),
     # trip routes
     path("api/trips", TripsAPIView.as_view(), name="Trips Route"),
+    path(
+        "api/filtered-trips", TripsByStatusAPIView.as_view(), name="Filtered Trip Route"
+    ),
     path("api/trip/<int:id>", TripAPIView.as_view(), name="Trip Route"),
-    path("api/filtered-trips", TripsByStatusAPIView.as_view(), name="Filtered Trip Route"),
+    path(
+        "api/trip/<int:id>/remaining-deliveries",
+        TripsRemainingDeliveriesAPIView.as_view(),
+        name="Remaining Deliveries Route",
+    ),
+    path(
+        "api/trip/<int:id>/start", StartTripsAPIView.as_view(), name="Start Trip Route"
+    ),
+    path("api/trip/<int:id>/end", EndTripAPIView.as_view(), name="End Trip Route"),
+    path(
+        "api/trip/<int:id>/simulate",
+        SimulateTripAPIView.as_view(),
+        name="Simulate Trip Route",
+    ),
+    path(
+        "api/trip/<int:id>/cancel-trip",
+        CancelTripAPIView.as_view(),
+        name="Simulate Trip Route",
+    ),
+    path(
+        "api/trip/<int:trip_id>/confirm-delivery/<int:delivery_id>",
+        ConfirmDeliveryInTripAPIView.as_view(),
+        name="Simulate Trip Route",
+    ),
     path(
         "api/trip/<int:id>/orders",
         OrdersByTripView.as_view(),
