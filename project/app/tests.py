@@ -12,7 +12,7 @@ from app.cruds.order_crud import OrderCrud
 from app.cruds.trip_crud import TripCrud
 from app.cruds.box_crud import BoxCrud
 from app.cruds.delivery_crud import DeliveryCrud
-from app.exception_errors import UserRoleError, UpdateError, BelongError, DeleteError
+from app.exception_errors import UserRoleError, StatusError, BelongError, PlacePermissionError
 
 
 class BasicUserCrudTest(TestCase):
@@ -197,7 +197,7 @@ class StoreCrudTest(TestCase):
             email="another@test.com",
             password="password",
         )
-        with self.assertRaises(UpdateError):
+        with self.assertRaises(PlacePermissionError):
             StoreCrud.update(self.store.id, user=another_user)
 
     def test_delete_store(self):
@@ -300,7 +300,7 @@ class DepotCrudTest(TestCase):
             email="anothermanager@test.com",
             password="password",
         )
-        with self.assertRaises(UpdateError):
+        with self.assertRaises(PlacePermissionError):
             DepotCrud.update(self.depot.id, user=another_user)
 
     def test_delete_depot(self):
@@ -403,7 +403,7 @@ class CarrierCrudTest(TestCase):
             email="anothercarrier@test.com",
             password="password",
         )
-        with self.assertRaises(UpdateError):
+        with self.assertRaises(PlacePermissionError):
             CarrierCrud.update(self.carrier.id, user=another_user)
 
     def test_delete_carrier(self):
@@ -617,7 +617,7 @@ class OrderCrudTest(TestCase):
         """Testing that deleting a non-pending order raises an error"""
         self.order.status = "Sche"
         self.order.save()
-        with self.assertRaises(DeleteError):
+        with self.assertRaises(StatusError):
             OrderCrud.delete(self.order.id)
 
 
@@ -691,14 +691,14 @@ class TripCrudTest(TestCase):
         """Testing that deleting an in-transit trip raises an error"""
         self.trip.status = "InTr"
         self.trip.save()
-        with self.assertRaises(DeleteError):
+        with self.assertRaises(StatusError):
             TripCrud.delete(self.trip.id)
 
     def test_delete_completed_trip_fails(self):
         """Testing that deleting a completed trip raises an error"""
         self.trip.status = "Comp"
         self.trip.save()
-        with self.assertRaises(DeleteError):
+        with self.assertRaises(StatusError):
             TripCrud.delete(self.trip.id)
 
     def test_delete_cancelled_trip(self):
@@ -786,7 +786,7 @@ class BoxCrudTest(TestCase):
         self.order.status = "Ship"
         self.order.save()
         box = BoxCrud.create(self.order.id, "small", None, None, None, None)
-        with self.assertRaises(DeleteError):
+        with self.assertRaises(StatusError):
             BoxCrud.delete(box.id)
 
 
@@ -877,7 +877,7 @@ class DeliveryCrudTest(TestCase):
         """Testing that deleting a completed delivery raises an error"""
         self.delivery.delivered_at = timezone.now()
         self.delivery.save()
-        with self.assertRaises(DeleteError):
+        with self.assertRaises(StatusError):
             DeliveryCrud.delete(self.delivery.id)
 
 
