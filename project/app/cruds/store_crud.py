@@ -69,7 +69,9 @@ class StoreCrud:
             ]:
                 setattr(address, key, value)
             elif key == "user":
-                raise PlacePermissionError("Update user denied. Update user is a User Permission")
+                raise PlacePermissionError(
+                    "Update user denied. Update user is a User Permission"
+                )
             else:
                 setattr(store, key, value)
 

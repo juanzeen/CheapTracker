@@ -331,25 +331,27 @@ class TripService:
         trip = TripCrud.read_by_id(trip_id)
         truck = TruckCrud.read_by_plate(truck_plate)
 
-        if traffic_status not in ['light', 'medium', 'heavy']:
-            raise StatusError('Traffic Status must be: light, medium or heavy.')
+        if traffic_status not in ["light", "medium", "heavy"]:
+            raise StatusError("Traffic Status must be: light, medium or heavy.")
 
-        match(traffic_status):
-            case 'light':
+        match (traffic_status):
+            case "light":
                 average_speed = 60
-            case 'medium':
+            case "medium":
                 average_speed = 40
-            case 'heavy':
+            case "heavy":
                 average_speed = 20
 
         departure_date = datetime.now()
-        full_time_route = trip.total_distance_km/average_speed
+        full_time_route = trip.total_distance_km / average_speed
 
         days = full_time_route // 24
         hours = int(full_time_route - (days * 24))
         minutes = round((full_time_route % 1) * 60)
 
-        arrival_date = departure_date + timedelta(days=days, hours=hours, minutes=minutes)
+        arrival_date = departure_date + timedelta(
+            days=days, hours=hours, minutes=minutes
+        )
 
         match (truck.euro):
             case 5:
@@ -359,7 +361,33 @@ class TripService:
 
         print(f"Simulating Trip ID:{trip.id} with Truck Plate: {truck.plate}\n\n")
         print(f"Total distance traveled on the Trip:\n{trip.total_distance_km} kms\n\n")
-        print(f"Departure:\n{departure_date.month} {departure_date.day} at {departure_date.hour}:{departure_date.minute}\n\n")
-        print(f"Arrival:\n{arrival_date.month} {arrival_date.day} at {arrival_date.hour}:{arrival_date.minute}\n\n")
-        print(f"Travel time:\n{days} day(s), {hours} hour(s) and {minutes} minute(s)\n\n")
+        print(
+            f"Departure:\n{departure_date.month} {departure_date.day} at {departure_date.hour}:{departure_date.minute}\n\n"
+        )
+        print(
+            f"Arrival:\n{arrival_date.month} {arrival_date.day} at {arrival_date.hour}:{arrival_date.minute}\n\n"
+        )
+        print(
+            f"Travel time:\n{days} day(s), {hours} hour(s) and {minutes} minute(s)\n\n"
+        )
         print(f"Carbon emission:\n{carbon_kg_co2} kgCO2\n")
+
+        simulation = {
+            "trip_id": trip.id,
+            "truck_plate": truck.plate,
+            "trip_total_distance": trip.total_distance_km,
+            "departure_date_month": departure_date.month,
+            "departure_date_day": departure_date.day,
+            "departure_date_hour": departure_date.hour,
+            "departure_date_minute": departure_date.minute,
+            "arrival_date_month": arrival_date.month,
+            "arrival_date_day": arrival_date.day,
+            "arrival_date_hour": arrival_date.hour,
+            "arrival_date_minute": arrival_date.minute,
+            "trip_days": days,
+            "trip_hours": hours,
+            "trip_minutes": minutes,
+            "trip_carbon_emission": carbon_kg_co2,
+        }
+
+        return simulation
