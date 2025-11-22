@@ -110,7 +110,7 @@ class StartTripsAPIView(AuthBaseView):
             depot = DepotCrud.read_by_id(data["depot_id"])
             started_trip = TripService.start_trip(truck.plate, trip.id, depot.id)
             return self.SuccessJsonResponse(
-                "Trip successfully retrieved!", model_to_dict(started_trip)
+                "Trip successfully started!", model_to_dict(started_trip)
             )
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
@@ -130,7 +130,7 @@ class EndTripAPIView(AuthBaseView):
             depot = DepotCrud.read_by_id(data["depot_id"])
             ended_trip = TripService.end_trip(trip.id, depot.id)
             return self.SuccessJsonResponse(
-                "Trip successfully retrieved!", model_to_dict(ended_trip)
+                "Trip successfully ended!", model_to_dict(ended_trip)
             )
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
@@ -151,7 +151,7 @@ class SimulateTripAPIView(AuthBaseView):
             simulation = TripService.simulate_trip(
                 trip.id, truck.plate, data["traffic_status"]
             )
-            return self.SuccessJsonResponse("Trip successfully retrieved!", simulation)
+            return self.SuccessJsonResponse("Simulation has been finished!", simulation)
         except StatusError as e:
             return self.ErrorJsonResponse(e.args[0])
 
@@ -164,7 +164,7 @@ class CancelTripAPIView(AuthBaseView):
             depot = DepotCrud.read_by_id(data["depot_id"])
             canceled_trip = TripService.cancel_trip(trip.id, depot.id)
             return self.SuccessJsonResponse(
-                "Trip successfully retrieved!", model_to_dict(canceled_trip)
+                "Trip successfully cancelled!", model_to_dict(canceled_trip)
             )
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
@@ -183,7 +183,7 @@ class ConfirmDeliveryInTripAPIView(AuthBaseView):
                 trip.id, truck.plate, delivery.id
             )
             return self.SuccessJsonResponse(
-                "Trip successfully retrieved!", model_to_dict(confirmed_delivery)
+                "Delivery successfully confirmed!", model_to_dict(confirmed_delivery)
             )
         except StatusError as e:
             return self.ErrorJsonResponse(e.args[0])

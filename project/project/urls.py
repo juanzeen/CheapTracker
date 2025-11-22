@@ -18,7 +18,7 @@ from app.views.api.places_views import (
 )
 
 from app.views.api.truck_views import TrucksApiView, TruckApiView
-from app.views.api.trip_view import (
+from project.app.views.api.trip_views import (
     TripsAPIView,
     TripAPIView,
     TripsByStatusAPIView,
