@@ -17,6 +17,7 @@ from app.views.api.places_views import (
 )
 
 from app.views.api.truck_views import TrucksApiView, TruckApiView
+from app.views.api.trip_view import TripsAPIView, TripAPIView, TripsByStatusAPIView
 
 from app.views.api.order_views import (
     OrdersApiView,
@@ -86,6 +87,9 @@ urlpatterns = [
         name="Order Remove Box Route",
     ),
     # trip routes
+    path("api/trips", TripsAPIView.as_view(), name="Trips Route"),
+    path("api/trip/<int:id>", TripAPIView.as_view(), name="Trip Route"),
+    path("api/filtered-trips", TripsByStatusAPIView.as_view(), name="Filtered Trip Route"),
     path(
         "api/trip/<int:id>/orders",
         OrdersByTripView.as_view(),
