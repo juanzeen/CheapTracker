@@ -1,6 +1,7 @@
 from ..models import Carrier
 from .address_crud import AddressCrud
 from .user_crud import UserCrud
+from ..exception_errors import UserRoleError, UpdateError
 
 
 class CarrierCrud:
@@ -21,7 +22,7 @@ class CarrierCrud:
     ):
         user = UserCrud.read_by_email(user_email)
         if user.role != "Carr":
-            raise ValueError("To create a Carrier, the user role must be: Carr")
+            raise UserRoleError("To create a Carrier, the user role must be: Carr")
 
         address = AddressCrud.create(
             street, number, complement, neighborhood, city, state, cep, country
@@ -42,10 +43,9 @@ class CarrierCrud:
     @staticmethod
     def read_by_id(carrier_id):
         try:
-            carrier = Carrier.objects.get(id=carrier_id)
-            return carrier
+            return Carrier.objects.get(id=carrier_id)
         except Carrier.DoesNotExist:
-            raise ValueError
+            raise ValueError("Carrier not found")
 
     @staticmethod
     def read_carriers_by_email(user_email):
@@ -54,7 +54,7 @@ class CarrierCrud:
 
     @staticmethod
     def update(carrier_id, **kwargs):
-        carrier = Carrier.objects.get(id=carrier_id)
+        carrier = CarrierCrud.read_by_id(carrier_id)
         address = carrier.address
         for key, value in kwargs.items():
             if key in [
@@ -69,7 +69,7 @@ class CarrierCrud:
             ]:
                 setattr(address, key, value)
             elif key == "user":
-                raise KeyError("Update user denied")
+                raise UpdateError("Update user denied")
             else:
                 setattr(carrier, key, value)
 
@@ -79,5 +79,5 @@ class CarrierCrud:
 
     @staticmethod
     def delete(carrier_id):
-        carrier = Carrier.objects.get(id=carrier_id)
+        carrier = CarrierCrud.read_by_id(carrier_id)
         AddressCrud.delete(carrier.address.id)
