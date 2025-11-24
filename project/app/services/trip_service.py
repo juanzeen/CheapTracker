@@ -91,14 +91,21 @@ class TripService:
 
         area = f"{origin_depot.address.city}, {origin_depot.address.state}, {origin_depot.address.country}"
 
+        print(f"1. Geocoding addresses in {area}...")
         geolocator = Nominatim(user_agent="cheaptracker", timeout=20)
 
-        locations = [geolocator.geocode(address) for address in addresses]
+        locations = []
+        for address in addresses:
+            loc = geolocator.geocode(address)
+            if loc:
+                locations.append(loc)
+                print(f"   [OK] Address found: {address.split(',')[0]}")
+            else:
+                raise ValueError(
+                    f"   [ERROR] Address not found: {address.split(',')[0]}"
+                )
 
-        for location, address in zip(locations, addresses):
-            if location is None:
-                raise ValueError(f"Address not found: {address}")
-
+        print("2. Downloading the city map (this may be slow the first time)...")
         G = ox.graph_from_place(area, network_type="drive")
 
         xs = [loc.longitude for loc in locations]
@@ -110,6 +117,7 @@ class TripService:
         route_order = [0]
         remaining = list(range(1, len(nodes)))
 
+        print("3. Calculating the best route (Nearest Neighbor - Dijkstra)...")
         while remaining:
             last = route_order[-1]
 
@@ -127,6 +135,7 @@ class TripService:
 
             segment_paths.append(chosen_path)
 
+        print("   Calculating the return to the departure depot...")
         chosen_distance, return_path = pathing_route_dijkstra(
             G, nodes[route_order[-1]], nodes[0]
         )
@@ -138,22 +147,33 @@ class TripService:
         for i, idx in enumerate(route_order):
             if i == 0:
                 print(f"Departure: {addresses[idx]}")
+            elif i == len(route_order) - 1:
+                print(f"Arrival (Return): {addresses[idx]}")
             else:
-                print(f"{i}° stop: {addresses[idx]}")
+                print(f"{i}° Stop: {addresses[idx]}")
 
         total_distance = round(total_distance / 1000, 1)
         print(f"Distance traveled on the trip: {total_distance} km")
 
         fig, ax = ox.plot_graph(G, node_size=0, show=False, close=False)
 
-        for path in segment_paths:
+        colors = ["cyan", "orange", "lime", "magenta", "yellow", "white"]
+        for i, path in enumerate(segment_paths):
+            c = colors[i % len(colors)]
             ox.plot_graph_route(
-                G, path, ax=ax, node_size=0, route_linewidth=3, show=False, close=False
+                G,
+                path,
+                ax=ax,
+                node_size=0,
+                route_linewidth=3,
+                route_color=c,
+                show=False,
+                close=False,
             )
 
         x = [G.nodes[n]["x"] for n in nodes]
         y = [G.nodes[n]["y"] for n in nodes]
-        ax.scatter(x, y, s=120, c="red", zorder=5)
+        ax.scatter(x, y, s=120, c="red", zorder=5, edgecolors="white")
 
         for stop_number, node_index in enumerate(route_order):
             node = nodes[node_index]
