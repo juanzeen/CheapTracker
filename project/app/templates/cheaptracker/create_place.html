@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% block title %}Create Place{% endblock %}
+{% block title %}Criar local{% endblock %}
 
 {% block content %}
 
@@ -104,8 +104,6 @@
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
-          // Include bearer token if authentication is required
-          // "Authorization": "Bearer " + localStorage.getItem("access_token")
         }
       }).then(res => res.json()).then(data => {
         if (data.error) {

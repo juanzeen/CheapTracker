@@ -52,12 +52,12 @@ class UserCrud:
     def change_password(user_id, old_password, new_password):
         user = UserCrud.read_by_id(user_id)
 
-        if not check_password(old_password, user.password_hash):
+        if not check_password(old_password, user.password):
             raise ValueError("Incorrect password!")
 
         if len(new_password) < 8:
             raise ValueError("The new password must contain at least 8 characters")
 
-        user.password_hash = new_password
+        user.set_password(new_password)
         user.save()
         return user
