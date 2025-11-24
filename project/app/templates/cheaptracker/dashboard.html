@@ -33,10 +33,54 @@
       {% endif %}
       <button class="red-btn" id="logout-btn">Logout</button>
     </div>
+    <div class="places-cards">
+
+    </div>
 </div>
 
 <script>
+  const getUserPlaceType = (role) =>{
+    switch(role){
+      case "Shop":
+        return "stores"
+        break
+      case "Man":
+        return "depots"
+        break
+      case "Carr":
+        return "carriers"
+        break
+    }
+  }
+  const userRole = "{{ user.role|escapejs }}";
   const logoutButton = document.querySelector("#logout-btn")
+  const placePath = getUserPlaceType(userRole)
+  const placesSection = document.querySelector(".places-cards")
+  window.addEventListener("load", () => {
+    try{
+      fetch(`api/${placePath}`, {method: "GET"}).then(res => res.json()).then(res => {
+     console.log("API Response:", res); // Log the response
+     for(const place of res.data){
+        const placeCard = document.createElement("div");
+        placeCard.classList.add("place-card");
+
+        const placeName = document.createElement("h3");
+        placeName.textContent = place.name;
+        placeCard.appendChild(placeName);
+
+        // Assuming 'place.address' is an object with street, number, neighborhood, cep, city, state
+        const placeRegistration = document.createElement("p");
+        placeRegistration.textContent = `CNPJ: ${place.registration}`;
+        placeCard.appendChild(placeRegistration);
+
+        placesSection.appendChild(placeCard);
+     }
+      })
+    } catch(err){
+      console.error("Error fetching places:", err); // Log any errors
+    }
+  })
+
   logoutButton.addEventListener("click", () => {
     try{
       fetch("api/auth/logout", {method: "POST"}).then(res => res.json()).then(data => {
@@ -48,6 +92,7 @@
     }catch{
       alert("Erro ao tentar fazer logout!")
     }
+
 
 
   })
