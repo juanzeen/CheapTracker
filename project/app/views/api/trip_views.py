@@ -93,7 +93,11 @@ class TripsByStatusAPIView(AuthBaseView):
 class TripsRemainingDeliveriesAPIView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         try:
-            deliveries = TripService.remaining_deliveries(kwargs["id"])
+            trip = TripCrud.read_by_id(kwargs["id"])
+            deliveries = TripService.remaining_deliveries(trip.id)
+            if len(deliveries) == 0:
+                return self.ErrorJsonResponse("No remaining deliveries!", 404)
+
             return self.SuccessJsonResponse(
                 "Remaining deliveries successfully retrieved!", list(deliveries)
             )
@@ -160,13 +164,15 @@ class CancelTripAPIView(AuthBaseView):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
         try:
-            trip = TripCrud.read_by_id(kwargs["id"])
             depot = DepotCrud.read_by_id(data["depot_id"])
-            canceled_trip = TripService.cancel_trip(trip.id, depot.id)
+            TripService.cancel_trip(kwargs["id"], depot.id)
+            trip = TripCrud.read_by_id(kwargs["id"])
             return self.SuccessJsonResponse(
-                "Trip successfully cancelled!", model_to_dict(canceled_trip)
+                "Trip successfully cancelled!", model_to_dict(trip)
             )
         except ValueError as e:
+            return self.ErrorJsonResponse(e.args[0])
+        except StatusError as e:
             return self.ErrorJsonResponse(e.args[0])
         except BelongError as e:
             return self.ErrorJsonResponse(e.args[0], 405)

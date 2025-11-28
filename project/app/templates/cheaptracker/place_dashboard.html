@@ -39,51 +39,28 @@
 </div>
 
 <script>
-  const getUserPlaceType = (role) =>{
+  const getPlaceInfosByUserRole = (role) =>{
     switch(role){
       case "Shop":
-        return "stores"
+        return "orders"
         break
       case "Man":
-        return "depots"
+        return "trips"
         break
       case "Carr":
-        return "carriers"
+        return "trucks"
         break
-    }
-  }
-  const getUserTextFeedback = (role) => {
-    switch(userRole){
-      case "Shop":
-      return "Você ainda não tem nenhuma loja criada!"
-      break;
-      case "Man":
-      return "Você ainda não tem nenhum depósito criado!"
-      break;
-      case "Carr":
-      return "Você ainda não tem nenhuma transportadora criada!"
-      break;
     }
   }
   const userRole = "{{ user.role|escapejs }}";
-  const userId = "{{ user.id|escapejs }}";
   const logoutButton = document.querySelector("#logout-btn")
   const placePath = getUserPlaceType(userRole)
   const placesSection = document.querySelector(".places-cards")
-  console.log(userId)
   window.addEventListener("load", () => {
     try{
       fetch(`api/${placePath}`, {method: "GET"}).then(res => res.json()).then(res => {
-
-      const userPlaces = res.data.filter(r => r.user_id == userId)
-        if(userPlaces.length == 0){
-        feedbackText = document.createElement("p")
-        feedbackText.textContent = getUserTextFeedback(userRole)
-        placesSection.appendChild(feedbackText)
-        return
-      }
-     for(const place of userPlaces){
-      if(place.user_id == userId){
+     console.log("API Response:", res); // Log the response
+     for(const place of res.data){
         const placeCard = document.createElement("div");
         placeCard.classList.add("place-card");
 
@@ -97,29 +74,11 @@
         placeCard.appendChild(placeRegistration);
 
         placesSection.appendChild(placeCard);
-      }
-
      }
       })
     } catch(err){
       console.error("Error fetching places:", err); // Log any errors
     }
-  })
-
-  logoutButton.addEventListener("click", () => {
-    try{
-      fetch("api/auth/logout", {method: "POST"}).then(res => res.json()).then(data => {
-        if(data.message == "User successfully logged out!"){
-          alert("Logout realizado com sucesso!")
-          window.location.href = "/"
-          }
-        })
-    }catch{
-      alert("Erro ao tentar fazer logout!")
-    }
-
-
-
   })
 </script>
 {%endblock%}

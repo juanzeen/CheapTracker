@@ -36,13 +36,11 @@
           "Content-Type": "application/json"
         }
       }).then(res => res.json()).then(data => {
-        if(!data.error){
           console.log(data.message)
           window.location.href = "/dashboard"
-        }
       })
-    } catch{
-      console.log("Error trying to get the server!")
+    } catch(err){
+      console.error("deu erro")
     }
   })
 </script>

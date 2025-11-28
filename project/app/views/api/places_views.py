@@ -115,18 +115,18 @@ class StoresApiView(AuthBaseView):
                 )
 
             StoreCrud.create(
-                request.user,
-                data["name"],
-                data["cep"],
-                data["street"],
-                data["number"],
-                data["complement"],
-                data["neighborhood"],
-                data["city"],
-                data["state"],
-                data["country"],
-                data["contact"],
-                data["registration"],
+                user_email=request.user,
+                name=data["name"],
+                cep=data["cep"],
+                street=data["street"],
+                number=data["number"],
+                complement=data["complement"],
+                neighborhood=data["neighborhood"],
+                city=data["city"],
+                state=data["state"],
+                country=data["country"],
+                contact=data["contact"],
+                registration=data["registration"],
             )
             return self.SuccessJsonResponse(
                 "Store successfully created!",
@@ -195,18 +195,18 @@ class DepotsApiView(AuthBaseView):
                 )
 
             DepotCrud.create(
-                request.user,
-                data["name"],
-                data["cep"],
-                data["street"],
-                data["number"],
-                data["complement"],
-                data["neighborhood"],
-                data["city"],
-                data["state"],
-                data["country"],
-                data["contact"],
-                data["registration"],
+                user_email=request.user,
+                name=data["name"],
+                cep=data["cep"],
+                street=data["street"],
+                number=data["number"],
+                complement=data["complement"],
+                neighborhood=data["neighborhood"],
+                city=data["city"],
+                state=data["state"],
+                country=data["country"],
+                contact=data["contact"],
+                registration=data["registration"],
             )
             return self.SuccessJsonResponse(
                 "Depot successfully created!",
@@ -297,18 +297,18 @@ class CarriersApiView(AuthBaseView):
                 )
 
             CarrierCrud.create(
-                request.user,
-                data["name"],
-                data["cep"],
-                data["street"],
-                data["number"],
-                data["complement"],
-                data["neighborhood"],
-                data["city"],
-                data["state"],
-                data["country"],
-                data["contact"],
-                data["registration"],
+                user_email=request.user,
+                name=data["name"],
+                cep=data["cep"],
+                street=data["street"],
+                number=data["number"],
+                complement=data["complement"],
+                neighborhood=data["neighborhood"],
+                city=data["city"],
+                state=data["state"],
+                country=data["country"],
+                contact=data["contact"],
+                registration=data["registration"],
             )
             return self.SuccessJsonResponse(
                 "Carrier successfully created!",
