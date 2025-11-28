@@ -87,7 +87,7 @@ class TripService:
         addresses = []
         addresses.append(AddressCrud.formatted_address(origin_depot.address.id))
         for selected_order in selected_orders:
-            addresses.append(AddressCrud.formatted_address(selected_order.address.id))
+            addresses.append(AddressCrud.formatted_address(selected_order.store.address.id))
 
         area = f"{origin_depot.address.city}, {origin_depot.address.state}, {origin_depot.address.country}"
 
@@ -99,10 +99,10 @@ class TripService:
             loc = geolocator.geocode(address)
             if loc:
                 locations.append(loc)
-                print(f"   [OK] Address found: {address.split(',')[0]}")
+                print(f"   [OK] Address found: {address.split(',')[0]},{address.split(',')[1]}")
             else:
                 raise ValueError(
-                    f"   [ERROR] Address not found: {address.split(',')[0]}"
+                    f"   [ERROR] Address not found: {address.split(',')[0]},{address.split(',')[1]}"
                 )
 
         print("2. Downloading the city map (this may be slow the first time)...")

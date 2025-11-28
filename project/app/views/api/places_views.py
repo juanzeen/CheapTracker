@@ -262,7 +262,7 @@ class DefineTripAPIView(AuthBaseView):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
             orders = json.loads(request.body).get("orders")
-            trip, route_order, fig = TripService.define_trip(depot, orders)
+            trip, route_order, fig = TripService.define_trip(depot.id, orders)
             return self.SuccessJsonResponse(
                 f"Trip successfully defined!",
                 {"trip": model_to_dict(trip), "route_order": route_order},
