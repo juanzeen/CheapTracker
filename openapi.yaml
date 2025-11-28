@@ -1,0 +1,1306 @@
+openapi: 3.0.0
+info:
+  title: CheapTracker API
+  description: API for managing logistics, including users, places, orders, and trips.
+  version: 1.0.0
+servers:
+  - url: /
+    description: Local server
+tags:
+  - name: Auth
+    description: Authentication operations
+  - name: Users
+    description: User management
+  - name: Addresses
+    description: Address management
+  - name: Stores
+    description: Store management
+  - name: Depots
+    description: Depot management
+  - name: Carriers
+    description: Carrier management
+  - name: Trucks
+    description: Truck management
+  - name: Orders
+    description: Order management
+  - name: Trips
+    description: Trip management
+
+paths:
+  /api/auth/login:
+    post:
+      tags:
+        - Auth
+      summary: User Login
+      description: Authenticates a user and starts a session.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: User successfully logged in.
+        '400':
+          description: Invalid credentials.
+
+  /api/auth/logout:
+    post:
+      tags:
+        - Auth
+      summary: User Logout
+      description: Logs out the current user and ends the session.
+      responses:
+        '200':
+          description: User successfully logged out.
+        '400':
+          description: Error logging out.
+
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      description: Retrieve a list of all users.
+      responses:
+        '200':
+          description: A list of users.
+        '400':
+          description: Users not found.
+    post:
+      tags:
+        - Users
+      summary: Create a new user
+      description: Creates a new user.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                role:
+                  type: string
+                name:
+                  type: string
+                age:
+                  type: integer
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '201':
+          description: User created successfully.
+        '400':
+          description: Invalid input.
+
+  /api/users/{email}:
+    parameters:
+      - name: email
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Users
+      summary: Get user by email
+      description: Retrieve a single user by email.
+      responses:
+        '200':
+          description: User details.
+        '404':
+          description: User not found.
+    put:
+      tags:
+        - Users
+      summary: Update user
+      description: Update an existing user's details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                age:
+                  type: integer
+                role:
+                  type: string
+      responses:
+        '200':
+          description: User updated successfully.
+        '404':
+          description: User not found.
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      description: Delete a user by email.
+      responses:
+        '200':
+          description: User deleted successfully.
+        '404':
+          description: User not found.
+
+  /api/users/change-password/{email}:
+    parameters:
+      - name: email
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      tags:
+        - Users
+      summary: Change user password
+      description: Change a user's password.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                old_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        '200':
+          description: Password changed successfully.
+        '400':
+          description: Invalid old password.
+
+  /api/addresses:
+    get:
+      tags:
+        - Addresses
+      summary: Get all addresses
+      description: Retrieve a list of all addresses.
+      responses:
+        '200':
+          description: A list of addresses.
+        '400':
+          description: Addresses not found.
+    post:
+      tags:
+        - Addresses
+      summary: Create a new address
+      description: Creates a new address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        '201':
+          description: Address created successfully.
+        '400':
+          description: Invalid input.
+
+  /api/address/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Addresses
+      summary: Get address by ID
+      description: Retrieve a single address by ID.
+      responses:
+        '200':
+          description: Address details.
+        '404':
+          description: Address not found.
+    put:
+      tags:
+        - Addresses
+      summary: Update address
+      description: Update an existing address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Address'
+      responses:
+        '200':
+          description: Address updated successfully.
+        '404':
+          description: Address not found.
+    delete:
+      tags:
+        - Addresses
+      summary: Delete address
+      description: Delete an address by ID.
+      responses:
+        '200':
+          description: Address deleted successfully.
+        '404':
+          description: Address not found.
+
+  /api/stores:
+    get:
+      tags:
+        - Stores
+      summary: Get all stores
+      description: Retrieve a list of all stores.
+      responses:
+        '200':
+          description: A list of stores.
+        '400':
+          description: Stores not found.
+    post:
+      tags:
+        - Stores
+      summary: Create a new store
+      description: Creates a new store. Requires 'Shop' role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Address'
+                - type: object
+                  properties:
+                    name:
+                      type: string
+                    contact:
+                      type: string
+                    registration:
+                      type: string
+      responses:
+        '201':
+          description: Store created successfully.
+        '401':
+          description: Unauthorized.
+        '404':
+          description: User not found.
+
+  /api/store/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Stores
+      summary: Get store by ID
+      description: Retrieve a single store by ID.
+      responses:
+        '200':
+          description: Store details.
+        '404':
+          description: Store not found.
+    put:
+      tags:
+        - Stores
+      summary: Update store
+      description: Update an existing store.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Store'
+      responses:
+        '200':
+          description: Store updated successfully.
+        '404':
+          description: Store not found.
+    delete:
+      tags:
+        - Stores
+      summary: Delete store
+      description: Delete a store by ID.
+      responses:
+        '200':
+          description: Store deleted successfully.
+        '404':
+          description: Store not found.
+
+  /api/store/{id}/orders:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Stores
+      summary: Get orders by store
+      description: Retrieve orders associated with a specific store.
+      responses:
+        '200':
+          description: A list of orders.
+        '404':
+          description: Store or orders not found.
+
+  /api/depots:
+    get:
+      tags:
+        - Depots
+      summary: Get all depots
+      description: Retrieve a list of all depots.
+      responses:
+        '200':
+          description: A list of depots.
+        '400':
+          description: Depots not found.
+    post:
+      tags:
+        - Depots
+      summary: Create a new depot
+      description: Creates a new depot. Requires 'Man' role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Address'
+                - type: object
+                  properties:
+                    name:
+                      type: string
+                    contact:
+                      type: string
+                    registration:
+                      type: string
+      responses:
+        '201':
+          description: Depot created successfully.
+        '401':
+          description: Unauthorized.
+        '404':
+          description: User not found.
+
+  /api/depots/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Depots
+      summary: Get depot by ID
+      description: Retrieve a single depot by ID.
+      responses:
+        '200':
+          description: Depot details.
+        '404':
+          description: Depot not found.
+    put:
+      tags:
+        - Depots
+      summary: Update depot
+      description: Update an existing depot.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Depot'
+      responses:
+        '200':
+          description: Depot updated successfully.
+        '404':
+          description: Depot not found.
+    delete:
+      tags:
+        - Depots
+      summary: Delete depot
+      description: Delete a depot by ID.
+      responses:
+        '200':
+          description: Depot deleted successfully.
+        '404':
+          description: Depot not found.
+
+  /api/depots/{id}/define-trip:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Depots
+      summary: Define a new trip from a depot
+      description: Defines a new trip with a list of orders from a specific depot.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                orders:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Trip defined successfully.
+        '400':
+          description: Error defining trip.
+
+  /api/carriers:
+    get:
+      tags:
+        - Carriers
+      summary: Get all carriers
+      description: Retrieve a list of all carriers.
+      responses:
+        '200':
+          description: A list of carriers.
+        '400':
+          description: Carriers not found.
+    post:
+      tags:
+        - Carriers
+      summary: Create a new carrier
+      description: Creates a new carrier. Requires 'Carr' role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/Address'
+                - type: object
+                  properties:
+                    name:
+                      type: string
+                    contact:
+                      type: string
+                    registration:
+                      type: string
+      responses:
+        '201':
+          description: Carrier created successfully.
+        '401':
+          description: Unauthorized.
+        '404':
+          description: User not found.
+
+  /api/carriers/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Carriers
+      summary: Get carrier by ID
+      description: Retrieve a single carrier by ID.
+      responses:
+        '200':
+          description: Carrier details.
+        '404':
+          description: Carrier not found.
+    put:
+      tags:
+        - Carriers
+      summary: Update carrier
+      description: Update an existing carrier.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Carrier'
+      responses:
+        '200':
+          description: Carrier updated successfully.
+        '404':
+          description: Carrier not found.
+    delete:
+      tags:
+        - Carriers
+      summary: Delete carrier
+      description: Delete a carrier by ID.
+      responses:
+        '200':
+          description: Carrier deleted successfully.
+        '404':
+          description: Carrier not found.
+
+  /api/trucks:
+    get:
+      tags:
+        - Trucks
+      summary: Get all trucks
+      description: Retrieve a list of all trucks.
+      responses:
+        '200':
+          description: A list of trucks.
+        '404':
+          description: Trucks not found.
+    post:
+      tags:
+        - Trucks
+      summary: Create a new truck
+      description: Creates a new truck for a carrier.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                carrier_id:
+                  type: integer
+                plate:
+                  type: string
+                category:
+                  type: string
+                release_year:
+                  type: integer
+      responses:
+        '201':
+          description: Truck created successfully.
+        '404':
+          description: Carrier not found.
+
+  /api/truck/{plate}:
+    parameters:
+      - name: plate
+        in: path
+        required: true
+        schema:
+          type: string
+    get:
+      tags:
+        - Trucks
+      summary: Get truck by plate
+      description: Retrieve truck details by plate number.
+      responses:
+        '200':
+          description: Truck details.
+        '404':
+          description: Truck not found.
+    put:
+      tags:
+        - Trucks
+      summary: Update truck
+      description: Update truck details.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                category:
+                  type: string
+                release_year:
+                  type: integer
+      responses:
+        '200':
+          description: Truck updated successfully.
+        '404':
+          description: Truck not found.
+    delete:
+      tags:
+        - Trucks
+      summary: Delete truck
+      description: Delete a truck by plate number.
+      responses:
+        '200':
+          description: Truck deleted successfully.
+        '404':
+          description: Truck not found.
+
+  /api/orders:
+    get:
+      tags:
+        - Orders
+      summary: Get all orders
+      description: Retrieve a list of all orders.
+      responses:
+        '200':
+          description: A list of orders.
+        '400':
+          description: Orders not found.
+    post:
+      tags:
+        - Orders
+      summary: Create a new order
+      description: Creates a new order for a store.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                store_id:
+                  type: integer
+      responses:
+        '201':
+          description: Order created successfully.
+        '404':
+          description: Store not found.
+
+  /api/pendent-orders:
+    get:
+      tags:
+        - Orders
+      summary: Get pendent orders
+      description: Retrieve a list of all pendent orders.
+      responses:
+        '200':
+          description: A list of pendent orders.
+        '400':
+          description: Orders not found.
+
+  /api/order/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Orders
+      summary: Get order by ID
+      description: Retrieve details of a specific order.
+      responses:
+        '200':
+          description: Order details.
+        '404':
+          description: Order not found.
+    delete:
+      tags:
+        - Orders
+      summary: Delete order
+      description: Delete an order by ID.
+      responses:
+        '200':
+          description: Order deleted successfully.
+        '404':
+          description: Order not found.
+
+  /api/order/{id}/add-box:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Orders
+      summary: Add a box to an order
+      description: Adds a box of a specified size to an order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                box_size:
+                  type: string
+                length:
+                  type: number
+                  format: float
+                width:
+                  type: number
+                  format: float
+                height:
+                  type: number
+                  format: float
+                payload_kg:
+                  type: number
+                  format: float
+      responses:
+        '201':
+          description: Box added successfully.
+        '400':
+          description: Invalid input.
+
+  /api/order/{id}/remove-box:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Orders
+      summary: Remove a box from an order
+      description: Removes a box from an order.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                box_id:
+                  type: integer
+      responses:
+        '200':
+          description: Box removed successfully.
+        '400':
+          description: Invalid input.
+
+  /api/trips:
+    get:
+      tags:
+        - Trips
+      summary: Get all trips
+      description: Retrieve a list of all trips.
+      responses:
+        '200':
+          description: A list of trips.
+        '400':
+          description: Error retrieving trips.
+    post:
+      tags:
+        - Trips
+      summary: Create a new trip
+      description: Creates a new trip. Requires 'Man' role.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                depot_id:
+                  type: integer
+                total_loaded_weight_kg:
+                  type: number
+                total_loaded_volume_m3:
+                  type: number
+                total_distance_km:
+                  type: number
+      responses:
+        '201':
+          description: Trip created successfully.
+        '401':
+          description: Unauthorized.
+
+  /api/filtered-trips:
+    get:
+      tags:
+        - Trips
+      summary: Get trips by status
+      description: Retrieve trips filtered by status.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+      responses:
+        '200':
+          description: A list of trips.
+        '404':
+          description: Trips not found.
+
+  /api/trip/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Trips
+      summary: Get trip by ID
+      description: Retrieve details of a specific trip.
+      responses:
+        '200':
+          description: Trip details.
+        '400':
+          description: Trip not found.
+    delete:
+      tags:
+        - Trips
+      summary: Delete trip
+      description: Delete a trip by ID.
+      responses:
+        '200':
+          description: Trip deleted successfully.
+        '400':
+          description: Error deleting trip.
+
+  /api/trip/{id}/remaining-deliveries:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Trips
+      summary: Get remaining deliveries for a trip
+      description: Retrieve a list of remaining deliveries for a trip.
+      responses:
+        '200':
+          description: A list of deliveries.
+        '404':
+          description: No remaining deliveries.
+
+  /api/trip/{id}/start:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Trips
+      summary: Start a trip
+      description: Start a trip from a depot with a specific truck.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                truck_plate:
+                  type: string
+                depot_id:
+                  type: integer
+      responses:
+        '200':
+          description: Trip started successfully.
+        '400':
+          description: Error starting trip.
+
+  /api/trip/{id}/end:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Trips
+      summary: End a trip
+      description: End a trip at a specific depot.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                depot_id:
+                  type: integer
+      responses:
+        '200':
+          description: Trip ended successfully.
+        '400':
+          description: Error ending trip.
+
+  /api/trip/{id}/simulate:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Trips
+      summary: Simulate a trip
+      description: Simulate a trip's execution.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                truck_plate:
+                  type: string
+                traffic_status:
+                  type: string
+      responses:
+        '200':
+          description: Simulation finished.
+        '400':
+          description: Error during simulation.
+
+  /api/trip/{id}/cancel-trip:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Trips
+      summary: Cancel a trip
+      description: Cancel a trip.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                depot_id:
+                  type: integer
+      responses:
+        '200':
+          description: Trip cancelled successfully.
+        '400':
+          description: Error cancelling trip.
+
+  /api/trip/{trip_id}/confirm-delivery/{delivery_id}:
+    parameters:
+      - name: trip_id
+        in: path
+        required: true
+        schema:
+          type: integer
+      - name: delivery_id
+        in: path
+        required: true
+        schema:
+          type: integer
+    post:
+      tags:
+        - Trips
+      summary: Confirm a delivery
+      description: Confirm a delivery within a trip.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                truck_plate:
+                  type: string
+      responses:
+        '200':
+          description: Delivery confirmed successfully.
+        '400':
+          description: Error confirming delivery.
+
+  /api/trip/{id}/orders:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Trips
+      summary: Get orders by trip
+      description: Retrieve orders associated with a specific trip.
+      responses:
+        '200':
+          description: A list of orders.
+        '404':
+          description: Trip or orders not found.
+
+components:
+  schemas:
+    Usuario:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        role:
+          type: string
+          enum: ["Man", "Shop", "Carr", "Adm"]
+        name:
+          type: string
+        age:
+          type: integer
+        email:
+          type: string
+          format: email
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        is_staff:
+          type: boolean
+        is_active:
+          type: boolean
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        street:
+          type: string
+        number:
+          type: string
+        complement:
+          type: string
+          nullable: true
+        neighborhood:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        cep:
+          type: string
+        country:
+          type: string
+    Store:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          description: "User ID"
+        name:
+          type: string
+        address:
+          type: integer
+          description: "Address ID"
+        contact:
+          type: string
+        registration:
+          type: string
+    Depot:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          description: "User ID"
+        name:
+          type: string
+        address:
+          type: integer
+          description: "Address ID"
+        contact:
+          type: string
+        registration:
+          type: string
+    Carrier:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+          description: "User ID"
+        name:
+          type: string
+        address:
+          type: integer
+          description: "Address ID"
+        contact:
+          type: string
+        registration:
+          type: string
+    Truck:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        carrier:
+          type: integer
+          description: "Carrier ID"
+        plate:
+          type: string
+        axles_count:
+          type: integer
+        cargo_length:
+          type: number
+          format: float
+        cargo_width:
+          type: number
+          format: float
+        cargo_height:
+          type: number
+          format: float
+        max_payload_kg:
+          type: number
+          format: float
+        cargo_volume_m3:
+          type: number
+          format: float
+          readOnly: true
+        euro:
+          type: integer
+        is_active:
+          type: boolean
+        release_year:
+          type: integer
+        total_trips:
+          type: integer
+        max_fuel_capacity:
+          type: integer
+    Trip:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        truck:
+          type: integer
+          nullable: true
+          description: "Truck ID"
+        origin_depot:
+          type: integer
+          nullable: true
+          description: "Depot ID"
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        departure_date:
+          type: string
+          format: date-time
+          nullable: true
+        arrival_date:
+          type: string
+          format: date-time
+          nullable: true
+        total_loaded_weight_kg:
+          type: number
+          format: float
+        total_loaded_volume_m3:
+          type: number
+          format: float
+        total_distance_km:
+          type: number
+          format: float
+        carbon_kg_co2:
+          type: number
+          format: float
+          nullable: true
+        status:
+          type: string
+          enum: ["Plan", "InTr", "Comp", "Canc"]
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        store:
+          type: integer
+          description: "Store ID"
+        trip:
+          type: integer
+          nullable: true
+          description: "Trip ID"
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          type: string
+          enum: ["Pend", "Sche", "Ship", "Deli", "Canc"]
+        total_weight_kg:
+          type: number
+          format: float
+        total_volume_m3:
+          type: number
+          format: float
+        total_boxes:
+          type: integer
+        scheduled:
+          type: boolean
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        trip:
+          type: integer
+          description: "Trip ID"
+        store:
+          type: integer
+          description: "Store ID"
+        order:
+          type: integer
+          description: "Order ID"
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+    Box:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order:
+          type: integer
+          description: "Order ID"
+        size:
+          type: string
+          enum: ["Sma", "Med", "Big", "Lar", "Cus"]
+        length:
+          type: number
+          format: float
+        width:
+          type: number
+          format: float
+        height:
+          type: number
+          format: float
+        payload_kg:
+          type: number
+          format: float
+        volume_m3:
+          type: number
+          format: float
+          readOnly: true
+        was_delivered:
+          type: boolean
