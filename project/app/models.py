@@ -86,7 +86,7 @@ class Store(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    contact = models.CharField(max_length=254)
+    contact = models.CharField(max_length=11)
     registration = models.CharField(max_length=128)
 
 
@@ -94,7 +94,7 @@ class Depot(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    contact = models.CharField(max_length=254)
+    contact = models.CharField(max_length=11)
     registration = models.CharField(max_length=128)
 
 
@@ -102,7 +102,7 @@ class Carrier(models.Model):
     user = models.ForeignKey(Usuario, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     address = models.ForeignKey(Address, on_delete=models.CASCADE)
-    contact = models.CharField(max_length=254)
+    contact = models.CharField(max_length=11)
     registration = models.CharField(max_length=128)
 
 
