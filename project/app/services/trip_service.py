@@ -296,7 +296,7 @@ class TripService:
             raise BelongError("This trip does not correspond to this depot")
 
         if trip.status != "Plan":
-            raise StatusError("The trip status must be planned to be calceled")
+            raise StatusError("The trip status must be planned to be canceled")
 
         orders = OrderCrud.read_orders_by_trip(trip_id)
         for order in orders:

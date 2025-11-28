@@ -43,8 +43,10 @@ from app.views.templates_views import (
     HomeTemplateView,
     LoginTemplateView,
     RegisterTemplateView,
-    DashboardTemplateView,
+    UserDashboardTemplateView,
     CreatePlaceTemplateView,
+    SwaggerUIView,
+    openapi_yaml_view,
 )
 from django.contrib import admin
 from django.urls import path
@@ -142,6 +144,14 @@ urlpatterns = [
     path("", HomeTemplateView.as_view(), name="View com template test"),
     path("login", LoginTemplateView.as_view(), name="Login View"),
     path("register", RegisterTemplateView.as_view(), name="Register View"),
-    path("dashboard", DashboardTemplateView.as_view(), name="Dashboard View"),
+    path("dashboard", UserDashboardTemplateView.as_view(), name="Dashboard View"),
     path("create-place", CreatePlaceTemplateView.as_view(), name="Create Place View"),
+    path(
+        "places/<str:place_type>",
+        UserDashboardTemplateView.as_view(),
+        name="Generic Place Dashboard",
+    ),
+    # Swagger-UI routes
+    path("api/docs", SwaggerUIView.as_view(), name="swagger-ui"),
+    path("openapi.yaml", openapi_yaml_view, name="openapi-yaml"),
 ]
