@@ -15,8 +15,9 @@ from ..exception_errors import (
     RemainingDeliveriesError,
 )
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from geopy.geocoders import Nominatim
+from django.utils import timezone
 import osmnx as ox
 import heapq
 import matplotlib.pyplot as plt
@@ -193,7 +194,7 @@ class TripService:
                 zorder=10,
             )
 
-        plt.show()
+        # plt.show()
 
         return route_order, total_distance, fig
 
@@ -214,6 +215,8 @@ class TripService:
             origin_depot, selected_orders
         )
 
+        fig.savefig("rota.png", dpi=300)
+
         trip = TripCrud.create(
             depot_id=depot_id,
             total_loaded_weight_kg=cargo_weight_kg,
@@ -223,6 +226,7 @@ class TripService:
 
         for order in selected_orders:
             order.status = "Sche"
+            order.trip = trip
             order.save()
 
         return trip, route_order, fig
@@ -265,7 +269,7 @@ class TripService:
 
         trip.truck = truck
         trip.carbon_kg_co2 = carbon_kg_co2
-        trip.departure_date = datetime.now()
+        trip.departure_date = timezone.now()
         trip.status = "InTr"
         trip.save()
 
@@ -302,7 +306,7 @@ class TripService:
             order.status = "Deli"
             order.save()
 
-        trip.arrival_date = datetime.now()
+        trip.arrival_date = timezone.now()
         trip.status = "Comp"
         trip.save()
 
@@ -325,6 +329,7 @@ class TripService:
         orders = OrderCrud.read_orders_by_trip(trip_id)
         for order in orders:
             order.status = "Pend"
+            order.trip = None
             order.save()
 
         trip.status = "Canc"
@@ -345,7 +350,7 @@ class TripService:
         if delivery.trip != trip:
             raise BelongError("This delivery does not belong on this trip")
 
-        delivery.delivered_at = datetime.now()
+        delivery.delivered_at = timezone.now()
         delivery.save()
 
     @staticmethod
@@ -364,7 +369,7 @@ class TripService:
             case "heavy":
                 average_speed = 20
 
-        departure_date = datetime.now()
+        departure_date = timezone.now()
         full_time_route = trip.total_distance_km / average_speed
 
         days = full_time_route // 24
