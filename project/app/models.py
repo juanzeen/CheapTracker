@@ -172,7 +172,6 @@ class Order(models.Model):
     total_weight_kg = models.FloatField(MinValueValidator(0.0))
     total_volume_m3 = models.FloatField(MinValueValidator(0.0))
     total_boxes = models.PositiveIntegerField()
-    scheduled = models.BooleanField()
 
     def save(self, *args, **kwargs):
         if self.status not in [choice[0] for choice in OrderStatus.choices]:

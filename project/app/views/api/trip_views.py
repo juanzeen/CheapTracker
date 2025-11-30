@@ -187,13 +187,11 @@ class ConfirmDeliveryInTripAPIView(AuthBaseView):
             trip = TripCrud.read_by_id(kwargs["trip_id"])
             truck = TruckCrud.read_by_plate(data["truck_plate"])
             delivery = DeliveryCrud.read_by_id(kwargs["delivery_id"])
-            confirmed_delivery = TripService.confirm_delivery(
-                trip.id, truck.plate, delivery.id
-            )
-            return self.SuccessJsonResponse(
-                "Delivery successfully confirmed!", model_to_dict(confirmed_delivery)
-            )
+            TripService.confirm_delivery(trip.id, truck.plate, delivery.id)
+            return self.SuccessJsonResponse("Delivery successfully confirmed!")
         except StatusError as e:
             return self.ErrorJsonResponse(e.args[0])
         except BelongError as e:
+            return self.ErrorJsonResponse(e.args[0])
+        except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])

@@ -15,7 +15,6 @@ class OrderCrud:
             total_weight_kg=0.0,
             total_volume_m3=0.0,
             total_boxes=0,
-            scheduled=False,
         )
 
     @staticmethod
