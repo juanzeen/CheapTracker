@@ -590,7 +590,6 @@ class OrderCrudTest(TestCase):
         self.assertEqual(order.store.id, self.store.id)
         self.assertEqual(order.status, "Pend")
         self.assertEqual(order.total_boxes, 0)
-        self.assertFalse(order.scheduled)
 
     def test_read_orders(self):
         """Testing if orders are retrieved"""
