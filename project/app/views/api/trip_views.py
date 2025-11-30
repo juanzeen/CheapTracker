@@ -95,11 +95,13 @@ class TripsRemainingDeliveriesAPIView(AuthBaseView):
         try:
             trip = TripCrud.read_by_id(kwargs["id"])
             deliveries = TripService.remaining_deliveries(trip.id)
+
             if len(deliveries) == 0:
                 return self.ErrorJsonResponse("No remaining deliveries!", 404)
 
             return self.SuccessJsonResponse(
-                "Remaining deliveries successfully retrieved!", list(deliveries)
+                "Remaining deliveries successfully retrieved!",
+                deliveries
             )
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])

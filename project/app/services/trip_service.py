@@ -20,6 +20,7 @@ from geopy.geocoders import Nominatim
 import osmnx as ox
 import heapq
 import matplotlib.pyplot as plt
+from django.forms.models import model_to_dict
 
 
 def pathing_route_dijkstra(G, start, target, weight="length"):
@@ -66,7 +67,7 @@ class TripService:
         remaining_deliveries_list = []
         for delivery in deliveries_list:
             if delivery.delivered_at == None:
-                remaining_deliveries_list.append(delivery)
+                remaining_deliveries_list.append(model_to_dict(delivery))
 
         return remaining_deliveries_list
 
