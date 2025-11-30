@@ -164,9 +164,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS(f"Created Trucks."))
 
         # --- Helper to create order/boxes ---
-        def create_order_with_boxes(
-            store_obj, trip_obj, status_enum, scheduled_bool=True
-        ):
+        def create_order_with_boxes(store_obj, trip_obj, status_enum):
             # If status is PEND, trip might be None
             order_obj = Order.objects.create(
                 store=store_obj,
@@ -175,7 +173,6 @@ class Command(BaseCommand):
                 total_weight_kg=0,
                 total_volume_m3=0,
                 total_boxes=0,
-                scheduled=scheduled_bool,
             )
 
             num_boxes = random.randint(1, 4)
@@ -269,8 +266,6 @@ class Command(BaseCommand):
         # Add orders (Delivered)
         for _ in range(3):
             create_order_with_boxes(store2, trip_completed, OrderStatus.DELI)
-        # Maybe one order was cancelled/returned on this trip?
-        # create_order_with_boxes(store1, trip_completed, OrderStatus.CANC) # Optional complexity
 
         # 4. Trip Cancelled
         trip_cancelled = Trip.objects.create(
