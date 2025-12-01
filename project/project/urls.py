@@ -128,12 +128,12 @@ urlpatterns = [
     path(
         "api/trip/<int:id>/cancel-trip",
         CancelTripAPIView.as_view(),
-        name="Simulate Trip Route",
+        name="Cancel Trip Route",
     ),
     path(
         "api/trip/<int:trip_id>/confirm-delivery/<int:delivery_id>",
         ConfirmDeliveryInTripAPIView.as_view(),
-        name="Simulate Trip Route",
+        name="Confirm Delivery Route",
     ),
     path(
         "api/trip/<int:id>/orders",

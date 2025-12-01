@@ -13,6 +13,7 @@ from app.cruds.carrier_crud import CarrierCrud
 from app.services.trip_service import TripService
 from django.forms.models import model_to_dict
 from app.exception_errors import RangeError, StatusError
+import mpld3
 
 
 class AddressesAPIView(AuthBaseView):
@@ -270,9 +271,10 @@ class DefineTripAPIView(ManagerBaseView):
             depot = DepotCrud.read_by_id(kwargs["id"])
             orders = json.loads(request.body).get("orders")
             trip, route_order, fig = TripService.define_trip(depot.id, orders)
+            figure_html = mpld3.fig_to_html(fig)
             return self.SuccessJsonResponse(
                 f"Trip successfully defined!",
-                {"trip": model_to_dict(trip), "route_order": route_order},
+                {"trip": model_to_dict(trip), "route_order": route_order, "figure_html": figure_html,},
             )
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
