@@ -93,51 +93,176 @@ class Command(BaseCommand):
 
         self.stdout.write(self.style.SUCCESS(f"Created Users."))
 
-        # --- Addresses ---
+        # --- Addresses (Real Addresses in Campos dos Goytacazes) ---
+        real_addresses_data = [
+            {
+                "street": "Avenida Pelinca",
+                "number": "100",
+                "neighborhood": "Pelinca",
+                "cep": "28035-053",
+            },
+            {
+                "street": "Rua Tenente Coronel Cardoso",
+                "number": "50",
+                "neighborhood": "Centro",
+                "cep": "28035-042",
+            },
+            {
+                "street": "Avenida 28 de Março",
+                "number": "450",
+                "neighborhood": "Centro",
+                "cep": "28020-740",
+            },
+            {
+                "street": "Rua Barão da Lagoa Dourada",
+                "number": "85",
+                "neighborhood": "Pelinca",
+                "cep": "28035-210",
+            },
+            {
+                "street": "Rua Conselheiro Otaviano",
+                "number": "20",
+                "neighborhood": "Centro",
+                "cep": "28010-140",
+            },
+            {
+                "street": "Rua Treze de Maio",
+                "number": "60",
+                "neighborhood": "Centro",
+                "cep": "28010-260",
+            },
+            {
+                "street": "Avenida Alberto Torres",
+                "number": "330",
+                "neighborhood": "Centro",
+                "cep": "28035-581",
+            },
+            {
+                "street": "Rua Doutor Siqueira",
+                "number": "115",
+                "neighborhood": "Parque Tamandaré",
+                "cep": "28035-150",
+            },
+            {
+                "street": "Avenida Nilo Peçanha",
+                "number": "200",
+                "neighborhood": "Parque Santo Amaro",
+                "cep": "28030-035",
+            },
+            {
+                "street": "Rua Voluntários da Pátria",
+                "number": "90",
+                "neighborhood": "Pelinca",
+                "cep": "28035-260",
+            },
+            {
+                "street": "Rua Saldanha Marinho",
+                "number": "45",
+                "neighborhood": "Centro",
+                "cep": "28010-220",
+            },
+            {
+                "street": "Rua Santos Dumont",
+                "number": "30",
+                "neighborhood": "Centro",
+                "cep": "28010-230",
+            },
+            {
+                "street": "Rua Ipiranga",
+                "number": "75",
+                "neighborhood": "Centro",
+                "cep": "28010-250",
+            },
+            {
+                "street": "Rua Marechal Floriano",
+                "number": "55",
+                "neighborhood": "Centro",
+                "cep": "28010-180",
+            },
+            {
+                "street": "Avenida José Alves de Azevedo",
+                "number": "500",
+                "neighborhood": "Centro",
+                "cep": "28010-300",
+            },
+            {
+                "street": "Rua Ouvidor",
+                "number": "40",
+                "neighborhood": "Centro",
+                "cep": "28010-160",
+            },
+            {
+                "street": "Rua Governador Teotônio Ferreira",
+                "number": "80",
+                "neighborhood": "Centro",
+                "cep": "28010-190",
+            },
+            {
+                "street": "Rua Carlos de Lacerda",
+                "number": "25",
+                "neighborhood": "Centro",
+                "cep": "28010-130",
+            },
+            {
+                "street": "Avenida Arthur Bernardes",
+                "number": "600",
+                "neighborhood": "Parque Rosário",
+                "cep": "28027-000",
+            },
+            {
+                "street": "Rua Ricardo Quitete",
+                "number": "150",
+                "neighborhood": "Jockey Club",
+                "cep": "28020-250",
+            },
+        ]
+
         addresses = []
-        for i in range(10):
+        for i, addr_data in enumerate(real_addresses_data):
             address = Address.objects.create(
-                street=f"Rua {i+1}",
-                number=f"{i * 100 + 10}",
-                complement=f"Apto {i}" if i % 3 == 0 else "",
-                neighborhood="Centro" if i < 5 else "Zona Norte",
-                city="Cidade Exemplo",
-                state="EX",
-                cep=f"12345-00{i}",
+                street=addr_data["street"],
+                number=addr_data["number"],
+                complement=f"Loja {i+1}" if i % 2 == 0 else "",
+                neighborhood=addr_data["neighborhood"],
+                city="Campos dos Goytacazes",
+                state="RJ",
+                cep=addr_data["cep"],
             )
             addresses.append(address)
-        self.stdout.write(self.style.SUCCESS(f"Created Addresses."))
+        self.stdout.write(
+            self.style.SUCCESS(f"Created {len(addresses)} Real Addresses.")
+        )
 
         # --- Entities (Store, Depot, Carrier) ---
-        # Contacts must be 11 digits
+        # Assigning real addresses to entities
         store1 = Store.objects.create(
             user=shopkeeper_user1,
-            name="Loja Matriz",
-            address=addresses[0],
+            name="Loja Pelinca",
+            address=addresses[0],  # Av Pelinca
             contact="11987654321",
             registration="11111111-1",
         )
 
         store2 = Store.objects.create(
             user=shopkeeper_user2,
-            name="Supermercado B",
-            address=addresses[1],
+            name="Supermercado Centro",
+            address=addresses[2],  # Av 28 de Marco
             contact="11912345678",
             registration="55555555-5",
         )
 
         depot = Depot.objects.create(
             user=manager_user,
-            name="Depósito Central",
-            address=addresses[2],
+            name="Depósito Jockey",
+            address=addresses[19],  # Ricardo Quitete (Jockey)
             contact="11888888888",
             registration="22222222-2",
         )
 
         carrier = Carrier.objects.create(
             user=carrier_user,
-            name="Transportadora Rápida",
-            address=addresses[3],
+            name="Transportadora Goytacaz",
+            address=addresses[8],  # Nilo Pecanha
             contact="11777777777",
             registration="33333333-3",
         )

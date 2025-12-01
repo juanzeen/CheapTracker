@@ -35,18 +35,15 @@ class TripsAPIView(ManagerBaseView):
             )
 
         try:
-            trip = TripCrud.create(
-                data["depot_id"],
-                data["total_loaded_weight_kg"],
-                data["total_loaded_volume_m3"],
-                data["total_distance_km"],
-            )
+            trip, _, _ = TripService.define_trip(data["depot_id"], data["orders_list"])
             return self.SuccessJsonResponse(
                 "Trip successfully created", model_to_dict(trip), 201
             )
         except KeyError as e:
             return self.ErrorJsonResponse(e.args[0])
         except PermissionError as e:
+            return self.ErrorJsonResponse(e.args[0])
+        except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
 
 
@@ -100,7 +97,10 @@ class TripsRemainingDeliveriesAPIView(ManagerBaseView):
     def get(self, request, *args, **kwargs):
         try:
             trip = TripCrud.read_by_id(kwargs["id"])
-            if request.user != trip.depot.user_email:
+            responsible_depot = DepotCrud.read_by_id(trip.origin_depot_id)
+            print(request.user)
+            print(responsible_depot.user.email)
+            if request.user != responsible_depot.user.email:
                 return self.ErrorJsonResponse("User don't match to the trip!", 401)
             deliveries = TripService.remaining_deliveries(trip.id)
             if len(deliveries) == 0:
