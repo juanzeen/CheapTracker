@@ -274,7 +274,11 @@ class DefineTripAPIView(ManagerBaseView):
             figure_html = mpld3.fig_to_html(fig)
             return self.SuccessJsonResponse(
                 f"Trip successfully defined!",
-                {"trip": model_to_dict(trip), "route_order": route_order, "figure_html": figure_html,},
+                {
+                    "trip": model_to_dict(trip),
+                    "route_order": route_order,
+                    "figure_html": figure_html,
+                },
             )
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
