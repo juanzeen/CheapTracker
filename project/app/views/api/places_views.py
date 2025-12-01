@@ -102,21 +102,23 @@ class AddressAPIView(AuthBaseView):
 # Places views
 
 
-class StoresApiView(ShopkeeperBaseView):
+class StoresApiView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         stores = StoreCrud.read().values()
         if not stores:
             return self.ErrorJsonResponse("Stores not founded!")
-
+        if request.user.role not in ["Shop", "Adm"]:
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 401
+            )
         return self.SuccessJsonResponse("Stores successfully retrieved!", list(stores))
 
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            user = request.user
-            if not user.role == "Shop":
+            if request.user.role not in ["Shop", "Adm"]:
                 return self.ErrorJsonResponse(
-                    "To create a Store, the user role must be: Shop", 401
+                    "User don't have permission to this action!", 401
                 )
 
             StoreCrud.create(

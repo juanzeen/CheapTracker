@@ -26,7 +26,7 @@ class AuthBaseView(BaseView):
 @method_decorator(csrf_exempt, name="dispatch")
 class ShopkeeperBaseView(AuthBaseView):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.role not in ["Shop", "Admin"]:
+        if request.user.role not in ["Shop", "Adm"]:
             return self.ErrorJsonResponse(
                 "User don't have permission to this action!", 401
             )
@@ -36,7 +36,7 @@ class ShopkeeperBaseView(AuthBaseView):
 @method_decorator(csrf_exempt, name="dispatch")
 class ManagerBaseView(AuthBaseView):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.role not in ["Man", "Admin"]:
+        if request.user.role not in ["Man", "Adm"]:
             return self.ErrorJsonResponse(
                 "User don't have permission to this action!", 401
             )
@@ -46,7 +46,7 @@ class ManagerBaseView(AuthBaseView):
 @method_decorator(csrf_exempt, name="dispatch")
 class CarrierBaseView(AuthBaseView):
     def dispatch(self, request, *args, **kwargs):
-        if request.user.role not in ["Carr", "Admin"]:
+        if request.user.role not in ["Carr", "Adm"]:
             return self.ErrorJsonResponse(
                 "User don't have permission to this action!", 401
             )

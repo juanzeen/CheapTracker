@@ -22,7 +22,7 @@ class OrdersApiView(AuthBaseView):
             return self.ErrorJsonResponse("Store not founded!", 404)
         if current_store.user_email != request.user:
             return self.ErrorJsonResponse("Stores don't match to user!", 401)
-        if request.user.role != "Shop":
+        if request.user.role not in ["Shop", "Adm"]:
             return self.ErrorJsonResponse(
                 "User don't have permission to this action!", 401
             )
@@ -58,7 +58,7 @@ class OrdersByTripView(AuthBaseView):
             trip = TripCrud.read_by_id(kwargs["id"])
             if not orders:
                 return self.ErrorJsonResponse("Orders not founded!")
-            if request.user.role not in ["Shop", "Man", "Admin"]:
+            if request.user.role not in ["Shop", "Man", "Adm"]:
                 return self.ErrorJsonResponse(
                     "User don't have permission to this action!", 401
                 )
@@ -73,8 +73,8 @@ class OrdersByTripView(AuthBaseView):
 class OrdersByStoreView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):
         try:
-            orders = OrderCrud.read_orders_by_store(kwargs["id"]).values()
             store = StoreCrud.read_by_id(kwargs["id"])
+            orders = OrderCrud.read_orders_by_store(store.id).values()
             if not orders:
                 return self.ErrorJsonResponse("Orders not founded!", 404)
 

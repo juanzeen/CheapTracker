@@ -21,7 +21,6 @@
     <div class="action-buttons-container">
       {%if user.role == "Shop" %}
       <a href="/create-place" class="red-btn">Adicionar loja</a>
-      <button class="red-btn">Criar pedido</button>
       {%elif user.role == "Man"%}
       <a href="/create-place" class="red-btn">Adicionar depósito</a>
       <button class="red-btn">Gerenciar pedidos</button>
@@ -70,11 +69,9 @@
   const logoutButton = document.querySelector("#logout-btn")
   const placePath = getUserPlaceType(userRole)
   const placesSection = document.querySelector(".places-cards")
-  console.log(userId)
   window.addEventListener("load", () => {
     try{
       fetch(`api/${placePath}`, {method: "GET"}).then(res => res.json()).then(res => {
-
       const userPlaces = res.data.filter(r => r.user_id == userId)
         if(userPlaces.length == 0){
         feedbackText = document.createElement("p")
@@ -84,8 +81,9 @@
       }
      for(const place of userPlaces){
       if(place.user_id == userId){
-        const placeCard = document.createElement("div");
+        const placeCard = document.createElement("a");
         placeCard.classList.add("place-card");
+        placeCard.href = `store/${place.id}`
 
         const placeName = document.createElement("h3");
         placeName.textContent = place.name;
@@ -117,9 +115,6 @@
     }catch{
       alert("Erro ao tentar fazer logout!")
     }
-
-
-
   })
 </script>
 {%endblock%}

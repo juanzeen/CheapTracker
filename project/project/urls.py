@@ -45,6 +45,7 @@ from app.views.templates_views import (
     RegisterTemplateView,
     UserDashboardTemplateView,
     CreatePlaceTemplateView,
+    StoreDashboardTemplateView,
     SwaggerUIView,
     openapi_yaml_view,
 )
@@ -147,8 +148,8 @@ urlpatterns = [
     path("dashboard", UserDashboardTemplateView.as_view(), name="Dashboard View"),
     path("create-place", CreatePlaceTemplateView.as_view(), name="Create Place View"),
     path(
-        "places/<str:place_type>",
-        UserDashboardTemplateView.as_view(),
+        "store/<int:store_id>",
+        StoreDashboardTemplateView.as_view(),
         name="Generic Place Dashboard",
     ),
     # Swagger-UI routes

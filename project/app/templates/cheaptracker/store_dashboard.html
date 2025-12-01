@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% if user.is_authenticated %}
+        <div class="user-infos-container">
+          <div class="infos-col">
+            <h2 class="text-3xl font-bold" id="store-name">
+
+          </h2>
+          <p id="store-contact"></p>
+          </div>
+          <div class="infos-col">
+            <p id="store-registration"></p>
+          </div>
+        </div>
+
+    {% endif %}
+    <div class="action-buttons-container">
+      <button class="red-btn">Criar pedido</button>
+      <button class="red-btn" id="logout-btn">Logout</button>
+    </div>
+    <div class="places-cards">
+
+    </div>
+</div>
+
+<script>
+  const getPlaceInfosByUserRole = (role) =>{
+    switch(role){
+      case "Shop":
+        return "orders"
+        break
+      case "Man":
+        return "trips"
+        break
+      case "Carr":
+        return "trucks"
+        break
+    }
+  }
+  const userRole = "{{ user.role|escapejs }}";
+  const storeId = "{{ store_id|escapejs }}";
+
+  const storeName = document.querySelector("#store-name")
+  const storeContact = document.querySelector("#store-contact")
+  const storeRegistration = document.querySelector("#store-registration")
+  const logoutButton = document.querySelector("#logout-btn")
+  const placePath = getPlaceInfosByUserRole(userRole)
+  const placesSection = document.querySelector(".places-cards")
+
+  window.addEventListener("load", async () => {
+    try{
+     const result = await fetch(`/api/store/${storeId}/orders`, {method: "GET"})
+      const res = await result.json()
+
+      if(!res.ok){
+        throw new Error(res.error || "Error trying to get store orders!")
+      }
+
+      const store_orders = res.data
+
+      if(store_order.length == 0){
+        throw new Error(res.error || "The store don't have orders!")
+      }
+
+      for(const order of store_orders){
+        consoole.log(order)
+      }
+
+    } catch(err){
+      console.error("Error fetching orders:", err); // Log any errors
+    }
+  })
+
+  window.addEventListener("load", () => {
+    try{
+      fetch(`/api/store/${storeId}`, {method: "GET"}).then(res => res.json()).then(res => {
+      console.log("API Response:", res); // Log the response
+        storeName.textContent = res.data.name
+        storeContact.textContent = `Telefone: ${res.data.contact}`
+        storeRegistration.textContent = `CNPJ: ${res.data.registration}`
+      })
+    } catch(err){
+      console.error("Error fetching places:", err); // Log any errors
+    }
+  })
+</script>
+{%endblock%}
