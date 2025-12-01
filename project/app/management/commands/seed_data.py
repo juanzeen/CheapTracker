@@ -83,6 +83,27 @@ class Command(BaseCommand):
         shopkeeper_user2.set_password("shop123")
         shopkeeper_user2.save()
 
+        shopkeeper_user3, _ = Usuario.objects.get_or_create(
+            email="shop3@store.com",
+            defaults={"name": "Lurdes Modas", "age": 56, "role": UserRoles.SHOP},
+        )
+        shopkeeper_user3.set_password("shop123")
+        shopkeeper_user3.save()
+
+        shopkeeper_user4, _ = Usuario.objects.get_or_create(
+            email="shop4@store.com",
+            defaults={"name": "Juliana Presentes", "age": 22, "role": UserRoles.SHOP},
+        )
+        shopkeeper_user4.set_password("shop123")
+        shopkeeper_user4.save()
+
+        shopkeeper_user5, _ = Usuario.objects.get_or_create(
+            email="shop5@store.com",
+            defaults={"name": "Miguel Eletro", "age": 43, "role": UserRoles.SHOP},
+        )
+        shopkeeper_user5.set_password("shop123")
+        shopkeeper_user5.save()
+
         # Carrier
         carrier_user, _ = Usuario.objects.get_or_create(
             email="carrier@trans.com",
@@ -215,6 +236,48 @@ class Command(BaseCommand):
                 "neighborhood": "Jockey Club",
                 "cep": "28020-250",
             },
+            {
+                "street": "Avenida Presidente Kennedy",
+                "number": "850",
+                "neighborhood": "Jockey Club",
+                "cep": "28020-010",
+            },
+            {
+                "street": "Rua Doutor Beda",
+                "number": "120",
+                "neighborhood": "Parque Rosário",
+                "cep": "28027-110",
+            },
+            {
+                "street": "Rua dos Goitacazes",
+                "number": "300",
+                "neighborhood": "Centro",
+                "cep": "28010-500",
+            },
+            {
+                "street": "Avenida XV de Novembro",
+                "number": "750",
+                "neighborhood": "Centro",
+                "cep": "28035-100",
+            },
+            {
+                "street": "Rua Barão de Miracema",
+                "number": "180",
+                "neighborhood": "Centro",
+                "cep": "28035-300",
+            },
+            {
+                "street": "Rua Salvador Corrêa",
+                "number": "95",
+                "neighborhood": "Centro",
+                "cep": "28035-310",
+            },
+            {
+                "street": "Rua Alvarenga Filho",
+                "number": "65",
+                "neighborhood": "Centro",
+                "cep": "28010-120",
+            },
         ]
 
         addresses = []
@@ -249,6 +312,30 @@ class Command(BaseCommand):
             address=addresses[2],  # Av 28 de Marco
             contact="11912345678",
             registration="55555555-5",
+        )
+
+        store3 = Store.objects.create(
+            user=shopkeeper_user3,
+            name="Lurdes Modas",
+            address=addresses[5],  # Rua Treze de Maio
+            contact="11934567890",
+            registration="66666666-6",
+        )
+
+        store4 = Store.objects.create(
+            user=shopkeeper_user4,
+            name="Juliana Presentes",
+            address=addresses[3],  # Rua Barão da Lagoa Dourada
+            contact="11945678901",
+            registration="77777777-7",
+        )
+
+        store5 = Store.objects.create(
+            user=shopkeeper_user5,
+            name="Miguel Eletro",
+            address=addresses[21],  # Rua Doutor Beda
+            contact="11956789012",
+            registration="88888888-8",
         )
 
         depot = Depot.objects.create(
@@ -358,10 +445,11 @@ class Command(BaseCommand):
             total_loaded_volume_m3=0,
         )
         # Add orders to planned trip
-        for _ in range(3):
+        for _ in range(2):
             create_order_with_boxes(store1, trip_planned, OrderStatus.SCHE)
         for _ in range(2):
             create_order_with_boxes(store2, trip_planned, OrderStatus.SCHE)
+        create_order_with_boxes(store3, trip_planned, OrderStatus.SCHE)
 
         # 2. Trip In Transit
         trip_transit = Trip.objects.create(
@@ -373,8 +461,10 @@ class Command(BaseCommand):
             total_loaded_volume_m3=0,
         )
         # Add orders (Shipped)
-        for _ in range(4):
-            create_order_with_boxes(store1, trip_transit, OrderStatus.SHIP)
+        create_order_with_boxes(store1, trip_transit, OrderStatus.SHIP)
+        create_order_with_boxes(store4, trip_transit, OrderStatus.SHIP)
+        create_order_with_boxes(store5, trip_transit, OrderStatus.SHIP)
+        create_order_with_boxes(store3, trip_transit, OrderStatus.SHIP)
 
         # 3. Trip Completed
         trip_completed = Trip.objects.create(
@@ -389,8 +479,9 @@ class Command(BaseCommand):
             total_loaded_volume_m3=0,
         )
         # Add orders (Delivered)
-        for _ in range(3):
-            create_order_with_boxes(store2, trip_completed, OrderStatus.DELI)
+        create_order_with_boxes(store2, trip_completed, OrderStatus.DELI)
+        create_order_with_boxes(store4, trip_completed, OrderStatus.DELI)
+        create_order_with_boxes(store5, trip_completed, OrderStatus.DELI)
 
         # 4. Trip Cancelled
         trip_cancelled = Trip.objects.create(
@@ -405,10 +496,13 @@ class Command(BaseCommand):
 
         # 5. Pending Orders (No Trip assigned)
         # These represent orders just placed by the store
-        for _ in range(5):
+        for _ in range(2):
             # trip=None
             create_order_with_boxes(store1, None, OrderStatus.PEND)
             create_order_with_boxes(store2, None, OrderStatus.PEND)
+            create_order_with_boxes(store3, None, OrderStatus.PEND)
+            create_order_with_boxes(store4, None, OrderStatus.PEND)
+            create_order_with_boxes(store5, None, OrderStatus.PEND)
 
         # --- Update Trip Totals ---
         all_trips = [trip_planned, trip_transit, trip_completed, trip_cancelled]

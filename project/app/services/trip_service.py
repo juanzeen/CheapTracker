@@ -96,7 +96,6 @@ class TripService:
         area = f"{origin_depot.address.city}, {origin_depot.address.state}, {origin_depot.address.country}"
 
         matplotlib.use('Agg')
-
         print(f"1. Geocoding addresses in {area}...")
         geolocator = Nominatim(user_agent="cheaptracker", timeout=20)
 
