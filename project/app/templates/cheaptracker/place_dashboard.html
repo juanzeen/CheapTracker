@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% if user.is_authenticated %}
+        <div class="user-infos-container">
+          <div class="infos-col">
+            <h2 class="text-3xl font-bold" id="place-name">
+
+          </h2>
+          <p id="place-contact"></p>
+          </div>
+          <div class="infos-col">
+            <p id="place-registration"></p>
+            <p>Responsável: {{user.name}}</p>
+          </div>
+        </div>
+
+    {% endif %}
+    <div class="action-buttons-container">
+      {%if user.role == "Shop" %}
+      <a href="" class="red-btn">Criar Pedido</a>
+      {%elif user.role == "Man"%}
+      <a href="" class="red-btn">Criar Viagem</a>
+      {%elif user.role == "Carr"%}
+      <a href="" class="red-btn">Criar caminhão</a>
+      {% endif %}
+      <a class="red-btn" href="/dashboard">Dashboard de Usuário</a>
+    </div>
+      <div class="places-cards">
+      </div>
+</div>
+
+<script>
+  const getPlaceInfosByUserRole = (role) =>{
+    switch(role){
+      case "Shop":
+        return "orders"
+        break
+      case "Man":
+        return "trips"
+        break
+      case "Carr":
+        return "trucks"
+        break
+    }
+  }
+
+  const getUserPlaceType = (role) =>{
+    switch(role){
+      case "Shop":
+        return "store"
+        break
+      case "Man":
+        return "depot"
+        break
+      case "Carr":
+        return "carrier"
+        break
+    }
+  }
+
+  const userRole = "{{ user.role|escapejs }}";
+  const placeId = "{{ place_id|escapejs }}";
+  const placeEntityPath = getPlaceInfosByUserRole(userRole)
+  const placePath = getUserPlaceType(userRole)
+
+  const placeName = document.querySelector("#place-name")
+  const placeContact = document.querySelector("#place-contact")
+  const placeRegistration = document.querySelector("#place-registration")
+  const dataSection = document.querySelector(".places-cards")
+
+  window.addEventListener("load", async () => {
+    try{
+     const result = await fetch(`/api/${placePath}/${placeId}/${placeEntityPath}`, {method: "GET"})
+      const res = await result.json()
+
+      if(!result.ok){
+        throw new Error(res.error || `Error trying to get ${placePath} ${placeEntityPath}!`)
+      }
+
+
+      const place_data = res.data
+
+      if(place_data.length == 0){
+        throw new Error(res.error || `The ${placePath} don't have ${placeEntityPath}!`)
+      }
+
+      for(const data of place_data){
+        const dataCard = document.createElement("a");
+        dataCard.classList.add("place-card");
+        dataCard.href = `/${placeEntityPath.slice(0, placeEntityPath.length - 1)}/${data.id}`
+
+        const dataTitle = document.createElement("h3");
+        const dataSubtitle = document.createElement("p");
+
+        switch(userRole){
+          case "Carr":
+          dataTitle.textContent = data.plate
+          dataSubtitle.textContent = `Eixos: ${data.axles_count}`
+          dataCard.appendChild(dataTitle);
+          dataCard.appendChild(dataSubtitle);
+          break;
+          case "Man":
+          dataTitle.textContent = `${data.id} - ${data.status}`
+          dataSubtitle.textContent = `Distância da viagem: ${data.total_distance_km}`
+          dataCard.appendChild(dataTitle);
+          dataCard.appendChild(dataSubtitle);
+          break
+          case "Shop":
+          dataTitle.textContent = `${data.id} - ${data.status}`
+          dataSubtitle.textContent = `Total de caixas: ${data.total_boxes}`
+          dataCard.appendChild(dataTitle);
+          dataCard.appendChild(dataSubtitle);
+          break
+        }
+        dataSection.appendChild(dataCard);
+      }
+
+    } catch(err){
+      console.error(`Error fetching ${placeEntityPath}:`, err);
+    }
+  })
+
+  window.addEventListener("load", () => {
+    try{
+      fetch(`/api/${placePath}/${placeId}`, {method: "GET"}).then(res => res.json()).then(res => {
+        placeName.textContent = res.data.name
+        placeContact.textContent = `Telefone: ${res.data.contact}`
+        placeRegistration.textContent = `CNPJ: ${res.data.registration}`
+      })
+    } catch(err){
+      console.error(`Error fetching ${placePath}:`, err);
+    }
+  })
+</script>
+{%endblock%}

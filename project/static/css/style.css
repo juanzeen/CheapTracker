@@ -41,6 +41,7 @@ body {
   align-items: center;
   gap: 40px;
   min-height: 100vh;
+  padding: 20px 0;
 }
 
 h2 {

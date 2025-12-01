@@ -31,11 +31,6 @@ class CreatePlaceTemplateView(BaseAuthTemplateView):
 class PlaceDashboardTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/place_dashboard.html"
 
-
-class StoreDashboardTemplateView(BaseAuthTemplateView):
-    template_name = "cheaptracker/store_dashboard.html"
-
-
 class SwaggerUIView(TemplateView):
     template_name = "cheaptracker/swagger-ui.html"
 

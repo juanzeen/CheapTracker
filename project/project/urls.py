@@ -17,7 +17,8 @@ from app.views.api.places_views import (
     DefineTripAPIView,
 )
 
-from app.views.api.truck_views import TrucksApiView, TruckApiView
+from app.views.api.truck_views import TrucksApiView, TruckApiView,TruckByCarrierApiView
+
 from app.views.api.trip_views import (
     TripsAPIView,
     TripAPIView,
@@ -45,7 +46,7 @@ from app.views.templates_views import (
     RegisterTemplateView,
     UserDashboardTemplateView,
     CreatePlaceTemplateView,
-    StoreDashboardTemplateView,
+    PlaceDashboardTemplateView,
     SwaggerUIView,
     openapi_yaml_view,
 )
@@ -78,15 +79,16 @@ urlpatterns = [
     ),
     # depots routes
     path("api/depots", DepotsApiView.as_view(), name="Depots Route"),
-    path("api/depots/<int:id>", DepotApiView.as_view(), name="Depot Route"),
+    path("api/depot/<int:id>", DepotApiView.as_view(), name="Depot Route"),
     path(
-        "api/depots/<int:id>/define-trip",
+        "api/depot/<int:id>/define-trip",
         DefineTripAPIView.as_view(),
         name="Depot Define Trip Route",
     ),
     # carrier routes
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
-    path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
+    path("api/carrier/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
+    path("api/carrier/<int:id>/trucks", TruckByCarrierApiView.as_view(), name="Carrier Trucks Route"),
     # truck routes
     path("api/trucks", TrucksApiView.as_view(), name="Trucks Route"),
     path("api/truck/<str:plate>", TruckApiView.as_view(), name="Truck Route"),
@@ -148,8 +150,18 @@ urlpatterns = [
     path("dashboard", UserDashboardTemplateView.as_view(), name="Dashboard View"),
     path("create-place", CreatePlaceTemplateView.as_view(), name="Create Place View"),
     path(
-        "store/<int:store_id>",
-        StoreDashboardTemplateView.as_view(),
+        "store/<int:place_id>",
+        PlaceDashboardTemplateView.as_view(),
+        name="Generic Place Dashboard",
+    ),
+    path(
+        "depot/<int:place_id>",
+        PlaceDashboardTemplateView.as_view(),
+        name="Generic Place Dashboard",
+    ),
+    path(
+        "carrier/<int:place_id>",
+        PlaceDashboardTemplateView.as_view(),
         name="Generic Place Dashboard",
     ),
     # Swagger-UI routes

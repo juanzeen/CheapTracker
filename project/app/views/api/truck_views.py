@@ -1,5 +1,5 @@
 import json
-from .base_views import CarrierBaseView
+from .base_views import CarrierBaseView, AuthBaseView
 from app.cruds.carrier_crud import CarrierCrud
 from app.cruds.truck_crud import TruckCrud
 from app.models import Truck
@@ -83,3 +83,15 @@ class TruckApiView(CarrierBaseView):
             )
         except Truck.DoesNotExist:
             return self.ErrorJsonResponse("Truck not found", 404)
+
+class TruckByCarrierApiView(CarrierBaseView):
+    def get(self, request, *args, **kwargs):
+        try:
+            carrier = CarrierCrud.read_by_id(kwargs["id"])
+            if request.user != carrier.user:
+                print("o erro foi aqui")
+                return self.ErrorJsonResponse("Carrier don't belong to this user", 401)
+            trucks = TruckCrud.read_trucks_by_carrier(carrier.id).values()
+            return self.SuccessJsonResponse("Trucks successfully retrieved", list(trucks))
+        except ValueError as e:
+            return self.ErrorJsonResponse(e.args[0])
