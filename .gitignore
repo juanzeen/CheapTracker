@@ -210,4 +210,6 @@ cache
 
 #Routes images
 
-project/static/routes
+project/static/routes/
+project/static/routes/*
+static/routes
