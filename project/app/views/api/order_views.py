@@ -1,5 +1,5 @@
 import json
-from .base_views import AuthBaseView
+from .base_views import AuthBaseView, ShopkeeperBaseView
 from app.cruds.order_crud import OrderCrud
 from app.cruds.store_crud import StoreCrud
 from app.cruds.trip_crud import TripCrud
@@ -20,11 +20,17 @@ class OrdersApiView(AuthBaseView):
         current_store = StoreCrud.read_by_id(store_id)
         if not current_store:
             return self.ErrorJsonResponse("Store not founded!", 404)
+        if current_store.user_email != request.user:
+            return self.ErrorJsonResponse("Stores don't match to user!", 401)
+        if request.user.role not in ["Shop", "Adm"]:
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 401
+            )
         OrderCrud.create(store_id)
         return self.SuccessJsonResponse("Order successfully created!", 201)
 
 
-class OrderApiView(AuthBaseView):
+class OrderApiView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):
         try:
             order = OrderCrud.read_by_id(kwargs["id"])
@@ -52,7 +58,10 @@ class OrdersByTripView(AuthBaseView):
             trip = TripCrud.read_by_id(kwargs["id"])
             if not orders:
                 return self.ErrorJsonResponse("Orders not founded!")
-
+            if request.user.role not in ["Shop", "Man", "Adm"]:
+                return self.ErrorJsonResponse(
+                    "User don't have permission to this action!", 401
+                )
             return self.SuccessJsonResponse(
                 f"Orders for the trip with the truck {trip.truck.plate} successfully retrieved!",
                 list(orders),
@@ -61,11 +70,11 @@ class OrdersByTripView(AuthBaseView):
             return self.ErrorJsonResponse("Trip not founded!", 404)
 
 
-class OrdersByStoreView(AuthBaseView):
+class OrdersByStoreView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):
         try:
-            orders = OrderCrud.read_orders_by_store(kwargs["id"]).values()
             store = StoreCrud.read_by_id(kwargs["id"])
+            orders = OrderCrud.read_orders_by_store(store.id).values()
             if not orders:
                 return self.ErrorJsonResponse("Orders not founded!", 404)
 
@@ -88,7 +97,7 @@ class PendentOrdersView(AuthBaseView):
         )
 
 
-class AddBoxView(AuthBaseView):
+class AddBoxView(ShopkeeperBaseView):
     def post(self, request, *args, **kwargs):
         try:
             order = OrderCrud.read_by_id(kwargs["id"])
@@ -116,7 +125,7 @@ class AddBoxView(AuthBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
-class RemoveBoxView(AuthBaseView):
+class RemoveBoxView(ShopkeeperBaseView):
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)

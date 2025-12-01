@@ -18,9 +18,13 @@ from ..exception_errors import (
 from datetime import timedelta
 from geopy.geocoders import Nominatim
 from django.utils import timezone
+from django.conf import settings
 import osmnx as ox
 import heapq
+import matplotlib
 import matplotlib.pyplot as plt
+from django.forms.models import model_to_dict
+import os
 
 
 def pathing_route_dijkstra(G, start, target, weight="length"):
@@ -67,7 +71,7 @@ class TripService:
         remaining_deliveries_list = []
         for delivery in deliveries_list:
             if delivery.delivered_at == None:
-                remaining_deliveries_list.append(delivery)
+                remaining_deliveries_list.append(model_to_dict(delivery))
 
         return remaining_deliveries_list
 
@@ -85,29 +89,52 @@ class TripService:
                 "Addresses out of range — all addresses must be in the same city"
             )
 
-        addresses = []
-        addresses.append(AddressCrud.formatted_address(origin_depot.address.id))
-        for selected_order in selected_orders:
-            addresses.append(
-                AddressCrud.formatted_address(selected_order.store.address.id)
-            )
+        address_objects = [origin_depot.address] + [
+            order.store.address for order in selected_orders
+        ]
 
         area = f"{origin_depot.address.city}, {origin_depot.address.state}, {origin_depot.address.country}"
 
+        matplotlib.use("Agg")
         print(f"1. Geocoding addresses in {area}...")
         geolocator = Nominatim(user_agent="cheaptracker", timeout=20)
 
         locations = []
-        for address in addresses:
-            loc = geolocator.geocode(address)
+        addresses = []  # For display purposes
+
+        for addr in address_objects:
+            # List of queries from most specific to least specific
+            queries = [
+                f"{addr.street}, {addr.number}, {addr.neighborhood}, {addr.city}, {addr.state}, {addr.country}",
+                f"{addr.street}, {addr.number}, {addr.city}, {addr.state}, {addr.country}",
+                f"{addr.street}, {addr.city}, {addr.state}, {addr.country}",
+                f"{addr.neighborhood}, {addr.city}, {addr.state}, {addr.country}",  # Fallback to neighborhood center
+            ]
+
+            loc = None
+            matched_query = ""
+
+            for q in queries:
+                try:
+                    loc = geolocator.geocode(q)
+                    if loc:
+                        matched_query = q
+                        break
+                except Exception as e:
+                    print(f"   [WARN] Error geocoding '{q}': {e}")
+                    continue
+
             if loc:
                 locations.append(loc)
+                # Reconstruct the full formatted address for display consistency
+                full_display = f"{addr.street}, {addr.number}, {addr.neighborhood}, {addr.city}, {addr.state}, {addr.cep}, {addr.country}"
+                addresses.append(full_display)
                 print(
-                    f"   [OK] Address found: {address.split(',')[0]},{address.split(',')[1]}"
+                    f"   [OK] Address found: {matched_query} (Original: {addr.street}, {addr.number})"
                 )
             else:
                 raise ValueError(
-                    f"   [ERROR] Address not found: {address.split(',')[0]},{address.split(',')[1]}"
+                    f"   [ERROR] Address not found after retries: {addr.street}, {addr.number}"
                 )
 
         print("2. Downloading the city map (this may be slow the first time)...")
@@ -194,8 +221,6 @@ class TripService:
                 zorder=10,
             )
 
-        # plt.show()
-
         return route_order, total_distance, fig
 
     @staticmethod
@@ -215,14 +240,18 @@ class TripService:
             origin_depot, selected_orders
         )
 
-        fig.savefig("rota.png", dpi=300)
-
         trip = TripCrud.create(
             depot_id=depot_id,
             total_loaded_weight_kg=cargo_weight_kg,
             total_loaded_volume_m3=cargo_volume_m3,
             total_distance_km=total_distance,
         )
+
+        # Construct the full path to save the image in the static directory
+        image_path = os.path.join(settings.BASE_DIR, "static", "routes")
+        os.makedirs(image_path, exist_ok=True)  # Ensure the directory exists
+        file_path = os.path.join(image_path, f"trip_{trip.id}.png")
+        fig.savefig(file_path, dpi=300)
 
         for order in selected_orders:
             order.status = "Sche"

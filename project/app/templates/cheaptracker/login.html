@@ -23,24 +23,31 @@
 
 <script>
   const loginForm = document.getElementById('login-form')
-  document.addEventListener("submit", (e) => {
+  document.addEventListener("submit", async (e) => {
     e.preventDefault()
     const formData = new FormData(loginForm)
     const data = Object.fromEntries(formData.entries());
 
     try {
-      const res = fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json"
         }
-      }).then(res => res.json()).then(data => {
-          console.log(data.message)
-          window.location.href = "/dashboard"
-      })
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        throw new Error(result.message || "Erro ao fazer login");
+      }
+
+      window.location.href = "/dashboard";
+
     } catch(err){
-      console.error("deu erro")
+      alert("Email ou senha incorretos!");
+      console.error(err);
     }
   })
 </script>

@@ -1,5 +1,10 @@
 import json
-from .base_views import AuthBaseView
+from .base_views import (
+    AuthBaseView,
+    ShopkeeperBaseView,
+    ManagerBaseView,
+    CarrierBaseView,
+)
 from app.models import Usuario, Address
 from app.cruds.address_crud import AddressCrud
 from app.cruds.store_crud import StoreCrud
@@ -102,16 +107,18 @@ class StoresApiView(AuthBaseView):
         stores = StoreCrud.read().values()
         if not stores:
             return self.ErrorJsonResponse("Stores not founded!")
-
+        if request.user.role not in ["Shop", "Adm"]:
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 401
+            )
         return self.SuccessJsonResponse("Stores successfully retrieved!", list(stores))
 
     def post(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
-            user = request.user
-            if not user.role == "Shop":
+            if request.user.role not in ["Shop", "Adm"]:
                 return self.ErrorJsonResponse(
-                    "To create a Store, the user role must be: Shop", 401
+                    "User don't have permission to this action!", 401
                 )
 
             StoreCrud.create(
@@ -143,7 +150,7 @@ class StoresApiView(AuthBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
-class StoreApiView(AuthBaseView):
+class StoreApiView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):
         try:
             store = StoreCrud.read_by_id(kwargs["id"])
@@ -177,7 +184,7 @@ class StoreApiView(AuthBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
-class DepotsApiView(AuthBaseView):
+class DepotsApiView(ManagerBaseView):
     def get(self, request, *args, **kwargs):
         depots = DepotCrud.read().values()
         if not depots:
@@ -223,7 +230,7 @@ class DepotsApiView(AuthBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
-class DepotApiView(AuthBaseView):
+class DepotApiView(ManagerBaseView):
     def get(self, request, *args, **kwargs):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
@@ -257,7 +264,7 @@ class DepotApiView(AuthBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
-class DefineTripAPIView(AuthBaseView):
+class DefineTripAPIView(ManagerBaseView):
     def post(self, request, *args, **kwargs):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
@@ -277,7 +284,7 @@ class DefineTripAPIView(AuthBaseView):
             return self.ErrorJsonResponse(e.args[0])
 
 
-class CarriersApiView(AuthBaseView):
+class CarriersApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         carriers = CarrierCrud.read().values()
         if not carriers:
@@ -325,7 +332,7 @@ class CarriersApiView(AuthBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
-class CarrierApiView(AuthBaseView):
+class CarrierApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         try:
             carrier = CarrierCrud.read_by_id(kwargs["id"])

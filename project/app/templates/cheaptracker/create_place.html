@@ -91,7 +91,7 @@
     }
   }
 
-  createPlaceForm.addEventListener("submit", (e) => {
+  createPlaceForm.addEventListener("submit", async (e) => {
     e.preventDefault();
     const formData = new FormData(createPlaceForm);
     const data = Object.fromEntries(formData.entries());
@@ -99,23 +99,25 @@
 
 
     try {
-      fetch(`/api/${placeType}`, {
+      const res = await fetch(`/api/${placeType}`, {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json",
         }
-      }).then(res => res.json()).then(data => {
-        if (data.error) {
-          alert("Error: " + data.error);
-        } else {
-          alert(data.message);
-          window.location.href = "/dashboard";
-        }
-      });
+      })
+
+      const result = res.json()
+
+      if(!res.ok){
+        throw new Error(result.error || "Erro as resgatas todas as lojas")
+      }
+
+      alert(result.message)
+      window.location.href = "/dashboard";
+
     } catch (error) {
-      console.log("Error trying to send the request:", error);
-      alert("An error occurred. Please try again.");
+      alert(error);
     }
   });
 </script>

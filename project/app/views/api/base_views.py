@@ -21,3 +21,33 @@ class AuthBaseView(BaseView):
         if not request.user.is_authenticated:
             return self.ErrorJsonResponse("User not authenticated!", 401)
         return super().dispatch(request, *args, **kwargs)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ShopkeeperBaseView(AuthBaseView):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.role not in ["Shop", "Adm"]:
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 401
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class ManagerBaseView(AuthBaseView):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.role not in ["Man", "Adm"]:
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 401
+            )
+        return super().dispatch(request, *args, **kwargs)
+
+
+@method_decorator(csrf_exempt, name="dispatch")
+class CarrierBaseView(AuthBaseView):
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.role not in ["Carr", "Adm"]:
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 401
+            )
+        return super().dispatch(request, *args, **kwargs)

@@ -1,12 +1,12 @@
 import json
-from .base_views import AuthBaseView
+from .base_views import CarrierBaseView
 from app.cruds.carrier_crud import CarrierCrud
 from app.cruds.truck_crud import TruckCrud
 from app.models import Truck
 from django.forms.models import model_to_dict
 
 
-class TrucksApiView(AuthBaseView):
+class TrucksApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         trucks = TruckCrud.read().values()
         if not trucks:
@@ -18,6 +18,12 @@ class TrucksApiView(AuthBaseView):
         try:
             data = json.loads(request.body)
             carrier = CarrierCrud.read_by_id(data["carrier_id"])
+            if carrier.user_email != request.user:
+                return self.ErrorJsonResponse("Carrier don't match to user!", 401)
+            if request.user.role != "Carr":
+                return self.ErrorJsonResponse(
+                    "User don't have permission to this action!", 401
+                )
             if not carrier:
                 return self.ErrorJsonResponse("Carrier not founded!", 404)
             truck = TruckCrud.create(
@@ -35,7 +41,7 @@ class TrucksApiView(AuthBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
 
 
-class TruckApiView(AuthBaseView):
+class TruckApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         try:
             truck = TruckCrud.read_by_plate(kwargs["plate"])
