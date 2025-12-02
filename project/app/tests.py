@@ -989,6 +989,7 @@ class UserAPITest(TestCase):
 
     def test_delete_user(self):
         """Testing deleting a user"""
+
         user_to_delete = UserCrud.create(
             role="Shop",
             name="To Delete",
@@ -996,11 +997,15 @@ class UserAPITest(TestCase):
             email="todelete@test.com",
             password="password",
         )
-        self.client.login(email="admin@test.com", password="adminpassword")
+
+        self.client.login(email="todelete@test.com", password="password")
+
         response = self.client.delete(
             reverse("User Route", kwargs={"email": "todelete@test.com"})
         )
+
         self.assertEqual(response.status_code, 200)
+
         with self.assertRaises(ValueError):
             UserCrud.read_by_email("todelete@test.com")
 
