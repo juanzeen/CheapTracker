@@ -111,6 +111,7 @@ class AddBoxView(ShopkeeperBaseView):
                 box = OrderService.add_box(
                     kwargs["id"],
                     data["box_size"],
+                    data["quantity"],
                     data["length"],
                     data["width"],
                     data["height"],
@@ -120,7 +121,7 @@ class AddBoxView(ShopkeeperBaseView):
                     "Custom box successfully added!", model_to_dict(box), 201
                 )
             if data["box_size"] != "Cus":
-                box = OrderService.add_box(kwargs["id"], data["box_size"])
+                box = OrderService.add_box(kwargs["id"], data["box_size"], data["quantity"])
                 return self.SuccessJsonResponse(
                     f"{data["box_size"]} box successfully added!",
                     model_to_dict(box),
@@ -128,6 +129,8 @@ class AddBoxView(ShopkeeperBaseView):
                 )
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
+        except ValueError as e:
+            return self.ErrorJsonResponse(e.args[0])
 
 
 class RemoveBoxView(ShopkeeperBaseView):

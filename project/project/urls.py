@@ -50,6 +50,8 @@ from app.views.templates_views import (
     PlaceDashboardTemplateView,
     CreateOrderTemplateView,
     OrderDetailsTemplateView,
+    AddBoxTemplateView,
+    RemoveBoxTemplateView,
     CreateTruckTemplateView,
     TruckDetailsTemplateView,
     SwaggerUIView,
@@ -194,6 +196,8 @@ urlpatterns = [
         TruckDetailsTemplateView.as_view(),
         name="Truck Details View",
     ),
+    path("order/<int:id>/add-boxes", AddBoxTemplateView.as_view(), name="Add Box To The Order Template View"),
+    path("order/<int:id>/remove-boxes", RemoveBoxTemplateView.as_view(), name="Remove Box To The Order Template View"),
     # Swagger-UI routes
     path("api/docs", SwaggerUIView.as_view(), name="swagger-ui"),
     path("openapi.yaml", openapi_yaml_view, name="openapi-yaml"),

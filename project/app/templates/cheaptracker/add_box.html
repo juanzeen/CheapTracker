@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+
+{% block title %}Adicionar Caixa{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Adicionar Caixa ao Pedido {{id}}</h2>
+    <form class="form-container" id="add-boxes">
+        <div class="form-group">
+            <label for="id_order_id">Quantidade:</label>
+            <input type="number" id="boxes_quantity" name="quantity" required class="form-input" value=1>
+        </div>
+
+        <div class="form-group">
+            <label>Tamanho da Caixa:</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="box_size" value="small" required> Pequena
+                    <div class="category-specs">
+                        <p>Comp: 0.2m, Larg: 0.2m, Alt: 0.2m</p>
+                        <p>Carga Útil: 1kg</p>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="box_size" value="medium"> Média
+                    <div class="category-specs">
+                        <p>Comp: 0.4m, Larg: 0.3m, Alt: 0.3m</p>
+                        <p>Carga Útil: 5kg</p>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="box_size" value="big"> Grande
+                    <div class="category-specs">
+                        <p>Comp: 0.6m, Larg: 0.4m, Alt: 0.4m</p>
+                        <p>Carga Útil: 10kg</p>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="box_size" value="large"> Extra Grande
+                    <div class="category-specs">
+                        <p>Comp: 0.8m, Larg: 0.5m, Alt: 0.5m</p>
+                        <p>Carga Útil: 20kg</p>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="box_size" value="custom" id="custom-box-size"> Personalizada
+                </label>
+            </div>
+        </div>
+
+        <div id="custom-dimensions-fields" style="display: none;">
+            <div class="form-group">
+                <label for="id_length">Comprimento (m):</label>
+                <input type="number" step="any" id="id_length" name="length" min="0.01" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="id_width">Largura (m):</label>
+                <input type="number" step="any" id="id_width" name="width" min="0.01" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="id_height">Altura (m):</label>
+                <input type="number" step="any" id="id_height" name="height" min="0.01" class="form-input">
+            </div>
+
+            <div class="form-group">
+                <label for="id_payload_kg">Carga Útil (kg):</label>
+                <input type="number" step="any" id="id_payload_kg" name="payload_kg" min="0.01" class="form-input">
+            </div>
+        </div>
+
+        <button type="submit" class="red-btn">Adicionar Caixa</button>
+        <a href="/order/{{ order_id }}" id="back-to-order-btn" class="switch-form-link" style="align-self: center;">Voltar ao Pedido</a>
+    </form>
+</div>
+
+<script>
+    const orderId = "{{id|escapejs }}"; // Assuming order_id is passed via context
+
+    const customBoxSizeRadio = document.getElementById('custom-box-size');
+    const customDimensionsFields = document.getElementById('custom-dimensions-fields');
+    const lengthInput = document.getElementById('id_length');
+    const widthInput = document.getElementById('id_width');
+    const heightInput = document.getElementById('id_height');
+    const payloadKgInput = document.getElementById('id_payload_kg');
+    const backToOrderBtn = document.getElementById('back-to-order-btn');
+
+    const form = document.querySelector("#add-boxes")
+
+    // Set correct back button href
+    backToOrderBtn.href = `/order/${orderId}`;
+
+
+    function toggleCustomFields() {
+        if (customBoxSizeRadio.checked) {
+            customDimensionsFields.style.display = 'block';
+            lengthInput.setAttribute('required', 'required');
+            widthInput.setAttribute('required', 'required');
+            heightInput.setAttribute('required', 'required');
+            payloadKgInput.setAttribute('required', 'required');
+        } else {
+            customDimensionsFields.style.display = 'none';
+            lengthInput.removeAttribute('required');
+            widthInput.removeAttribute('required');
+            heightInput.removeAttribute('required');
+            payloadKgInput.removeAttribute('required');
+        }
+    }
+
+    // Add event listeners to all radio buttons in the group
+    document.querySelectorAll('input[name="box_size"]').forEach(radio => {
+        radio.addEventListener('change', toggleCustomFields);
+    });
+
+    form.addEventListener("submit", async (e) => {
+    try{
+      e.preventDefault();
+      const formData = new FormData(form)
+      const dt = Object.fromEntries(formData.entries());
+      const data = {...dt, quantity: parseInt(dt.quantity)}
+      const result = await fetch(`/api/order/${orderId}/add-box`,
+       {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {"Content-Type": "application/json"}
+    })
+    const res = await result.json()
+
+    if(!result.ok){
+      throw new Error(res.error)
+    }
+
+    alert(res.message)
+    }catch(err){
+      alert(err.message)
+    }
+
+    })
+
+
+    toggleCustomFields();
+</script>
+{% endblock %}

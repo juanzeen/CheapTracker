@@ -37,6 +37,12 @@ class CreateOrderTemplateView(BaseAuthTemplateView):
 class OrderDetailsTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/order_detail.html"
 
+class AddBoxTemplateView(BaseAuthTemplateView):
+    template_name = "cheaptracker/add_box.html"
+
+class RemoveBoxTemplateView(BaseAuthTemplateView):
+    template_name = "cheaptracker/remove_box.html"
+
 class CreateTruckTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/create_truck.html"
 
