@@ -28,8 +28,17 @@
       {% endif %}
       <a class="red-btn" href="/dashboard">Dashboard de Usuário</a>
     </div>
-      <div class="places-cards">
-      </div>
+    <div class="entities-container">
+      {%if user.role == "Shop"%}
+      <h2>Pedidos</h2>
+      {%elif user.role == "Man"%}
+      <h2>Viagens</h2>
+      {%elif user.role == "Carr"%}
+      <h2>Caminhões</h2>
+      {%endif%}
+        <div class="places-cards">
+        </div>
+    </div>
 </div>
 
 <script>
@@ -98,25 +107,24 @@
         throw new Error(res.error || `Error trying to get ${placePath} ${placeEntityPath}!`)
       }
 
-
       const place_data = res.data
 
       if(place_data.length == 0){
-        throw new Error(res.error || `The ${placePath} don't have ${placeEntityPath}!`)
+        throw new Error(res.error)
       }
 
       for(const data of place_data){
         const dataCard = document.createElement("a");
         dataCard.classList.add("place-card");
-        dataCard.href = `/${placeEntityPath.slice(0, placeEntityPath.length - 1)}/${data.id}`
-
+        dataCard.href = `${placeId}/${placeEntityPath.slice(0, placeEntityPath.length - 1)}/${userRole == "Carr"? data.plate : data.id}`
         const dataTitle = document.createElement("h3");
         const dataSubtitle = document.createElement("p");
+
 
         switch(userRole){
           case "Carr":
           dataTitle.textContent = data.plate
-          dataSubtitle.textContent = `Eixos: ${data.axles_count}`
+          dataSubtitle.textContent = `Eixos: ${data.axles_count} ${data.is_active ? "| Em trânsito" : ""}`
           dataCard.appendChild(dataTitle);
           dataCard.appendChild(dataSubtitle);
           break;

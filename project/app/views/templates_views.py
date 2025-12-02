@@ -40,6 +40,9 @@ class OrderDetailsTemplateView(BaseAuthTemplateView):
 class CreateTruckTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/create_truck.html"
 
+class TruckDetailsTemplateView(BaseAuthTemplateView):
+    template_name = "cheaptracker/truck_detail.html"
+
 class SwaggerUIView(TemplateView):
     template_name = "cheaptracker/swagger-ui.html"
 

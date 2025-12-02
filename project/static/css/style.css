@@ -382,3 +382,49 @@ h2 {
 .category-specs p {
     margin: 2px 0;
 }
+
+/* Detail Card */
+.detail-card {
+  width: 80%;
+  max-width: 800px;
+  background-color: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-label {
+  font-weight: bold;
+  color: var(--dark-red);
+  font-size: 0.9em;
+}
+
+.detail-value {
+  font-size: 1.1em;
+  color: #333;
+}
+
+.detail-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+}
+
+.entities-container{
+  width: 100%;
+  text-align: center;
+}

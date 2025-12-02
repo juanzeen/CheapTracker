@@ -5,8 +5,7 @@
 {% block content %}
 <div class="container">
     <h2 class="page-title">Adicionar Caminhão</h2>
-    <form class="form-container" method="POST" id="create-truck-form">
-        {% csrf_token %}
+    <form class="form-container" id="create-truck-form">
         <div class="form-group">
             <label>Categoria:</label>
             <div class="radio-group">
@@ -51,15 +50,29 @@
 
 <script>
     const form = document.querySelector("#create-truck-form")
+    const carrierId = "{{ carrier_id|escapejs }}";
 
-    form.addEventListener("submit", async () => {
+    form.addEventListener("submit", async (e) => {
         e.preventDefault();
         const formData = new FormData(form)
-        const data = Object.fromEntries(formData.entries());
-        const res = await fetch("/api/trucks", {method: "POST",
-         body: JSON.stringify(data),
-         headers: {"Content-Type": "application/json"}
-        })
+        const dt = Object.fromEntries(formData.entries());
+        const data = {...dt, carrier_id: carrierId}
+          try{
+            const result = await fetch("/api/trucks", {method: "POST",
+            body: JSON.stringify(data),
+            headers: {"Content-Type": "application/json"}
+         })
+
+         const res = await result.json()
+         if(!result.ok){
+            throw new Error(res.error )
+         }
+         alert(`Caminhão com a placa ${res.data.plate} criado!`)
+         window.location.href = `/carrier/${carrierId}`;
+          }catch (err){
+            alert(err.message)
+          }
+
     })
 </script>
 
