@@ -74,7 +74,7 @@
         </div>
 
         <div class="detail-actions">
-            <button class="red-btn" onclick="alert('Funcionalidade de excluir ainda não implementada')">Excluir Caminhão</button>
+            <button class="red-btn" id="delete-truck">Excluir Caminhão</button>
             <a href="/carrier/{{carrier_id|escapejs}}" class="switch-form-link" style="align-self: center;">Voltar</a>
         </div>
     </div>
@@ -82,6 +82,7 @@
 
 <script>
     const plate = "{{plate|escapejs}}"
+    const carrierId = "{{carrier_id|escapejs}}"
     const truckPlate = document.getElementById('truck-plate');
     const truckCarrierId = document.getElementById('truck-carrier-id');
     const truckAxlesCount = document.getElementById('truck-axles-count');
@@ -95,6 +96,7 @@
     const truckReleaseYear = document.getElementById('truck-release-year');
     const truckTotalTrips = document.getElementById('truck-total-trips');
     const truckMaxFuelCapacity = document.getElementById('truck-max-fuel-capacity');
+    const deleteTruckBtn = document.getElementById("delete-truck")
 
     window.addEventListener("load", async () => {
         try{
@@ -122,7 +124,24 @@
         }
         catch(err){
             alert(err.message)
-            window.location.href = `/carrier/${carrier_id}`;
+            window.location.href = `/carrier/${carrierId}`;
+        }
+    })
+
+    deleteTruckBtn.addEventListener("click", async (e) => {
+        e.preventDefault()
+        try{
+            const result = await fetch(`/api/truck/${plate}`, {method: "DELETE"})
+            const res = await result.json()
+
+            if(!result.ok){
+                throw new Error("Não foi possível remover o caminhão!")
+            }
+
+            alert("Caminhão removido com sucesso!")
+            window.location.href = `/carrier/${carrierId}`;
+        }catch(err){
+            alert(err.message)
         }
     })
 
