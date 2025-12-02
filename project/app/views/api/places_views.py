@@ -156,6 +156,8 @@ class StoreApiView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):
         try:
             store = StoreCrud.read_by_id(kwargs["id"])
+            if request.user != store.user:
+                return self.ErrorJsonResponse("User don't match to the store!", 401)
             return self.SuccessJsonResponse(
                 "Store successfully retrieved!", model_to_dict(store)
             )
@@ -168,6 +170,8 @@ class StoreApiView(ShopkeeperBaseView):
             store = StoreCrud.read_by_id(kwargs["id"])
             if not store:
                 return self.ErrorJsonResponse("Store not founded!", 404)
+            if request.user != store.user:
+                return self.ErrorJsonResponse("User don't match to the store!", 401)
             StoreCrud.update(store.id, **data)
             return self.SuccessJsonResponse("Store successfully updated!", data)
         except KeyError as e:
@@ -178,6 +182,8 @@ class StoreApiView(ShopkeeperBaseView):
     def delete(self, request, *args, **kwargs):
         try:
             store = StoreCrud.read_by_id(kwargs["id"])
+            if request.user != store.user:
+                return self.ErrorJsonResponse("User don't match to the store!", 401)
             StoreCrud.delete(store.id)
             return self.SuccessJsonResponse("Store successfully deleted!")
         except ValueError:
@@ -236,6 +242,8 @@ class DepotApiView(ManagerBaseView):
     def get(self, request, *args, **kwargs):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
+            if request.user != depot.user:
+                return self.ErrorJsonResponse("User don't match to the depot!", 401)
             return self.SuccessJsonResponse(
                 "Depot successfully retrieved!", model_to_dict(depot)
             )
@@ -248,6 +256,8 @@ class DepotApiView(ManagerBaseView):
             depot = DepotCrud.read_by_id(kwargs["id"])
             if not depot:
                 return self.ErrorJsonResponse("Depot not founded!", 404)
+            if request.user != depot.user:
+                return self.ErrorJsonResponse("User don't match to the depot!", 401)
             DepotCrud.update(depot.id, **data)
             return self.SuccessJsonResponse("Depot successfully updated!", data)
         except KeyError as e:
@@ -258,6 +268,8 @@ class DepotApiView(ManagerBaseView):
     def delete(self, request, *args, **kwargs):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
+            if request.user != depot.user:
+                return self.ErrorJsonResponse("User don't match to the depot!", 401)
             DepotCrud.delete(depot.id)
             return self.SuccessJsonResponse("Depot successfully deleted!")
         except ValueError:
@@ -364,6 +376,8 @@ class CarrierApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         try:
             carrier = CarrierCrud.read_by_id(kwargs["id"])
+            if request.user != carrier.user:
+                return self.ErrorJsonResponse("User don't match to the carrier!", 401)
             return self.SuccessJsonResponse(
                 "Carrier successfully retrieved!", model_to_dict(carrier)
             )
@@ -376,6 +390,8 @@ class CarrierApiView(CarrierBaseView):
             carrier = CarrierCrud.read_by_id(kwargs["id"])
             if not carrier:
                 return self.ErrorJsonResponse("Carrier not founded!", 404)
+            if request.user != carrier.user:
+                return self.ErrorJsonResponse("User don't match to the carrier!", 401)
             CarrierCrud.update(carrier.id, **data)
             return self.SuccessJsonResponse("Carrier successfully updated!", data)
         except KeyError as e:
@@ -386,6 +402,8 @@ class CarrierApiView(CarrierBaseView):
     def delete(self, request, *args, **kwargs):
         try:
             carrier = CarrierCrud.read_by_id(kwargs["id"])
+            if request.user != carrier.user:
+                return self.ErrorJsonResponse("User don't match to the carrier!", 401)
             CarrierCrud.delete(carrier.id)
             return self.SuccessJsonResponse("Carrier successfully deleted!")
         except ValueError:
