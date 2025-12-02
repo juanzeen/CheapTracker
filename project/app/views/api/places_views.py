@@ -291,7 +291,8 @@ class DefineTripAPIView(ManagerBaseView):
             return self.ErrorJsonResponse(e.args[0])
         except StatusError as e:
             return self.ErrorJsonResponse(e.args[0])
-        
+
+
 class TripsByDepotAPIView(ManagerBaseView):
     def get(self, request, *args, **kwargs):
         try:
@@ -301,7 +302,7 @@ class TripsByDepotAPIView(ManagerBaseView):
             trips = TripCrud.read_trips_by_depot(depot.id)
             if len(trips) == 0:
                 return self.ErrorJsonResponse("Depot with no trips", 404)
-            
+
             trips_dict = [model_to_dict(trip) for trip in trips]
 
             return self.SuccessJsonResponse(

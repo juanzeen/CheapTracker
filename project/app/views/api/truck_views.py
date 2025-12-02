@@ -6,6 +6,7 @@ from app.models import Truck
 from django.forms.models import model_to_dict
 from django.db import IntegrityError
 
+
 class TrucksApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         trucks = TruckCrud.read().values()
