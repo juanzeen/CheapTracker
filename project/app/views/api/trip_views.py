@@ -51,6 +51,10 @@ class TripAPIView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         try:
             trip = TripCrud.read_by_id(kwargs["id"])
+            if request.user != trip.origin_depot.user:
+                return self.ErrorJsonResponse(
+                    "User's depots don't match to the trip!", 401
+                )
             return self.SuccessJsonResponse(
                 "Trip successfully retrieved!", model_to_dict(trip)
             )

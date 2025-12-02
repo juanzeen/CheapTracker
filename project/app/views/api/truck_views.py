@@ -44,6 +44,8 @@ class TruckApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         try:
             truck = TruckCrud.read_by_plate(kwargs["plate"])
+            if truck.carrier.user != request.user:
+                return self.ErrorJsonResponse("Carrier Truck don't match to user!", 401)
             return self.SuccessJsonResponse(
                 "Truck successfully retrieved!",
                 model_to_dict(truck),
@@ -56,6 +58,8 @@ class TruckApiView(CarrierBaseView):
         try:
             data = json.loads(request.body)
             truck = TruckCrud.read_by_plate(kwargs["plate"])
+            if truck.carrier.user != request.user:
+                return self.ErrorJsonResponse("Carrier Truck don't match to user!", 401)
             if not truck:
                 return self.ErrorJsonResponse("Truck not found!", 404)
             updated_truck = TruckCrud.update(truck.plate, **data)
@@ -71,6 +75,8 @@ class TruckApiView(CarrierBaseView):
     def delete(self, request, *args, **kwargs):
         try:
             truck = TruckCrud.read_by_plate(kwargs["plate"])
+            if truck.carrier.user != request.user:
+                return self.ErrorJsonResponse("Carrier Truck don't match to user!", 401)
             TruckCrud.delete(truck.plate)
             return self.SuccessJsonResponse(
                 "Truck successfully deleted!",

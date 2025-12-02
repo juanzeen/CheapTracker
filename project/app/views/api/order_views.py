@@ -35,6 +35,10 @@ class OrderApiView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):
         try:
             order = OrderCrud.read_by_id(kwargs["id"])
+            if request.user != order.store.user:
+                return self.ErrorJsonResponse(
+                    "User store don't match to the order!", 401
+                )
             return self.SuccessJsonResponse(
                 "Order successfully retrieved!", model_to_dict(order)
             )
@@ -44,6 +48,10 @@ class OrderApiView(ShopkeeperBaseView):
     def delete(self, request, *args, **kwargs):
         try:
             order = OrderCrud.read_by_id(kwargs["id"])
+            if request.user != order.store.user:
+                return self.ErrorJsonResponse(
+                    "User store don't match to the order!", 401
+                )
             OrderCrud.delete(order.id)
             return self.SuccessJsonResponse(
                 "Order successfully deleted!", model_to_dict(order)
