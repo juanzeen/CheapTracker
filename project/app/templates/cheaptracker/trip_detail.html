@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes da Viagem{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Detalhes da Viagem</h2>
+
+    <div class="detail-card">
+        <div class="detail-item">
+            <span class="detail-label">ID da Viagem:</span>
+            <span class="detail-value" id="trip-id"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value" id="trip-status"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Caminhão (Placa):</span>
+            <span class="detail-value" id="trip-truck"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Depósito de Origem (ID):</span>
+            <span class="detail-value" id="trip-origin-depot"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Criada em:</span>
+            <span class="detail-value" id="trip-created-at"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Data de Partida:</span>
+            <span class="detail-value" id="trip-departure-date"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Data de Chegada:</span>
+            <span class="detail-value" id="trip-arrival-date"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Peso Total Carregado:</span>
+            <span class="detail-value" id="trip-total-weight"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Volume Total Carregado:</span>
+            <span class="detail-value" id="trip-total-volume"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Distância Total:</span>
+            <span class="detail-value" id="trip-total-distance"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Emissão de CO2:</span>
+            <span class="detail-value" id="trip-carbon"></span>
+        </div>
+
+        <div class="detail-actions" style="flex-wrap: wrap;">
+            <button class="red-btn" id="start-trip-btn" style="display: none;">Iniciar Viagem</button>
+            <button class="red-btn" id="end-trip-btn" style="display: none;">Finalizar Viagem</button>
+            <button class="red-btn" id="cancel-trip-btn" style="display: none;">Cancelar Viagem</button>
+            <a href="/depot/{{depot_id|escapejs}}" id="back-btn" class="switch-form-link" style="align-self: center;">Voltar</a>
+        </div>
+    </div>
+
+    <div class="entities-container">
+        <h2>Pedidos na Viagem</h2>
+        <div class="places-cards" id="orders-list">
+             <p>Carregando pedidos...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const tripId = "{{ trip_id|escapejs }}";
+
+    // Selectors
+    const tripIdEl = document.getElementById('trip-id');
+    const tripStatusEl = document.getElementById('trip-status');
+    const tripTruckEl = document.getElementById('trip-truck');
+    const tripOriginDepotEl = document.getElementById('trip-origin-depot');
+    const tripCreatedAtEl = document.getElementById('trip-created-at');
+    const tripDepartureDateEl = document.getElementById('trip-departure-date');
+    const tripArrivalDateEl = document.getElementById('trip-arrival-date');
+    const tripTotalWeightEl = document.getElementById('trip-total-weight');
+    const tripTotalVolumeEl = document.getElementById('trip-total-volume');
+    const tripTotalDistanceEl = document.getElementById('trip-total-distance');
+    const tripCarbonEl = document.getElementById('trip-carbon');
+    const backBtn = document.getElementById('back-btn');
+    const ordersListContainer = document.getElementById('orders-list');
+
+    const startTripBtn = document.getElementById('start-trip-btn');
+    const endTripBtn = document.getElementById('end-trip-btn');
+    const cancelTripBtn = document.getElementById('cancel-trip-btn');
+
+    // Helper to translate Trip status
+    const translateTripStatus = (status) => {
+        const map = {
+            'Plan': 'Planejada',
+            'InTr': 'Em Trânsito',
+            'Comp': 'Concluída',
+            'Canc': 'Cancelada'
+        };
+        return map[status] || status;
+    };
+
+    // Helper to translate Order status
+    const translateOrderStatus = (status) => {
+         const map = {
+            'Pend': 'Pendente',
+            'Sche': 'Agendado',
+            'Ship': 'Enviado',
+            'Deli': 'Entregue',
+            'Canc': 'Cancelado'
+        };
+        return map[status] || status;
+    }
+
+    // Helper to format date
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        return new Date(dateString).toLocaleDateString('pt-BR', {
+            day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+    };
+
+    async function fetchAndDisplayTripDetails() {
+        try {
+            const result = await fetch(`/api/trip/${tripId}`);
+            const res = await result.json();
+
+            if (!result.ok) {
+                throw new Error("Informações da viagem não encontradas!");
+            }
+
+            const data = res.data || res;
+
+            tripIdEl.textContent = data.id;
+            tripStatusEl.textContent = translateTripStatus(data.status);
+            // Handle truck being null or object
+            let truckInfo = "Sem Caminhão";
+            if (data.truck) {
+                 truckInfo = typeof data.truck === 'object' ? data.truck.plate : data.truck;
+            } else if (data.truck_id) {
+                 truckInfo = data.truck_id; // Fallback if API returns ID directly
+            }
+            tripTruckEl.textContent = truckInfo;
+
+            tripOriginDepotEl.textContent = data.origin_depot || "N/A";
+            tripCreatedAtEl.textContent = formatDate(data.created_at);
+            tripDepartureDateEl.textContent = formatDate(data.departure_date);
+            tripArrivalDateEl.textContent = formatDate(data.arrival_date);
+            tripTotalWeightEl.textContent = `${data.total_loaded_weight_kg} kg`;
+            tripTotalVolumeEl.textContent = `${parseFloat(data.total_loaded_volume_m3).toFixed(2)} m³`;
+            tripTotalDistanceEl.textContent = `${data.total_distance_km} km`;
+            tripCarbonEl.textContent = data.carbon_kg_co2 ? `${data.carbon_kg_co2} kg` : "N/A";
+
+            // Update button visibility based on status
+            updateButtonVisibility(data.status);
+
+        } catch (err) {
+            console.error(err);
+            alert("Erro ao carregar detalhes da viagem.");
+            // window.location.href = '/dashboard';
+        }
+    }
+
+    function updateButtonVisibility(status) {
+        startTripBtn.style.display = 'none';
+        endTripBtn.style.display = 'none';
+        cancelTripBtn.style.display = 'none';
+
+        if (status === 'Plan') {
+            startTripBtn.style.display = 'inline-block';
+            cancelTripBtn.style.display = 'inline-block';
+        } else if (status === 'InTr') {
+            endTripBtn.style.display = 'inline-block';
+             cancelTripBtn.style.display = 'inline-block';
+        }
+    }
+
+    async function fetchAndDisplayOrders() {
+        try {
+            const result = await fetch(`/api/trip/${tripId}/orders`);
+            const res = await result.json();
+
+            if (!result.ok) {
+                ordersListContainer.innerHTML = "<p>Não foi possível carregar os pedidos.</p>";
+                return;
+            }
+
+            const orders = res.data || [];
+
+            if (orders.length === 0) {
+                ordersListContainer.innerHTML = "<p>Nenhum pedido nesta viagem.</p>";
+                return;
+            }
+
+            ordersListContainer.innerHTML = ''; // Clear placeholder
+            orders.forEach(order => {
+                 const orderCard = document.createElement("a");
+                 orderCard.href = `/order/${order.id}`;
+                 orderCard.classList.add("place-card");
+
+                 orderCard.innerHTML = `
+                    <h3>Pedido #${order.id}</h3>
+                    <p>Status: ${translateOrderStatus(order.status)}</p>
+                    <p>Peso: ${order.total_weight_kg} kg</p>
+                 `;
+                 ordersListContainer.appendChild(orderCard);
+            });
+
+        } catch (err) {
+            console.error("Erro ao buscar pedidos da viagem:", err);
+            ordersListContainer.innerHTML = "<p>Erro ao buscar pedidos.</p>";
+        }
+    }
+
+    // Event Listeners for Actions
+    startTripBtn.addEventListener('click', async () => {
+        if(!confirm("Iniciar viagem?")) return;
+        try {
+             const res = await fetch(`/api/trip/${tripId}/start`, {method: 'POST'});
+             if(res.ok) {
+                 alert("Viagem iniciada!");
+                 location.reload();
+             } else {
+                 const err = await res.json();
+                 alert("Erro ao iniciar viagem: " + (err.error || err.message || "Desconhecido"));
+             }
+        } catch(e) { console.error(e); alert("Erro de conexão."); }
+    });
+
+    endTripBtn.addEventListener('click', async () => {
+         if(!confirm("Finalizar viagem?")) return;
+        try {
+             const res = await fetch(`/api/trip/${tripId}/end`, {method: 'POST'});
+             if(res.ok) {
+                 alert("Viagem finalizada!");
+                 location.reload();
+             } else {
+                  const err = await res.json();
+                 alert("Erro ao finalizar viagem: " + (err.error || err.message || "Desconhecido"));
+             }
+        } catch(e) { console.error(e); alert("Erro de conexão."); }
+    });
+
+    cancelTripBtn.addEventListener('click', async () => {
+         if(!confirm("Cancelar viagem?")) return;
+        try {
+             const res = await fetch(`/api/trip/${tripId}/cancel-trip`, {method: 'POST'});
+             if(res.ok) {
+                 alert("Viagem cancelada!");
+                 location.reload();
+             } else {
+                  const err = await res.json();
+                 alert("Erro ao cancelar viagem: " + (err.error || err.message || "Desconhecido"));
+             }
+        } catch(e) { console.error(e); alert("Erro de conexão."); }
+    });
+
+
+    window.addEventListener("load", async () => {
+        await fetchAndDisplayTripDetails();
+        await fetchAndDisplayOrders();
+    });
+
+</script>
+{% endblock %}

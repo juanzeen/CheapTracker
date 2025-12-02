@@ -169,34 +169,37 @@
     }
   })
 
-  createOrderBtn.addEventListener("click", async () => {
-    const payload = {store_id: "{{place_id|escapejs}}"}
-    try{
-      const result = await fetch("/api/orders", {method: "POST",
-        body: JSON.stringify(payload),
-        headers: {
-         "Content-Type": "application/json"
+  if(userRole == "Shop"){
+    createOrderBtn.addEventListener("click", async () => {
+      const payload = {store_id: "{{place_id|escapejs}}"}
+      try{
+        const result = await fetch("/api/orders", {method: "POST",
+          body: JSON.stringify(payload),
+          headers: {
+           "Content-Type": "application/json"
+          }
+       })
+
+        const res = await result.json()
+
+        if(!result.ok){
+          throw new Error(res.error)
         }
-     })
 
-      const res = await result.json()
-
-      if(!result.ok){
-        throw new Error(res.error)
+        alert("Pedido criado com sucesso!")
+        location.reload(true)
       }
-
-      alert("Pedido criado com sucesso!")
-    }
-    catch(err){
-      alert(err.message)
-    }
-  })
+      catch(err){
+        alert(err.message)
+      }
+    })
+  }
 
   window.addEventListener("load", () => {
     try{
       fetch(`/api/${placePath}/${placeId}`, {method: "GET"}).then(res => res.json()).then(res => {
         placeName.textContent = res.data.name
-        placeContact.textContent = `Telefone: ${res.data.contact}`
+        placeContact.textContent = `Telefone: (${res.data.contact.slice(0,2)}) ${res.data.contact.slice(2,6)}-${res.data.contact.slice(6,res.data.contact.length - 1)}`
         placeRegistration.textContent = `CNPJ: ${res.data.registration}`
       })
     } catch(err){
