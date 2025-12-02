@@ -91,7 +91,7 @@ urlpatterns = [
         name="Depot Define Trip Route",
     ),
     path(
-        "api/depots/<int:id>/trips",
+        "api/depot/<int:id>/trips",
         TripsByDepotAPIView.as_view(),
         name="Trips by Depot Route",
     ),

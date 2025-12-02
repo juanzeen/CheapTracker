@@ -20,7 +20,7 @@
     {% endif %}
     <div class="action-buttons-container">
       {%if user.role == "Shop" %}
-      <a href="{{place_id}}/create-order" class="red-btn">Criar Pedido</a>
+      <button id="create-order" class="red-btn">Criar Pedido</button>
       {%elif user.role == "Man"%}
       <a href="" class="red-btn">Criar Viagem</a>
       {%elif user.role == "Carr"%}
@@ -70,6 +70,25 @@
     }
   }
 
+  const getTripStatus = (stt) =>{
+    switch(stt){
+      case "Plan":
+        return "Planejada"
+        break
+      case "InTr":
+        return "Em Trânsito"
+        break
+      case "Comp":
+        return "Concluída"
+        break
+      case "Canc":
+        return "Cancelada"
+        break
+      default:
+        return stt // Fallback for unknown status
+    }
+  }
+
   const getOrderStatus = (stt) =>{
     switch(stt){
       case "Pend":
@@ -93,6 +112,7 @@
   const placeEntityPath = getPlaceInfosByUserRole(userRole)
   const placePath = getUserPlaceType(userRole)
 
+  const createOrderBtn = document.getElementById("create-order")
   const placeName = document.querySelector("#place-name")
   const placeContact = document.querySelector("#place-contact")
   const placeRegistration = document.querySelector("#place-registration")
@@ -129,7 +149,7 @@
           dataCard.appendChild(dataSubtitle);
           break;
           case "Man":
-          dataTitle.textContent = `${data.id} - ${data.status}`
+          dataTitle.textContent = `${data.id} - ${getTripStatus(data.status)}`
           dataSubtitle.textContent = `Distância da viagem: ${data.total_distance_km}`
           dataCard.appendChild(dataTitle);
           dataCard.appendChild(dataSubtitle);
@@ -146,6 +166,29 @@
 
     } catch(err){
       console.error(`Error fetching ${placeEntityPath}:`, err);
+    }
+  })
+
+  createOrderBtn.addEventListener("click", async () => {
+    const payload = {store_id: "{{place_id|escapejs}}"}
+    try{
+      const result = await fetch("/api/orders", {method: "POST",
+        body: JSON.stringify(payload),
+        headers: {
+         "Content-Type": "application/json"
+        }
+     })
+
+      const res = await result.json()
+
+      if(!result.ok){
+        throw new Error(res.error)
+      }
+
+      alert("Pedido criado com sucesso!")
+    }
+    catch(err){
+      alert(err.message)
     }
   })
 
