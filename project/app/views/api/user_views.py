@@ -4,6 +4,7 @@ from app.models import Usuario
 from app.cruds.user_crud import UserCrud
 from django.contrib.auth import authenticate, login, logout
 from django.forms.models import model_to_dict
+from django.db import IntegrityError
 
 
 class LoginView(BaseView):
@@ -31,7 +32,7 @@ class UsersAPIView(BaseView):
     def get(self, request, *args, **kwargs):
         users = UserCrud.read().values()
         if not users:
-            return self.ErrorJsonResponse("Users not founded!")
+            return self.ErrorJsonResponse("Users not found!")
 
         return self.SuccessJsonResponse("Users successfully retrieved!", list(users))
 
@@ -52,40 +53,54 @@ class UsersAPIView(BaseView):
             )
         except KeyError as e:
             return self.ErrorJsonResponse(data=e.args)
+        except IntegrityError as e:
+            return self.ErrorJsonResponse(f"E-mail already used: {data["email"]}", 409)
 
 
 class UserAPIView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         try:
             user = UserCrud.read_by_email(kwargs["email"])
+            if request.user != user:
+                return self.ErrorJsonResponse(
+                    "User don't match with the requested user", 403
+                )
             return self.SuccessJsonResponse(
                 "User successfully retrieved!",
                 {"name": user.name, "email": user.email, "role": user.role},
                 200,
             )
         except Usuario.DoesNotExist:
-            return self.ErrorJsonResponse("User not founded!", 404)
+            return self.ErrorJsonResponse("User not found!", 404)
 
     def put(self, request, *args, **kwargs):
         try:
             data = json.loads(request.body)
             user = UserCrud.read_by_email(kwargs["email"])
+            if request.user != user:
+                return self.ErrorJsonResponse(
+                    "User don't match with the requested user", 403
+                )
             UserCrud.update(user.id, **data)
             return self.SuccessJsonResponse(
-                {"message": "User successfully updated!", "data": data}
+                {"message": "User successfully requested!", "data": data}
             )
         except KeyError as e:
             return self.ErrorJsonResponse(data=e.args)
-        except Usuario.DoesNotExist:
-            return self.ErrorJsonResponse("User not founded!")
+        except ValueError as e:
+            return self.ErrorJsonResponse("User not found")
 
     def delete(self, request, *args, **kwargs):
         try:
             user = UserCrud.read_by_email(kwargs["email"])
+            if request.user != user:
+                return self.ErrorJsonResponse(
+                    "User don't match with the requested user", 403
+                )
             UserCrud.delete(user.id)
             return self.SuccessJsonResponse("User successfully deleted!")
         except Usuario.DoesNotExist:
-            return self.ErrorJsonResponse("User not founded!", 404)
+            return self.ErrorJsonResponse("User not found!", 404)
 
 
 class ChangePasswordView(AuthBaseView):
@@ -93,6 +108,10 @@ class ChangePasswordView(AuthBaseView):
         try:
             data = json.loads(request.body)
             user = UserCrud.read_by_email(kwargs["email"])
+            if request.user != user:
+                return self.ErrorJsonResponse(
+                    "User don't match with the requested user", 403
+                )
             UserCrud.change_password(
                 user.id, data.get("old_password"), data.get("new_password")
             )
