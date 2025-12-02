@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
-{% block title %}Create Truck{% endblock %}
+{% block title %}Adicionar Caminhão{% endblock %}
 
 {% block content %}
 <div class="container">
     <h2 class="page-title">Adicionar Caminhão</h2>
-    <form class="form-container" method="POST">
+    <form class="form-container" method="POST" id="create-truck-form">
         {% csrf_token %}
         <div class="form-group">
             <label>Categoria:</label>
@@ -48,4 +48,19 @@
         <a href="/carrier/{{carrier_id}}" style="text-align: center; display: block; margin-top: 10px;">Voltar para a Dashboard da Transportadora</a>
     </form>
 </div>
+
+<script>
+    const form = document.querySelector("#create-truck-form")
+
+    form.addEventListener("submit", async () => {
+        e.preventDefault();
+        const formData = new FormData(form)
+        const data = Object.fromEntries(formData.entries());
+        const res = await fetch("/api/trucks", {method: "POST",
+         body: JSON.stringify(data),
+         headers: {"Content-Type": "application/json"}
+        })
+    })
+</script>
+
 {% endblock %}

@@ -9,6 +9,7 @@ from app.models import Usuario, Address
 from app.cruds.address_crud import AddressCrud
 from app.cruds.store_crud import StoreCrud
 from app.cruds.depot_crud import DepotCrud
+from app.cruds.trip_crud import TripCrud
 from app.cruds.carrier_crud import CarrierCrud
 from app.services.trip_service import TripService
 from django.forms.models import model_to_dict
@@ -270,6 +271,8 @@ class DefineTripAPIView(ManagerBaseView):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
             orders = json.loads(request.body).get("orders")
+            if request.user != depot.user:
+                return self.ErrorJsonResponse("Depot don't match to user!", 401)
             trip, route_order, fig = TripService.define_trip(depot.id, orders)
             figure_html = mpld3.fig_to_html(fig)
             return self.SuccessJsonResponse(
@@ -287,6 +290,25 @@ class DefineTripAPIView(ManagerBaseView):
         except RangeError as e:
             return self.ErrorJsonResponse(e.args[0])
         except StatusError as e:
+            return self.ErrorJsonResponse(e.args[0])
+
+
+class TripsByDepotAPIView(ManagerBaseView):
+    def get(self, request, *args, **kwargs):
+        try:
+            depot = DepotCrud.read_by_id(kwargs["id"])
+            if request.user != depot.user:
+                return self.ErrorJsonResponse("User don't match to the depot!", 401)
+            trips = TripCrud.read_trips_by_depot(depot.id)
+            if len(trips) == 0:
+                return self.ErrorJsonResponse("Depot with no trips", 404)
+
+            trips_dict = [model_to_dict(trip) for trip in trips]
+
+            return self.SuccessJsonResponse(
+                "Depot trips successfully retrieved!", trips_dict
+            )
+        except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
 
 
