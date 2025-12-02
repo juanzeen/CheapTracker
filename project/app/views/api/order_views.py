@@ -35,8 +35,10 @@ class OrderApiView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):
         try:
             order = OrderCrud.read_by_id(kwargs["id"])
+            order_dict = model_to_dict(order)
+            order_dict["created_at"] = order.created_at
             return self.SuccessJsonResponse(
-                "Order successfully retrieved!", model_to_dict(order)
+                "Order successfully retrieved!", order_dict
             )
         except ValueError:
             return self.ErrorJsonResponse("Order not founded!", 404)

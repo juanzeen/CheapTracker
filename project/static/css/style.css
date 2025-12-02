@@ -248,7 +248,8 @@ h2 {
   gap: 20px;
   width: 90%; /* Adjust as needed */
   padding: 20px;
-  margin-top: 20px;
+  margin: 20px auto 0;
+
 }
 
 /* Individual Place Card */

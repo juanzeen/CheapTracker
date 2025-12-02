@@ -130,6 +130,7 @@
 
     deleteTruckBtn.addEventListener("click", async (e) => {
         e.preventDefault()
+        if(!confirm("Tem certeza que deseja excluir este pedido?")) return;
         try{
             const result = await fetch(`/api/truck/${plate}`, {method: "DELETE"})
             const res = await result.json()
