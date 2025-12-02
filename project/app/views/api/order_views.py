@@ -5,6 +5,7 @@ from app.cruds.store_crud import StoreCrud
 from app.cruds.trip_crud import TripCrud
 from app.services.order_service import OrderService
 from django.forms.models import model_to_dict
+from app.exception_errors import BelongError
 
 
 class OrdersApiView(AuthBaseView):
@@ -20,8 +21,8 @@ class OrdersApiView(AuthBaseView):
         current_store = StoreCrud.read_by_id(store_id)
         if not current_store:
             return self.ErrorJsonResponse("Store not founded!", 404)
-        if current_store.user_email != request.user:
-            return self.ErrorJsonResponse("Stores don't match to user!", 401)
+        if current_store.user != request.user:
+            return self.ErrorJsonResponse("Store don't match to user!", 401)
         if request.user.role not in ["Shop", "Adm"]:
             return self.ErrorJsonResponse(
                 "User don't have permission to this action!", 401
@@ -102,6 +103,8 @@ class AddBoxView(ShopkeeperBaseView):
         try:
             order = OrderCrud.read_by_id(kwargs["id"])
             data = json.loads(request.body)
+            if order.store.user != request.user:
+                return self.ErrorJsonResponse("Order's Store don't match to user!", 401)
             if data["box_size"] == "Cus":
                 box = OrderService.add_box(
                     kwargs["id"],
@@ -128,13 +131,17 @@ class AddBoxView(ShopkeeperBaseView):
 class RemoveBoxView(ShopkeeperBaseView):
     def post(self, request, *args, **kwargs):
         try:
-            data = json.loads(request.body)
-            OrderService.remove_box(kwargs["id"], data["box_id"])
             order = OrderCrud.read_by_id(kwargs["id"])
+            data = json.loads(request.body)
+            if order.store.user != request.user:
+                return self.ErrorJsonResponse("Order's Store don't match to user!", 401)
+            OrderService.remove_box(kwargs["id"], data["box_id"])
             return self.SuccessJsonResponse(
                 "Box successfully removed!", model_to_dict(order)
             )
         except ValueError as e:
+            return self.ErrorJsonResponse(e.args[0])
+        except BelongError as e:
             return self.ErrorJsonResponse(e.args[0])
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")

@@ -270,6 +270,8 @@ class DefineTripAPIView(ManagerBaseView):
         try:
             depot = DepotCrud.read_by_id(kwargs["id"])
             orders = json.loads(request.body).get("orders")
+            if request.user != depot.user:
+                return self.ErrorJsonResponse("Depot don't match to user!", 401)
             trip, route_order, fig = TripService.define_trip(depot.id, orders)
             figure_html = mpld3.fig_to_html(fig)
             return self.SuccessJsonResponse(
