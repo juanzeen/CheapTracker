@@ -47,6 +47,9 @@ from app.views.templates_views import (
     UserDashboardTemplateView,
     CreatePlaceTemplateView,
     PlaceDashboardTemplateView,
+    CreateOrderTemplateView,
+    OrderDetailsTemplateView,
+    CreateTruckTemplateView,
     SwaggerUIView,
     openapi_yaml_view,
 )
@@ -155,8 +158,28 @@ urlpatterns = [
         name="Generic Place Dashboard",
     ),
     path(
+        "store/<int:place_id>/create-order",
+        CreateOrderTemplateView.as_view(),
+        name="Create Order Form View",
+    ),
+    path(
+        "store/<int:store_id>/order/<int:order_id>",
+        OrderDetailsTemplateView.as_view(),
+        name="Order Details View",
+    ),
+    path(
         "depot/<int:place_id>",
         PlaceDashboardTemplateView.as_view(),
+        name="Generic Place Dashboard",
+    ),
+    path(
+        "carrier/<int:place_id>",
+        PlaceDashboardTemplateView.as_view(),
+        name="Generic Place Dashboard",
+    ),
+    path(
+        "carrier/<int:carrier_id>/create-truck",
+        CreateTruckTemplateView.as_view(),
         name="Generic Place Dashboard",
     ),
     path(

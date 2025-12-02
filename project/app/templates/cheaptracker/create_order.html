@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Order{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Criar Novo Pedido</h2>
+    <form class="form-container">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_trip">Trip (Optional):</label>
+            <!-- In a real application, this would be a dynamically populated select dropdown -->
+            <input type="text" id="id_trip" name="trip" placeholder="Enter Trip ID" class="form-input">
+        </div>
+
+        <div class="form-group">
+            <label>Status:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="status" value="Pend" required> Pending</label>
+                <label><input type="radio" name="status" value="Sche"> Scheduled</label>
+                <label><input type="radio" name="status" value="Ship"> Shipped</label>
+                <label><input type="radio" name="status" value="Deli"> Delivered</label>
+                <label><input type="radio" name="status" value="Canc"> Cancelled</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_total_weight_kg">Total Weight (kg):</label>
+            <input type="number" step="any" id="id_total_weight_kg" name="total_weight_kg" min="0.0" required class="form-input">
+        </div>
+
+        <div class="form-group">
+            <label for="id_total_volume_m3">Total Volume (m³):</label>
+            <input type="number" step="any" id="id_total_volume_m3" name="total_volume_m3" min="0.0" required class="form-input">
+        </div>
+
+        <div class="form-group">
+            <label for="id_total_boxes">Total Boxes:</label>
+            <input type="number" id="id_total_boxes" name="total_boxes" min="0" required class="form-input">
+        </div>
+
+        <button type="submit" class="red-btn">Create Order</button>
+    </form>
+</div>
+{% endblock %}

@@ -20,11 +20,11 @@
     {% endif %}
     <div class="action-buttons-container">
       {%if user.role == "Shop" %}
-      <a href="" class="red-btn">Criar Pedido</a>
+      <a href="{{place_id}}/create-order" class="red-btn">Criar Pedido</a>
       {%elif user.role == "Man"%}
       <a href="" class="red-btn">Criar Viagem</a>
       {%elif user.role == "Carr"%}
-      <a href="" class="red-btn">Criar caminhão</a>
+      <a href="{{place_id}}/create-truck" class="red-btn">Criar caminhão</a>
       {% endif %}
       <a class="red-btn" href="/dashboard">Dashboard de Usuário</a>
     </div>
@@ -57,6 +57,24 @@
         break
       case "Carr":
         return "carrier"
+        break
+    }
+  }
+
+  const getOrderStatus = (stt) =>{
+    switch(stt){
+      case "Pend":
+        return "Pendente"
+        break
+      case "Sche":
+        return "Agendado"
+        break
+      case "Ship":
+        return "Em rota"
+      case "Deli":
+        return "Entregue"
+      case "Canc":
+        return "Cancelado"
         break
     }
   }
@@ -109,7 +127,7 @@
           dataCard.appendChild(dataSubtitle);
           break
           case "Shop":
-          dataTitle.textContent = `${data.id} - ${data.status}`
+          dataTitle.textContent = `${data.id} - ${getOrderStatus(data.status)}`
           dataSubtitle.textContent = `Total de caixas: ${data.total_boxes}`
           dataCard.appendChild(dataTitle);
           dataCard.appendChild(dataSubtitle);

@@ -4,6 +4,7 @@ from app.cruds.carrier_crud import CarrierCrud
 from app.cruds.truck_crud import TruckCrud
 from app.models import Truck
 from django.forms.models import model_to_dict
+# from django.db import IntegrityError
 
 
 class TrucksApiView(CarrierBaseView):
@@ -18,7 +19,7 @@ class TrucksApiView(CarrierBaseView):
         try:
             data = json.loads(request.body)
             carrier = CarrierCrud.read_by_id(data["carrier_id"])
-            if carrier.user_email != request.user:
+            if carrier.user != request.user:
                 return self.ErrorJsonResponse("Carrier don't match to user!", 401)
             if request.user.role != "Carr":
                 return self.ErrorJsonResponse(
@@ -39,6 +40,8 @@ class TrucksApiView(CarrierBaseView):
             return self.ErrorJsonResponse("Carrier not founded!", 404)
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
+        # except IntegrityError:
+        #     return self.ErrorJsonResponse("JA TEM CAMINHAO COM ESSA PLACA PAIZAO")
 
 
 class TruckApiView(CarrierBaseView):
