@@ -65,7 +65,9 @@ class TripAPIView(AuthBaseView):
                 )
             trip = TripCrud.read_by_id(kwargs["id"])
             if request.user != trip.origin_depot.user:
-                return self.ErrorJsonResponse("User don't match to the trip!", 401)
+                return self.ErrorJsonResponse(
+                    "User's depots don't match to the trip!", 401
+                )
             TripCrud.delete(trip.id)
             return self.SuccessJsonResponse(
                 "Trip successfully deleted!", model_to_dict(trip)
@@ -101,7 +103,9 @@ class TripsRemainingDeliveriesAPIView(ManagerBaseView):
             print(request.user)
             print(responsible_depot.user.email)
             if request.user != responsible_depot.user:
-                return self.ErrorJsonResponse("User don't match to the trip!", 401)
+                return self.ErrorJsonResponse(
+                    "User's depots don't match to the trip!", 401
+                )
             deliveries = TripService.remaining_deliveries(trip.id)
             if len(deliveries) == 0:
                 return self.ErrorJsonResponse("No remaining deliveries!", 404)
@@ -119,7 +123,9 @@ class StartTripsAPIView(ManagerBaseView):
         try:
             trip = TripCrud.read_by_id(kwargs["id"])
             if request.user != trip.origin_depot.user:
-                return self.ErrorJsonResponse("User don't match to the trip!", 401)
+                return self.ErrorJsonResponse(
+                    "User's depots don't match to the trip!", 401
+                )
             truck = TruckCrud.read_by_plate(data["truck_plate"])
             depot = DepotCrud.read_by_id(data["depot_id"])
             started_trip = TripService.start_trip(truck.plate, trip.id, depot.id)
@@ -142,7 +148,9 @@ class EndTripAPIView(ManagerBaseView):
         try:
             trip = TripCrud.read_by_id(kwargs["id"])
             if request.user != trip.origin_depot.user:
-                return self.ErrorJsonResponse("User don't match to the trip!", 401)
+                return self.ErrorJsonResponse(
+                    "User's depots don't match to the trip!", 401
+                )
             depot = DepotCrud.read_by_id(data["depot_id"])
             ended_trip = TripService.end_trip(trip.id, depot.id)
             return self.SuccessJsonResponse(
@@ -163,6 +171,8 @@ class SimulateTripAPIView(AuthBaseView):
         data = json.loads(request.body)
         try:
             trip = TripCrud.read_by_id(kwargs["id"])
+            if request.user != trip.origin_depot.user:
+                return self.ErrorJsonResponse("User's depots don't match to trip!", 401)
             truck = TruckCrud.read_by_plate(data["truck_plate"])
             simulation = TripService.simulate_trip(
                 trip.id, truck.plate, data["traffic_status"]
@@ -177,8 +187,10 @@ class CancelTripAPIView(ManagerBaseView):
         data = json.loads(request.body)
         try:
             depot = DepotCrud.read_by_id(data["depot_id"])
-            TripService.cancel_trip(kwargs["id"], depot.id)
             trip = TripCrud.read_by_id(kwargs["id"])
+            if request.user != trip.origin_depot.user:
+                return self.ErrorJsonResponse("User's depots don't match to trip!", 401)
+            TripService.cancel_trip(kwargs["id"], depot.id)
             return self.SuccessJsonResponse(
                 "Trip successfully cancelled!", model_to_dict(trip)
             )
@@ -197,6 +209,8 @@ class ConfirmDeliveryInTripAPIView(ManagerBaseView):
             trip = TripCrud.read_by_id(kwargs["trip_id"])
             truck = TruckCrud.read_by_plate(data["truck_plate"])
             delivery = DeliveryCrud.read_by_id(kwargs["delivery_id"])
+            if request.user != trip.origin_depot.user:
+                return self.ErrorJsonResponse("User's depots don't match to trip!", 401)
             TripService.confirm_delivery(trip.id, truck.plate, delivery.id)
             return self.SuccessJsonResponse("Delivery successfully confirmed!")
         except StatusError as e:

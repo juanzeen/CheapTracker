@@ -15,6 +15,7 @@ from app.views.api.places_views import (
     CarrierApiView,
     CarriersApiView,
     DefineTripAPIView,
+    TripsByDepotAPIView,
 )
 
 from app.views.api.truck_views import TrucksApiView, TruckApiView
@@ -83,6 +84,11 @@ urlpatterns = [
         "api/depots/<int:id>/define-trip",
         DefineTripAPIView.as_view(),
         name="Depot Define Trip Route",
+    ),
+    path(
+        "api/depots/<int:id>/trips",
+        TripsByDepotAPIView.as_view(),
+        name="Trips by Depot Route",
     ),
     # carrier routes
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
