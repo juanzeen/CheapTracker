@@ -38,6 +38,7 @@ from app.views.api.order_views import (
     PendentOrdersView,
     OrdersByStoreView,
     OrdersByTripView,
+    BoxesFromOrderView,
     AddBoxView,
     RemoveBoxView,
 )
@@ -111,6 +112,9 @@ urlpatterns = [
     ),
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
     path("api/order/<int:id>", OrderApiView.as_view(), name="Order Route"),
+    path(
+        "api/order/<int:id>/boxes", BoxesFromOrderView.as_view(), name="Get Order Boxes Route"
+    ),
     path(
         "api/order/<int:id>/add-box", AddBoxView.as_view(), name="Order Add Box Route"
     ),
@@ -196,8 +200,8 @@ urlpatterns = [
         TruckDetailsTemplateView.as_view(),
         name="Truck Details View",
     ),
-    path("order/<int:id>/add-boxes", AddBoxTemplateView.as_view(), name="Add Box To The Order Template View"),
-    path("order/<int:id>/remove-boxes", RemoveBoxTemplateView.as_view(), name="Remove Box To The Order Template View"),
+    path("store/<int:store_id>/order/<int:order_id>/add-boxes", AddBoxTemplateView.as_view(), name="Add Box To The Order Template View"),
+    path("store/<int:store_id>/order/<int:order_id>/remove-boxes", RemoveBoxTemplateView.as_view(), name="Remove Box To The Order Template View"),
     # Swagger-UI routes
     path("api/docs", SwaggerUIView.as_view(), name="swagger-ui"),
     path("openapi.yaml", openapi_yaml_view, name="openapi-yaml"),

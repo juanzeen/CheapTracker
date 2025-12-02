@@ -71,12 +71,12 @@
         </div>
 
         <button type="submit" class="red-btn">Adicionar Caixa</button>
-        <a href="/order/{{ order_id }}" id="back-to-order-btn" class="switch-form-link" style="align-self: center;">Voltar ao Pedido</a>
+        <a href="/store/{{store_id}}/order/{{ order_id }}" id="back-to-order-btn" class="switch-form-link" style="align-self: center;">Voltar ao Pedido</a>
     </form>
 </div>
 
 <script>
-    const orderId = "{{id|escapejs }}"; // Assuming order_id is passed via context
+    const orderId = "{{order_id|escapejs }}"; // Assuming order_id is passed via context
 
     const customBoxSizeRadio = document.getElementById('custom-box-size');
     const customDimensionsFields = document.getElementById('custom-dimensions-fields');
@@ -87,11 +87,6 @@
     const backToOrderBtn = document.getElementById('back-to-order-btn');
 
     const form = document.querySelector("#add-boxes")
-
-    // Set correct back button href
-    backToOrderBtn.href = `/order/${orderId}`;
-
-
     function toggleCustomFields() {
         if (customBoxSizeRadio.checked) {
             customDimensionsFields.style.display = 'block';

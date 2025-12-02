@@ -1,6 +1,7 @@
 import json
 from .base_views import AuthBaseView, ShopkeeperBaseView
 from app.cruds.order_crud import OrderCrud
+from app.cruds.box_crud import BoxCrud
 from app.cruds.store_crud import StoreCrud
 from app.cruds.trip_crud import TripCrud
 from app.services.order_service import OrderService
@@ -150,3 +151,20 @@ class RemoveBoxView(ShopkeeperBaseView):
             return self.ErrorJsonResponse(e.args[0])
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
+
+class BoxesFromOrderView(ShopkeeperBaseView):
+    def get(self, request, *args, **kwargs):
+        try:
+            order = OrderCrud.read_by_id(kwargs["id"])
+            boxes = BoxCrud.read_boxes_by_order(order.id).values()
+            if not order:
+                return self.ErrorJsonResponse("Order not found!", 404)
+            if not boxes:
+                return self.ErrorJsonResponse("Boxes not found!", 404)
+
+            return self.SuccessJsonResponse(
+                f"Boxes associated to order {order.id} successfully retrieved!",
+                list(boxes),
+            )
+        except ValueError as e:
+            return self.ErrorJsonResponse(e.args[0], 404)
