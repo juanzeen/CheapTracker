@@ -6,7 +6,7 @@ from app.cruds.store_crud import StoreCrud
 from app.cruds.trip_crud import TripCrud
 from app.services.order_service import OrderService
 from django.forms.models import model_to_dict
-from app.exception_errors import BelongError
+from app.exception_errors import BelongError, StatusError
 
 
 class OrdersApiView(AuthBaseView):
@@ -116,20 +116,20 @@ class AddBoxView(ShopkeeperBaseView):
             data = json.loads(request.body)
             if order.store.user != request.user:
                 return self.ErrorJsonResponse("Order's Store don't match to user!", 401)
-            if data["box_size"] == "Cus":
+            if data["box_size"] == "custom":
                 box = OrderService.add_box(
-                    kwargs["id"],
-                    data["box_size"],
-                    data["quantity"],
-                    data["length"],
-                    data["width"],
-                    data["height"],
-                    data["payload_kg"],
+                   order_id=kwargs["id"],
+                    box_size=data["box_size"],
+                    quantity=data["quantity"],
+                    length=data["length"],
+                    width=data["width"],
+                    height=data["height"],
+                    payload_kg=data["payload_kg"],
                 )
                 return self.SuccessJsonResponse(
                     "Custom box successfully added!", model_to_dict(box), 201
                 )
-            if data["box_size"] != "Cus":
+            if data["box_size"] != "custom":
                 box = OrderService.add_box(kwargs["id"], data["box_size"], data["quantity"])
                 return self.SuccessJsonResponse(
                     f"{data["box_size"]} box successfully added!",
@@ -139,6 +139,8 @@ class AddBoxView(ShopkeeperBaseView):
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
         except ValueError as e:
+            return self.ErrorJsonResponse(e.args[0])
+        except StatusError as e:
             return self.ErrorJsonResponse(e.args[0])
 
 
@@ -159,6 +161,8 @@ class RemoveBoxView(ShopkeeperBaseView):
             return self.ErrorJsonResponse(e.args[0])
         except KeyError as e:
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
+        except StatusError as e:
+            return self.ErrorJsonResponse(e.args[0])
 
 class BoxesFromOrderView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):

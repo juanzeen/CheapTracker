@@ -113,7 +113,8 @@
       e.preventDefault();
       const formData = new FormData(form)
       const dt = Object.fromEntries(formData.entries());
-      const data = {...dt, quantity: parseInt(dt.quantity)}
+      const data = {...dt, quantity: parseInt(dt.quantity), width: parseFloat(dt.width), height: parseFloat(dt.height), length: parseFloat(dt.length), payload_kg: parseFloat(dt.payload_kg) }
+      console.log(data)
       const result = await fetch(`/api/order/${orderId}/add-box`,
        {
         method: "POST",

@@ -80,6 +80,7 @@
 
 <script>
     const tripId = "{{ trip_id|escapejs }}";
+    const depotId = "{{ depot_id|escapejs }}";
 
     // Selectors
     const tripIdEl = document.getElementById('trip-id');
@@ -239,10 +240,10 @@
     cancelTripBtn.addEventListener('click', async () => {
          if(!confirm("Cancelar viagem?")) return;
         try {
-             const res = await fetch(`/api/trip/${tripId}/cancel-trip`, {method: 'POST'});
+             const res = await fetch(`/api/trip/${tripId}/cancel-trip`, {method: 'POST', body: JSON.stringify({depot_id: depotId}) });
              if(res.ok) {
                  alert("Viagem cancelada!");
-                 location.reload();
+                 window.location.href = `/depot/${depotId}`
              } else {
                   const err = await res.json();
                  alert("Erro ao cancelar viagem: " + (err.error || err.message || "Desconhecido"));

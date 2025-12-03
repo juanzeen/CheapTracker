@@ -103,11 +103,10 @@
             orderTripIdEl.textContent = data.trip ? data.trip : "Nenhuma";
             orderStatusEl.textContent = translateStatus(data.status);
             orderCreatedAtEl.textContent = new Date(data.created_at).toLocaleDateString('pt-BR');
-            orderTotalWeightEl.textContent = `${data.total_weight_kg} kg`;
+            orderTotalWeightEl.textContent = `${data.total_weight_kg.toFixed(2)} kg`;
             orderTotalVolumeEl.textContent = `${parseFloat(data.total_volume_m3).toFixed(2)} m³`;
             orderTotalBoxesEl.textContent = data.total_boxes;
 
-            // Update back button if store ID wasn't initially available
             if (!storeId && data.store) {
                 storeId = data.store;
             }
@@ -115,7 +114,6 @@
 
         } catch (err) {
             alert(err.message);
-            // If we have a storeId, go back there, else go home
             window.location.href = storeId ? `/store/${storeId}` : '/dashboard';
         }
     });
@@ -139,12 +137,10 @@
     });
 
     addBoxesBtn.addEventListener("click", () => {
-         // Placeholder for future implementation
          window.location.href = `${orderId}/add-boxes`;
     });
 
     removeBoxesBtn.addEventListener("click", () => {
-        // Placeholder for future implementation
         window.location.href = `${orderId}/remove-boxes`;
     });
 
