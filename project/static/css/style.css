@@ -29,8 +29,7 @@ a:link {
 
 body {
   background-color: var(--main-bg);
-  max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 /* Home */
