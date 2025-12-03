@@ -367,7 +367,7 @@ class Command(BaseCommand):
                 cargo_height=3.0,
                 max_payload_kg=15000,
                 euro=random.randint(4, 6),
-                is_active=True,
+                is_active=False,
                 release_year=2020 + i,
                 total_trips=0,
                 max_fuel_capacity=400,
