@@ -29,8 +29,7 @@ a:link {
 
 body {
   background-color: var(--main-bg);
-  max-width: 1200px;
-  margin: 0 auto;
+  margin: 0;
 }
 
 /* Home */
@@ -41,6 +40,7 @@ body {
   align-items: center;
   gap: 40px;
   min-height: 100vh;
+  padding: 20px 0;
 }
 
 h2 {
@@ -247,7 +247,8 @@ h2 {
   gap: 20px;
   width: 90%; /* Adjust as needed */
   padding: 20px;
-  margin-top: 20px;
+  margin: 20px auto 0;
+
 }
 
 /* Individual Place Card */
@@ -278,4 +279,564 @@ h2 {
   font-size: 0.9em;
   color: #555;
   line-height: 1.4;
+}
+
+/* Forms Generic */
+.form-container {
+  width: 80%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background-color: #f4f4f4;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.25);
+  border: 1px solid #444;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-group label {
+  font-weight: bold;
+  color: #333;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  background-color: transparent;
+  border: none;
+  border-bottom: 1px solid #444;
+  outline: none;
+}
+
+.form-input:focus {
+  border-bottom: 2px solid var(--dark-red);
+}
+
+.radio-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-top: 5px;
+}
+
+.radio-group label {
+  font-weight: normal;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* Page Titles */
+.page-title {
+  font-size: 2em;
+  color: var(--dark-red);
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Radio Option with Specs */
+.radio-group {
+    flex-direction: column; /* Ensure radio options stack vertically */
+}
+
+.radio-option {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    transition: all 0.2s ease-in-out;
+}
+
+.radio-option:hover {
+    background-color: #f0f0f0;
+    border-color: var(--dark-red);
+}
+
+.radio-option input[type="radio"] {
+    margin-right: 8px;
+    width: auto; /* Override form-input width */
+}
+
+.radio-option input[type="radio"]:checked + .category-specs {
+    border-left: 3px solid var(--acent-red);
+    padding-left: 5px;
+}
+
+.category-specs {
+    font-size: 0.9em;
+    color: #555;
+    margin-top: 5px;
+    padding-left: 20px; /* Indent specs under radio button */
+}
+
+.category-specs p {
+    margin: 2px 0;
+}
+
+/* Detail Card */
+.detail-card {
+  width: 80%;
+  max-width: 800px;
+  background-color: #f9f9f9;
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #ddd;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-label {
+  font-weight: bold;
+  color: var(--dark-red);
+  font-size: 0.9em;
+}
+
+.detail-value {
+  font-size: 1.1em;
+  color: #333;
+}
+
+.detail-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px;
+  border-top: 1px solid #ccc;
+  padding-top: 20px;
+}
+
+.entities-container{
+  width: 100%;
+  text-align: center;
+}
+
+/* Truck styles */
+
+.selectable-card {
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.selectable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
+}
+.selectable-card.selected {
+  border-color: var(--dark-red);
+  background-color: #ffe6e6;
+}
+
+.selectable-card h3 {
+  font-size: 1.1em;
+  color: #333;
+}
+
+.selectable-card p {
+  font-size: 0.9em;
+  margin: 2px 0;
+}
+
+.truck-radio {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  transform: scale(1.5);
+  cursor: pointer;
+}
+
+/* From Home Template */
+/* General container adjustments */
+.container {
+  padding: 40px 20px;
+  gap: 60px;
+}
+
+/* Home Title */
+.home-title-container {
+  gap: 20px;
+  padding: 30px 0;
+  border-bottom: 2px solid rgba(162, 44, 44, 0.2); /* Subtle red border */
+  width: 100%;
+  max-width: 800px;
+}
+
+.home-title-container h1 {
+  font-size: 4.5em; /* Larger title */
+  color: var(--dark-red);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.home-title-container p {
+  font-size: 1.5em; /* Larger subtitle */
+  color: #555;
+  text-align: center;
+  max-width: 600px;
+}
+
+/* Main Info Section */
+.main-infos-container h2 {
+  font-size: 2.2em; /* Larger heading */
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.roles-infos-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+  gap: 30px;
+  width: 100%;
+  max-width: 1000px; /* Max width for the grid */
+  padding: 0 20px;
+}
+
+.role-card {
+  width: 100%; /* Take full width of grid column */
+  height: 300px; /* Fixed height for all cards */
+  padding: 25px;
+  border-radius: 15px; /* More rounded */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Softer, larger shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.role-card:hover {
+  transform: translateY(-8px); /* Lift effect */
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15); /* More prominent shadow on hover */
+}
+
+.role-card h3 {
+  font-size: 1.8em; /* Larger role title */
+  color: var(--dark-red);
+  margin-bottom: 5px;
+}
+
+.role-card p {
+  font-size: 1em;
+  color: #666;
+  line-height: 1.6;
+}
+
+.role-card .icon {
+  font-size: 3em; /* Icon size */
+  color: var(--acent-red);
+  margin-bottom: 10px;
+}
+
+/* Auth Container */
+.auth-container {
+  width: 100%;
+  max-width: 700px;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  gap: 25px;
+}
+
+.auth-container h2 {
+  font-size: 2.2em;
+  color: #333;
+  border-bottom: none; /* Remove old border */
+  padding-bottom: 0;
+  margin-bottom: 15px;
+}
+
+.auth-container > p {
+  font-size: 1em;
+  color: #666;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 500px;
+}
+
+.auth-buttons-container {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  justify-content: space-around;
+  gap: 20px; /* Space between buttons */
+  margin-top: 20px;
+}
+
+.auth-button {
+  flex: 1; /* Make buttons take equal width */
+  padding: 15px 25px;
+  background-color: var(--dark-red);
+  color: white;
+  border: none;
+  border-radius: 8px; /* Consistent with other forms */
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+  text-decoration: none; /* For the <a> tag acting as button */
+  display: block; /* For the <a> tag */
+}
+
+.auth-button:hover {
+  background-color: var(--acent-red);
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .home-title-container h1 {
+    font-size: 3.5em;
+  }
+  .home-title-container p {
+    font-size: 1.2em;
+  }
+  .roles-infos-container {
+    grid-template-columns: 1fr; /* Stack cards on smaller screens */
+  }
+  .auth-buttons-container {
+    flex-direction: column; /* Stack buttons */
+  }
+  .auth-container, .home-title-container {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-title-container h1 {
+    font-size: 2.5em;
+  }
+  .home-title-container p {
+    font-size: 1em;
+  }
+  .auth-container {
+    padding: 20px;
+  }
+}
+
+/* From Login Template */
+.login-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.login-header h3 {
+  color: #a22c2c; /* dark-red from style.css */
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 12px 15px;
+  padding-left: 40px; /* Space for icon */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+.input-wrapper input:focus {
+  border-color: #a22c2c;
+  outline: none;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #a22c2c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #ff3131; /* acent-red */
+}
+
+.switch-link {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+  font-weight: bold;
+}
+
+.switch-link a {
+  color: #a22c2c;
+  text-decoration: none;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+}
+
+/* From Register Template */
+.register-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px; /* Slightly wider for registration */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.register-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.register-header h3 {
+  color: #a22c2c;
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.register-header p {
+  color: #666;
+  font-size: 0.9em;
+}
+
+/* Radio button styling */
+.role-selection {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.role-option {
+  flex: 1;
+  position: relative;
+}
+
+.role-option input[type="radio"] {
+  display: none;
+}
+
+.role-option label {
+  display: block;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9em;
+}
+
+.role-option input[type="radio"]:checked + label {
+  background-color: #ffe6e6;
+  border-color: #a22c2c;
+  color: #a22c2c;
+  font-weight: bold;
+}
+
+.role-option label:hover {
+  border-color: #a22c2c;
+}
+
+/* Loader styles */
+.loader-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    border-radius: 8px; /* Match form container's border-radius */
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #d9534f; /* red-btn color */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

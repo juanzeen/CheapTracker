@@ -3,21 +3,36 @@
 
 {% block content %}
 
-<div class="container">
-  <div class="login-form">
-    <h3>Faça seu login!</h3>
-    <form id="login-form">
-      <div class="input-container">
-        <label for="">Email</label>
-        <input type="email" name="email">
+<div class="container" style="background-color: #f4f4f4; min-height: 100vh;">
+  <div class="login-container">
+    <div class="login-header">
+      <h3>Bem-vindo!</h3>
+      <p>Faça login para continuar</p>
+    </div>
+
+    <form id="login-form" style="width: 100%;">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input type="email" name="email" id="email" placeholder="seu@email.com" required>
+        </div>
       </div>
-      <div class="input-container">
-        <label for="">Senha</label>
-        <input type="password" name="password">
+
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input type="password" name="password" id="password" placeholder="Sua senha" required>
+        </div>
       </div>
-      <button class="red-btn" type="submit">Enviar!</button>
+
+      <button class="submit-btn" type="submit">Entrar</button>
     </form>
-    <a href="/register" class="switch-form-link">Crie sua conta!</a>
+
+    <div class="switch-link">
+      Não tem uma conta? <a href="/register">Crie agora!</a>
+    </div>
   </div>
 </div>
 

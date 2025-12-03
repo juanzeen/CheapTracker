@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Caminhão{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Detalhes do Caminhão</h2>
+
+    <div class="detail-card">
+        <div class="detail-item">
+            <span class="detail-label">Placa:</span>
+            <span class="detail-value" id="truck-plate">{{ truck.plate }}</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Transportadora (ID):</span>
+            <span class="detail-value" id="truck-carrier-id">{{ truck.carrier.id }}</span>
+            {% comment %} Ideally show truck.carrier.name if available in context/model traversal {% endcomment %}
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Número de Eixos:</span>
+            <span class="detail-value" id="truck-axles-count">{{ truck.axles_count }}</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Comprimento da Carga:</span>
+            <span class="detail-value" id="truck-cargo-length">{{ truck.cargo_length }} m</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Largura da Carga:</span>
+            <span class="detail-value" id="truck-cargo-width">{{ truck.cargo_width }} m</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Altura da Carga:</span>
+            <span class="detail-value" id="truck-cargo-height">{{ truck.cargo_height }} m</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Carga Máxima:</span>
+            <span class="detail-value" id="truck-max-payload-kg">{{ truck.max_payload_kg }} kg</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Volume de Carga:</span>
+            <span class="detail-value" id="truck-cargo-volume-m3">{{ truck.cargo_volume_m3|floatformat:2 }} m³</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Padrão Euro:</span>
+            <span class="detail-value" id="truck-euro">{{ truck.euro }}</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Ativo:</span>
+            <span class="detail-value" id="truck-is-active">{% if truck.is_active %}Sim{% else %}Não{% endif %}</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Ano de Fabricação:</span>
+            <span class="detail-value" id="truck-release-year">{{ truck.release_year }}</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Total de Viagens:</span>
+            <span class="detail-value" id="truck-total-trips">{{ truck.total_trips }}</span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Capacidade de Combustível:</span>
+            <span class="detail-value" id="truck-max-fuel-capacity">{{ truck.max_fuel_capacity }} L</span>
+        </div>
+
+        <div class="detail-actions">
+            <button class="red-btn" id="delete-truck">Excluir Caminhão</button>
+            <a href="/carrier/{{carrier_id|escapejs}}" class="switch-form-link" style="align-self: center;">Voltar</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const plate = "{{plate|escapejs}}"
+    const carrierId = "{{carrier_id|escapejs}}"
+    const truckPlate = document.getElementById('truck-plate');
+    const truckCarrierId = document.getElementById('truck-carrier-id');
+    const truckAxlesCount = document.getElementById('truck-axles-count');
+    const truckCargoLength = document.getElementById('truck-cargo-length');
+    const truckCargoWidth = document.getElementById('truck-cargo-width');
+    const truckCargoHeight = document.getElementById('truck-cargo-height');
+    const truckMaxPayloadKg = document.getElementById('truck-max-payload-kg');
+    const truckCargoVolumeM3 = document.getElementById('truck-cargo-volume-m3');
+    const truckEuro = document.getElementById('truck-euro');
+    const truckIsActive = document.getElementById('truck-is-active');
+    const truckReleaseYear = document.getElementById('truck-release-year');
+    const truckTotalTrips = document.getElementById('truck-total-trips');
+    const truckMaxFuelCapacity = document.getElementById('truck-max-fuel-capacity');
+    const deleteTruckBtn = document.getElementById("delete-truck")
+
+    window.addEventListener("load", async () => {
+        try{
+            const result = await fetch(`/api/truck/${plate}`)
+            const res = await result.json()
+
+            if(!result.ok){
+                throw new Error("Informações do caminhão não encontradas!")
+            }
+
+            truckPlate.textContent = plate
+            truckCarrierId.textContent = res.data.carrier
+            truckAxlesCount.textContent = res.data.axles_count
+            truckCargoLength.textContent = `${res.data.cargo_length}m`
+            truckCargoHeight.textContent = `${res.data.cargo_height}m`
+            truckCargoWidth.textContent = `${res.data.cargo_width}m`
+            truckMaxPayloadKg.textContent = `${res.data.max_payload_kg}kg`
+            truckCargoVolumeM3.textContent = `${res.data.cargo_volume_m3}m³`
+            truckEuro.textContent = res.data.euro
+            truckIsActive.textContent = `${res.data.is_active? "Sim" : "Não"}`
+            truckReleaseYear.textContent = res.data.release_year
+            truckTotalTrips.textContent = res.data.total_trips
+            truckMaxFuelCapacity.textContent = `${res.data.max_fuel_capacity}L`
+
+        }
+        catch(err){
+            alert(err.message)
+            window.location.href = `/carrier/${carrierId}`;
+        }
+    })
+
+    deleteTruckBtn.addEventListener("click", async (e) => {
+        e.preventDefault()
+                if(!confirm("Tem certeza que deseja excluir este pedido?")) return;
+        try{
+            const result = await fetch(`/api/truck/${plate}`, {method: "DELETE"})
+            const res = await result.json()
+
+            if(!result.ok){
+                throw new Error("Não foi possível remover o caminhão!")
+            }
+
+            alert("Caminhão removido com sucesso!")
+            window.location.href = `/carrier/${carrierId}`;
+        }catch(err){
+            alert(err.message)
+        }
+    })
+
+</script>
+{% endblock %}

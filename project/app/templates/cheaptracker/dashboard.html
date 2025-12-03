@@ -23,12 +23,8 @@
       <a href="/create-place" class="red-btn">Adicionar loja</a>
       {%elif user.role == "Man"%}
       <a href="/create-place" class="red-btn">Adicionar depósito</a>
-      <button class="red-btn">Gerenciar pedidos</button>
-      <button class="red-btn">Criar viagem</button>
       {%elif user.role == "Carr"%}
       <a href="/create-place" class="red-btn">Adicionar transportadora</a>
-      <button class="red-btn">Adicionar caminhão</button>
-      <button class="red-btn">Gerenciar caminhões</button>
       {% endif %}
       <button class="red-btn" id="logout-btn">Logout</button>
     </div>
@@ -83,7 +79,7 @@
       if(place.user_id == userId){
         const placeCard = document.createElement("a");
         placeCard.classList.add("place-card");
-        placeCard.href = `store/${place.id}`
+        placeCard.href = `${placePath.slice(0, placePath.length - 1)}/${place.id}`
 
         const placeName = document.createElement("h3");
         placeName.textContent = place.name;

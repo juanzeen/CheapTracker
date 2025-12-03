@@ -367,7 +367,7 @@ class Command(BaseCommand):
                 cargo_height=3.0,
                 max_payload_kg=15000,
                 euro=random.randint(4, 6),
-                is_active=True,
+                is_active=False,
                 release_year=2020 + i,
                 total_trips=0,
                 max_fuel_capacity=400,
@@ -434,65 +434,7 @@ class Command(BaseCommand):
 
             return order_obj
 
-        # --- Trips & Orders ---
-
-        # 1. Trip Planned (Standard case)
-        trip_planned = Trip.objects.create(
-            truck=trucks[0],
-            origin_depot=depot,
-            status=TripStatus.PLANN,
-            total_loaded_weight_kg=0,
-            total_loaded_volume_m3=0,
-        )
-        # Add orders to planned trip
-        for _ in range(2):
-            create_order_with_boxes(store1, trip_planned, OrderStatus.SCHE)
-        for _ in range(2):
-            create_order_with_boxes(store2, trip_planned, OrderStatus.SCHE)
-        create_order_with_boxes(store3, trip_planned, OrderStatus.SCHE)
-
-        # 2. Trip In Transit
-        trip_transit = Trip.objects.create(
-            truck=trucks[1],
-            origin_depot=depot,
-            status=TripStatus.IN_TR,
-            departure_date=timezone.now() - timedelta(hours=4),
-            total_loaded_weight_kg=0,
-            total_loaded_volume_m3=0,
-        )
-        # Add orders (Shipped)
-        create_order_with_boxes(store1, trip_transit, OrderStatus.SHIP)
-        create_order_with_boxes(store4, trip_transit, OrderStatus.SHIP)
-        create_order_with_boxes(store5, trip_transit, OrderStatus.SHIP)
-        create_order_with_boxes(store3, trip_transit, OrderStatus.SHIP)
-
-        # 3. Trip Completed
-        trip_completed = Trip.objects.create(
-            truck=trucks[2],
-            origin_depot=depot,
-            status=TripStatus.COMP,
-            departure_date=timezone.now() - timedelta(days=1, hours=5),
-            arrival_date=timezone.now() - timedelta(days=1),
-            total_distance_km=350.5,
-            carbon_kg_co2=150.2,
-            total_loaded_weight_kg=0,
-            total_loaded_volume_m3=0,
-        )
-        # Add orders (Delivered)
-        create_order_with_boxes(store2, trip_completed, OrderStatus.DELI)
-        create_order_with_boxes(store4, trip_completed, OrderStatus.DELI)
-        create_order_with_boxes(store5, trip_completed, OrderStatus.DELI)
-
-        # 4. Trip Cancelled
-        trip_cancelled = Trip.objects.create(
-            truck=trucks[3],
-            origin_depot=depot,
-            status=TripStatus.CANC,
-            total_loaded_weight_kg=0,
-            total_loaded_volume_m3=0,
-        )
-        # Orders here might be Cancelled or stuck in Scheduled? Let's say Cancelled.
-        create_order_with_boxes(store1, trip_cancelled, OrderStatus.CANC)
+        # --- Trips & Orders --- Removed to prevent automatic trip generation.
 
         # 5. Pending Orders (No Trip assigned)
         # These represent orders just placed by the store
@@ -503,19 +445,6 @@ class Command(BaseCommand):
             create_order_with_boxes(store3, None, OrderStatus.PEND)
             create_order_with_boxes(store4, None, OrderStatus.PEND)
             create_order_with_boxes(store5, None, OrderStatus.PEND)
-
-        # --- Update Trip Totals ---
-        all_trips = [trip_planned, trip_transit, trip_completed, trip_cancelled]
-        for t in all_trips:
-            t_orders = Order.objects.filter(trip=t)
-            t.total_loaded_weight_kg = sum(o.total_weight_kg for o in t_orders)
-            t.total_loaded_volume_m3 = sum(o.total_volume_m3 for o in t_orders)
-            t.save()
-            self.stdout.write(
-                self.style.SUCCESS(
-                    f"Updated Trip {t.id} [{t.get_status_display()}]: {len(t_orders)} orders."
-                )
-            )
 
         self.stdout.write(
             self.style.SUCCESS("Database seeded successfully with comprehensive data!")

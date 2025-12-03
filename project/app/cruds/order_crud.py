@@ -32,7 +32,7 @@ class OrderCrud:
     def read_orders_by_store(store_id):
         store = StoreCrud.read_by_id(store_id)
 
-        return Order.objects.filter(store=store)
+        return Order.objects.filter(store=store).order_by("-created_at")
 
     @staticmethod
     def read_orders_by_trip(trip_id):

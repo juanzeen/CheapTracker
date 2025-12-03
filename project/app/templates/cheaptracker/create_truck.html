@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Adicionar Caminhão{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Adicionar Caminhão</h2>
+    <form class="form-container" id="create-truck-form">
+        <div class="form-group">
+            <label>Categoria:</label>
+            <div class="radio-group">
+                <label class="radio-option">
+                    <input type="radio" name="category" value="light" required> Leve
+                    <div class="category-specs">
+                        <p>Eixos: 2, Comp: 5.5m, Larg: 2.2m, Alt: 2.2m</p>
+                        <p>Carga Máx: 3000kg, Euro: 5, Tanque: 150L</p>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="category" value="medium"> Médio
+                    <div class="category-specs">
+                        <p>Eixos: 3, Comp: 8.5m, Larg: 2.5m, Alt: 2.6m</p>
+                        <p>Carga Máx: 14000kg, Euro: 6, Tanque: 550L</p>
+                    </div>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="category" value="heavy"> Pesado
+                    <div class="category-specs">
+                        <p>Eixos: 5, Comp: 14.0m, Larg: 2.6m, Alt: 2.8m</p>
+                        <p>Carga Máx: 25000kg, Euro: 6, Tanque: 980L</p>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="id_plate">Placa:</label>
+            <input type="text" id="id_plate" name="plate" maxlength="7" required class="form-input">
+        </div>
+
+        <div class="form-group">
+            <label for="id_release_year">Ano de Fabricação:</label>
+            <input type="number" id="id_release_year" name="release_year" required class="form-input">
+        </div>
+
+        <button type="submit" class="red-btn">Adicionar Caminhão</button>
+        <a href="/carrier/{{carrier_id}}" style="text-align: center; display: block; margin-top: 10px;">Voltar para a Dashboard da Transportadora</a>
+    </form>
+</div>
+
+<script>
+    const form = document.querySelector("#create-truck-form")
+    const carrierId = "{{ carrier_id|escapejs }}";
+
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form)
+        const dt = Object.fromEntries(formData.entries());
+        const data = {...dt, carrier_id: carrierId}
+          try{
+            const result = await fetch("/api/trucks", {method: "POST",
+            body: JSON.stringify(data),
+            headers: {"Content-Type": "application/json"}
+         })
+
+         const res = await result.json()
+         if(!result.ok){
+            throw new Error(res.error )
+         }
+         alert(`Caminhão com a placa ${res.data.plate} criado!`)
+         window.location.href = `/carrier/${carrierId}`;
+          }catch (err){
+            alert(err.message)
+          }
+
+    })
+</script>
+
+{% endblock %}

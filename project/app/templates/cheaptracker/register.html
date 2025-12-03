@@ -3,72 +3,105 @@
 
 {% block content %}
 
-<div class="container">
-  <div class="login-form">
-    <h3>Crie sua conta!</h3>
-    <form id="register-form">
-      <div class="input-container">
-        <label for="name">Nome</label>
-        <input type="text" value="" name="name">
+<div class="container" style="background-color: #f4f4f4; min-height: 100vh;">
+  <div class="register-container">
+    <div class="register-header">
+      <h3>Criar Conta</h3>
+      <p>Preencha seus dados para começar</p>
+    </div>
+    
+    <form id="register-form" style="width: 100%;">
+      <div class="form-group">
+        <label for="name">Nome Completo</label>
+        <div class="input-wrapper">
+          <span class="input-icon">👤</span>
+          <input type="text" name="name" id="name" placeholder="Seu nome" required>
+        </div>
       </div>
-      <div class="input-container">
+      
+      <div class="form-group">
         <label for="age">Idade</label>
-        <input type="text" value="" name="age">
+        <div class="input-wrapper">
+          <span class="input-icon">🎂</span>
+          <input type="number" name="age" id="age" placeholder="Sua idade" required>
+        </div>
       </div>
-      <div class="input-container">
+
+      <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" value="" name="email">
+        <div class="input-wrapper">
+          <span class="input-icon">✉️</span>
+          <input type="email" name="email" id="email" placeholder="seu@email.com" required>
+        </div>
       </div>
-      <div class="input-container">
-        <label for="">Senha</label>
-        <input type="password" value="" name="password">
+      
+      <div class="form-group">
+        <label for="password">Senha</label>
+        <div class="input-wrapper">
+          <span class="input-icon">🔒</span>
+          <input type="password" name="password" id="password" placeholder="Crie uma senha" required>
+        </div>
       </div>
-      <div class="input-container">
-        <label for="">Tipo de serviço</label>
-        <div class="radio-box">
-          <div class="input-container">
-            <label for="Shop">Loja</label>
-            <input type="radio" name="role" value="Shop">
+
+      <div class="form-group">
+        <label>Tipo de Conta</label>
+        <div class="role-selection">
+          <div class="role-option">
+            <input type="radio" name="role" id="role-shop" value="Shop" required>
+            <label for="role-shop">🏪 Loja</label>
           </div>
-          <div class="input-container">
-            <label for="Man">Depósito</label>
-            <input type="radio" name="role" value="Man">
+          <div class="role-option">
+            <input type="radio" name="role" id="role-man" value="Man">
+            <label for="role-man">🏭 Depósito</label>
           </div>
-          <div class="input-container">
-            <label for="Carr">Transportadora</label>
-            <input type="radio" name="role" value="Carr">
+          <div class="role-option">
+            <input type="radio" name="role" id="role-carr" value="Carr">
+            <label for="role-carr">🚚 Transp.</label>
           </div>
         </div>
       </div>
-      <button class="red-btn" type="submit">Enviar!</button>
+      
+      <button class="submit-btn" type="submit">Cadastrar</button>
     </form>
-    <a href="/login" class="switch-form-link">Já possuo uma conta!</a>
+    
+    <div class="switch-link">
+      Já tem uma conta? <a href="/login">Faça login!</a>
+    </div>
   </div>
 </div>
 
 <script>
-  const loginForm = document.getElementById('register-form')
-  document.addEventListener("submit", (e) => {
+  const registerForm = document.getElementById('register-form') // Renamed variable for clarity
+  document.addEventListener("submit", async (e) => {
     e.preventDefault()
-    const formData = new FormData(loginForm)
+    const formData = new FormData(registerForm)
     const data = Object.fromEntries(formData.entries());
 
+    // Convert age to number just in case, though API might handle it
+    if (data.age) data.age = parseInt(data.age);
+
     try {
-      const res = fetch("/api/users", {
+      const res = await fetch("/api/users", {
         method: "POST",
         body: JSON.stringify(data),
         headers: {
           "Content-Type": "application/json"
         }
-      }).then(res => res.json()).then(data => {
-        if(!data.error){
-          console.log(data.message)
-          window.location.href = "/login"
-          alert("Conta criada com sucesso!")
-        }
-      })
-    } catch{
-      alert("Erro ao criar a conta!")
+      });
+      
+      const result = await res.json();
+      
+      if(!res.ok) {
+          throw new Error(result.error || result.message || "Erro ao criar conta");
+      }
+
+      if(!result.error){
+        alert("Conta criada com sucesso!");
+        window.location.href = "/login";
+      }
+    } catch(err) {
+      console.error(err);
+      alert("Erro ao criar a conta: " + err.message);
     }
   })
 </script>

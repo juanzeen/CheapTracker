@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% block title %}Place Dashboard{% endblock %}
+
+{% block content %}
+<div class="container">
+  {% if user.is_authenticated %}
+        <div class="user-infos-container">
+          <div class="infos-col">
+            <h2 class="text-3xl font-bold" id="place-name">
+
+          </h2>
+          <p id="place-contact"></p>
+          </div>
+          <div class="infos-col">
+            <p id="place-registration"></p>
+            <p>Responsável: {{user.name}}</p>
+          </div>
+        </div>
+
+    {% endif %}
+    <div class="action-buttons-container">
+      {%if user.role == "Shop" %}
+      <button id="create-order" class="red-btn">Criar Pedido</button>
+      {%elif user.role == "Man"%}
+      <a href="{{place_id}}/create-trip" class="red-btn">Criar Viagem</a>
+      {%elif user.role == "Carr"%}
+      <a href="{{place_id}}/create-truck" class="red-btn">Criar caminhão</a>
+      {% endif %}
+      <a class="red-btn" href="/dashboard">Dashboard de Usuário</a>
+    </div>
+    <div class="entities-container">
+      {%if user.role == "Shop"%}
+      <h2>Pedidos</h2>
+      {%elif user.role == "Man"%}
+      <h2>Viagens</h2>
+      {%elif user.role == "Carr"%}
+      <h2>Caminhões</h2>
+      {%endif%}
+        <div class="places-cards">
+        </div>
+    </div>
+</div>
+
+<script>
+  const getPlaceInfosByUserRole = (role) =>{
+    switch(role){
+      case "Shop":
+        return "orders"
+        break
+      case "Man":
+        return "trips"
+        break
+      case "Carr":
+        return "trucks"
+        break
+    }
+  }
+
+  const getUserPlaceType = (role) =>{
+    switch(role){
+      case "Shop":
+        return "store"
+        break
+      case "Man":
+        return "depot"
+        break
+      case "Carr":
+        return "carrier"
+        break
+    }
+  }
+
+  const getTripStatus = (stt) =>{
+    switch(stt){
+      case "Plan":
+        return "Planejada"
+        break
+      case "InTr":
+        return "Em Trânsito"
+        break
+      case "Comp":
+        return "Concluída"
+        break
+      case "Canc":
+        return "Cancelada"
+        break
+      default:
+        return stt // Fallback for unknown status
+    }
+  }
+
+  const getOrderStatus = (stt) =>{
+    switch(stt){
+      case "Pend":
+        return "Pendente"
+        break
+      case "Sche":
+        return "Agendado"
+        break
+      case "Ship":
+        return "Em rota"
+      case "Deli":
+        return "Entregue"
+      case "Canc":
+        return "Cancelado"
+        break
+    }
+  }
+
+  const userRole = "{{ user.role|escapejs }}";
+  const placeId = "{{ place_id|escapejs }}";
+  const placeEntityPath = getPlaceInfosByUserRole(userRole)
+  const placePath = getUserPlaceType(userRole)
+
+  const createOrderBtn = document.getElementById("create-order")
+  const placeName = document.querySelector("#place-name")
+  const placeContact = document.querySelector("#place-contact")
+  const placeRegistration = document.querySelector("#place-registration")
+  const dataSection = document.querySelector(".places-cards")
+
+  window.addEventListener("load", async () => {
+    try{
+     const result = await fetch(`/api/${placePath}/${placeId}/${placeEntityPath}`, {method: "GET"})
+      const res = await result.json()
+
+      if(!result.ok){
+        throw new Error(res.error || `Error trying to get ${placePath} ${placeEntityPath}!`)
+      }
+
+      const place_data = res.data
+
+      if(place_data.length == 0){
+        throw new Error(res.error)
+      }
+
+      for(const data of place_data){
+        const dataCard = document.createElement("a");
+        dataCard.classList.add("place-card");
+        dataCard.href = `${placeId}/${placeEntityPath.slice(0, placeEntityPath.length - 1)}/${userRole == "Carr"? data.plate : data.id}`
+        const dataTitle = document.createElement("h3");
+        const dataSubtitle = document.createElement("p");
+
+
+        switch(userRole){
+          case "Carr":
+          dataTitle.textContent = data.plate
+          dataSubtitle.textContent = `Eixos: ${data.axles_count} ${data.is_active ? "| Em trânsito" : ""}`
+          dataCard.appendChild(dataTitle);
+          dataCard.appendChild(dataSubtitle);
+          break;
+          case "Man":
+          dataTitle.textContent = `${data.id} - ${getTripStatus(data.status)}`
+          dataSubtitle.textContent = `Distância da viagem: ${data.total_distance_km}km`
+          dataCard.appendChild(dataTitle);
+          dataCard.appendChild(dataSubtitle);
+          break
+          case "Shop":
+          dataTitle.textContent = `${data.id} - ${getOrderStatus(data.status)}`
+          dataSubtitle.textContent = `Total de caixas: ${data.total_boxes}`
+          dataCard.appendChild(dataTitle);
+          dataCard.appendChild(dataSubtitle);
+          break
+        }
+        dataSection.appendChild(dataCard);
+      }
+
+    } catch(err){
+      console.error(`Error fetching ${placeEntityPath}:`, err);
+    }
+  })
+
+  if(userRole == "Shop"){
+    createOrderBtn.addEventListener("click", async () => {
+      const payload = {store_id: "{{place_id|escapejs}}"}
+      try{
+        const result = await fetch("/api/orders", {method: "POST",
+          body: JSON.stringify(payload),
+          headers: {
+           "Content-Type": "application/json"
+          }
+       })
+
+        const res = await result.json()
+
+        if(!result.ok){
+          throw new Error(res.error)
+        }
+
+        alert("Pedido criado com sucesso!")
+        location.reload(true)
+      }
+      catch(err){
+        alert(err.message)
+      }
+    })
+  }
+
+  window.addEventListener("load", () => {
+    try{
+      fetch(`/api/${placePath}/${placeId}`, {method: "GET"}).then(res => res.json()).then(res => {
+        placeName.textContent = res.data.name
+        placeContact.textContent = `Telefone: (${res.data.contact.slice(0,2)}) ${res.data.contact.slice(2,6)}-${res.data.contact.slice(6,res.data.contact.length - 1)}`
+        placeRegistration.textContent = `CNPJ: ${res.data.registration}`
+      })
+    } catch(err){
+      console.error(`Error fetching ${placePath}:`, err);
+    }
+  })
+</script>
+{%endblock%}

@@ -25,6 +25,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from django.forms.models import model_to_dict
 import os
+import folium
 
 
 def pathing_route_dijkstra(G, start, target, weight="length"):
@@ -221,7 +222,52 @@ class TripService:
                 zorder=10,
             )
 
-        return route_order, total_distance, fig
+        node_lats = [G.nodes[n]["y"] for n in nodes]
+        node_lons = [G.nodes[n]["x"] for n in nodes]
+        center_lat = sum(node_lats) / len(node_lats)
+        center_lon = sum(node_lons) / len(node_lons)
+
+        graph_map = folium.Map(location=[center_lat, center_lon], zoom_start=13)
+
+        folium_colors = [
+            "#00FFFF",
+            "#FFA500",
+            "#00FF00",
+            "#FF00FF",
+            "#FFFF00",
+            "#0000FF",
+        ]
+
+        for i, path in enumerate(segment_paths):
+            c = folium_colors[i % len(folium_colors)]
+            # Extract coordinates for the path
+            route_coords = [(G.nodes[node]["y"], G.nodes[node]["x"]) for node in path]
+
+            folium.PolyLine(route_coords, color=c, weight=5, opacity=0.7).add_to(
+                graph_map
+            )
+
+        for i, idx in enumerate(route_order):
+            node = nodes[idx]
+            lat = G.nodes[node]["y"]
+            lon = G.nodes[node]["x"]
+
+            if i == 0:
+                folium.Marker(
+                    [lat, lon],
+                    popup=f"Origem/Fim: {addresses[idx]}",
+                    icon=folium.Icon(color="red", icon="home"),
+                ).add_to(graph_map)
+            elif i == len(route_order) - 1:
+                pass
+            else:
+                folium.Marker(
+                    [lat, lon],
+                    popup=f"Parada {i}: {addresses[idx]}",
+                    icon=folium.Icon(color="blue", icon="info-sign"),
+                ).add_to(graph_map)
+
+        return route_order, total_distance, fig, graph_map
 
     @staticmethod
     def define_trip(depot_id, orders_id_list):
@@ -236,7 +282,7 @@ class TripService:
             cargo_weight_kg += order.total_weight_kg
             cargo_volume_m3 += order.total_volume_m3
 
-        route_order, total_distance, fig = TripService.define_route(
+        route_order, total_distance, fig, graph_map = TripService.define_route(
             origin_depot, selected_orders
         )
 
@@ -252,6 +298,10 @@ class TripService:
         os.makedirs(image_path, exist_ok=True)  # Ensure the directory exists
         file_path = os.path.join(image_path, f"trip_{trip.id}.png")
         fig.savefig(file_path, dpi=300)
+
+        # Save HTML map
+        html_path = os.path.join(image_path, f"trip_{trip.id}.html")
+        graph_map.save(html_path)
 
         for order in selected_orders:
             order.status = "Sche"
@@ -369,6 +419,7 @@ class TripService:
         trip = TripCrud.read_by_id(trip_id)
         truck = TruckCrud.read_by_plate(truck_plate)
         delivery = DeliveryCrud.read_by_id(delivery_id)
+        order = OrderCrud.read_by_id(delivery.order.id)
 
         if trip.status != "InTr":
             raise StatusError("Trip status must be in transit to confirm a delivery")
@@ -381,6 +432,8 @@ class TripService:
 
         delivery.delivered_at = timezone.now()
         delivery.save()
+        order.status = "Deli"
+        order.save()
 
     @staticmethod
     def simulate_trip(trip_id, truck_plate, traffic_status):
@@ -414,19 +467,6 @@ class TripService:
                 carbon_kg_co2 = trip.total_distance_km * 0.83
             case 6:
                 carbon_kg_co2 = trip.total_distance_km * 0.75
-
-        print(f"Simulating Trip ID:{trip.id} with Truck Plate: {truck.plate}\n\n")
-        print(f"Total distance traveled on the Trip:\n{trip.total_distance_km} kms\n\n")
-        print(
-            f"Departure:\n{departure_date.month} {departure_date.day} at {departure_date.hour}:{departure_date.minute}\n\n"
-        )
-        print(
-            f"Arrival:\n{arrival_date.month} {arrival_date.day} at {arrival_date.hour}:{arrival_date.minute}\n\n"
-        )
-        print(
-            f"Travel time:\n{days} day(s), {hours} hour(s) and {minutes} minute(s)\n\n"
-        )
-        print(f"Carbon emission:\n{carbon_kg_co2} kgCO2\n")
 
         simulation = {
             "trip_id": trip.id,

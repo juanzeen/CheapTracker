@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block title %}Remover Caixa{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Remover Caixa do Pedido #<span id="order-id-display"></span></h2>
+
+    <div class="entities-container" style="width: 90%;">
+        <div class="places-cards" id="boxes-list-container">
+            <!-- Boxes will be populated here by JS -->
+             <p id="loading-msg">Carregando caixas...</p>
+        </div>
+    </div>
+
+    <div style="margin-top: 20px;">
+        <a href="/store/{{store_id}}/order/{{ order_id }}" id="back-to-order-btn" class="switch-form-link">Voltar ao Pedido</a>
+    </div>
+</div>
+
+<script>
+    const orderId = "{{ order_id|escapejs }}";
+
+    // Selectors
+    const orderIdDisplay = document.getElementById('order-id-display');
+    const boxesListContainer = document.getElementById('boxes-list-container');
+    const backToOrderBtn = document.getElementById('back-to-order-btn');
+    const loadingMsg = document.getElementById('loading-msg');
+
+    // Initialize static values
+    orderIdDisplay.textContent = orderId;
+
+    // Helper to translate box size
+    const getBoxSize = (size) => {
+        const map = {
+            'Sma': 'Pequena',
+            'Med': 'Média',
+            'Big': 'Grande',
+            'Lar': 'Extra Grande',
+            'Cus': 'Personalizada'
+        };
+        return map[size] || size;
+    };
+
+    window.addEventListener("load", async () => {
+        boxesListContainer.innerHTML = ''; // Clear loading message
+
+        try {
+            const result = await fetch(`/api/order/${orderId}/boxes`); // Assuming this endpoint
+            const res = await result.json();
+
+            if (!result.ok) {
+                throw new Error(res.error || "Erro ao buscar caixas!");
+            }
+
+            const boxes = res.data;
+
+            if (boxes.length === 0) {
+                boxesListContainer.innerHTML = "<p>Nenhuma caixa encontrada neste pedido.</p>";
+                return;
+            }
+
+            boxes.forEach(box => {
+                const boxCard = document.createElement("div");
+                boxCard.classList.add("place-card"); // Reusing for consistent styling
+                boxCard.id = `box-card-${box.id}`;
+
+                const title = document.createElement("h3");
+                title.textContent = `Caixa ID: ${box.id}`;
+                boxCard.appendChild(title);
+
+                const details = document.createElement("div");
+                details.innerHTML = `
+                    <p>Tamanho: ${getBoxSize(box.size)}</p>
+                    <p>Comprimento: ${box.length} m</p>
+                    <p>Largura: ${box.width} m</p>
+                    <p>Altura: ${box.height} m</p>
+                    <p>Carga Útil: ${box.payload_kg} kg</p>
+                    <p>Volume: ${parseFloat(box.volume_m3).toFixed(2)} m³</p>
+                `;
+                boxCard.appendChild(details);
+
+                const deleteButton = document.createElement("button");
+                deleteButton.classList.add("red-btn", "delete-box-btn");
+                deleteButton.dataset.boxId = box.id;
+                deleteButton.textContent = "Remover";
+                boxCard.appendChild(deleteButton);
+
+                boxesListContainer.appendChild(boxCard);
+            });
+
+        } catch (err) {
+            console.error("Erro ao carregar caixas:", err);
+            boxesListContainer.innerHTML = `<p style="color: red;">${err.message}</p>`;
+            alert(err.message);
+        }
+    });
+
+    // Event delegation for delete buttons
+    boxesListContainer.addEventListener('click', (e) => {
+        if (e.target.classList.contains('delete-box-btn')) {
+            const boxId = e.target.dataset.boxId;
+            handleDeleteBox(boxId);
+        }
+    });
+
+    async function handleDeleteBox(boxId) {
+        data = {box_id: boxId}
+        if(confirm(`Tem certeza que deseja remover a caixa ID ${boxId} do pedido?`)) {
+            try{
+                const result = await fetch(`/api/order/${orderId}/remove-box`, {
+                    method: "POST",
+                    body: JSON.stringify(data),
+                    headers: {"Content-Type": "application/json"}
+                })
+                const res = await result.json();
+
+                if(!result.ok){
+                    throw new Error(res.error)
+                }
+
+                alert(`Caixa #${boxId} removida com sucesso!`)
+                location.reload(true)
+            }catch(err){
+                alert(err.message)
+            }
+
+        }
+    }
+
+</script>
+{% endblock %}

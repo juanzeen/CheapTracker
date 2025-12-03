@@ -18,7 +18,8 @@ from app.views.api.places_views import (
     TripsByDepotAPIView,
 )
 
-from app.views.api.truck_views import TrucksApiView, TruckApiView
+from app.views.api.truck_views import TrucksApiView, TruckApiView, TruckByCarrierApiView
+
 from app.views.api.trip_views import (
     TripsAPIView,
     TripAPIView,
@@ -37,6 +38,7 @@ from app.views.api.order_views import (
     PendentOrdersView,
     OrdersByStoreView,
     OrdersByTripView,
+    BoxesFromOrderView,
     AddBoxView,
     RemoveBoxView,
 )
@@ -46,7 +48,17 @@ from app.views.templates_views import (
     RegisterTemplateView,
     UserDashboardTemplateView,
     CreatePlaceTemplateView,
-    StoreDashboardTemplateView,
+    PlaceDashboardTemplateView,
+    CreateOrderTemplateView,
+    OrderDetailsTemplateView,
+    AddBoxTemplateView,
+    RemoveBoxTemplateView,
+    CreateTruckTemplateView,
+    TruckDetailsTemplateView,
+    TripDetailsTemplateView,
+    CreateTripTemplateView,
+    StartTripTemplateView,
+    SimulateTripTemplateView,
     SwaggerUIView,
     openapi_yaml_view,
 )
@@ -79,20 +91,25 @@ urlpatterns = [
     ),
     # depots routes
     path("api/depots", DepotsApiView.as_view(), name="Depots Route"),
-    path("api/depots/<int:id>", DepotApiView.as_view(), name="Depot Route"),
+    path("api/depot/<int:id>", DepotApiView.as_view(), name="Depot Route"),
     path(
-        "api/depots/<int:id>/define-trip",
+        "api/depot/<int:id>/define-trip",
         DefineTripAPIView.as_view(),
         name="Depot Define Trip Route",
     ),
     path(
-        "api/depots/<int:id>/trips",
+        "api/depot/<int:id>/trips",
         TripsByDepotAPIView.as_view(),
         name="Trips by Depot Route",
     ),
     # carrier routes
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
-    path("api/carriers/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
+    path("api/carrier/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
+    path(
+        "api/carrier/<int:id>/trucks",
+        TruckByCarrierApiView.as_view(),
+        name="Carrier Trucks Route",
+    ),
     # truck routes
     path("api/trucks", TrucksApiView.as_view(), name="Trucks Route"),
     path("api/truck/<str:plate>", TruckApiView.as_view(), name="Truck Route"),
@@ -103,6 +120,11 @@ urlpatterns = [
     ),
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
     path("api/order/<int:id>", OrderApiView.as_view(), name="Order Route"),
+    path(
+        "api/order/<int:id>/boxes",
+        BoxesFromOrderView.as_view(),
+        name="Get Order Boxes Route",
+    ),
     path(
         "api/order/<int:id>/add-box", AddBoxView.as_view(), name="Order Add Box Route"
     ),
@@ -154,9 +176,69 @@ urlpatterns = [
     path("dashboard", UserDashboardTemplateView.as_view(), name="Dashboard View"),
     path("create-place", CreatePlaceTemplateView.as_view(), name="Create Place View"),
     path(
-        "store/<int:store_id>",
-        StoreDashboardTemplateView.as_view(),
+        "store/<int:place_id>",
+        PlaceDashboardTemplateView.as_view(),
+        name="Generic Store Dashboard",
+    ),
+    path(
+        "store/<int:place_id>/create-order",
+        CreateOrderTemplateView.as_view(),
+        name="Create Order Form View",
+    ),
+    path(
+        "store/<int:store_id>/order/<int:order_id>",
+        OrderDetailsTemplateView.as_view(),
+        name="Order Details View",
+    ),
+    path(
+        "depot/<int:place_id>",
+        PlaceDashboardTemplateView.as_view(),
+        name="Generic Depot  Dashboard",
+    ),
+    path(
+        "depot/<int:place_id>/create-trip",
+        CreateTripTemplateView.as_view(),
+        name="Create Trip View",
+    ),
+    path(
+        "depot/<int:depot_id>/trip/<int:trip_id>",
+        TripDetailsTemplateView.as_view(),
+        name="Trip Details View",
+    ),
+    path(
+        "depot/<int:depot_id>/trip/<int:trip_id>/start-trip",
+        StartTripTemplateView.as_view(),
+        name="Start Trip View",
+    ),
+    path(
+        "depot/<int:depot_id>/trip/<int:trip_id>/simulate-trip",
+        SimulateTripTemplateView.as_view(),
+        name="Simulate Trip View",
+    ),
+    path(
+        "carrier/<int:place_id>",
+        PlaceDashboardTemplateView.as_view(),
+        name="Generic Carrier Dashboard",
+    ),
+    path(
+        "carrier/<int:carrier_id>/create-truck",
+        CreateTruckTemplateView.as_view(),
         name="Generic Place Dashboard",
+    ),
+    path(
+        "carrier/<int:carrier_id>/truck/<str:plate>",
+        TruckDetailsTemplateView.as_view(),
+        name="Truck Details View",
+    ),
+    path(
+        "store/<int:store_id>/order/<int:order_id>/add-boxes",
+        AddBoxTemplateView.as_view(),
+        name="Add Box To The Order Template View",
+    ),
+    path(
+        "store/<int:store_id>/order/<int:order_id>/remove-boxes",
+        RemoveBoxTemplateView.as_view(),
+        name="Remove Box To The Order Template View",
     ),
     # Swagger-UI routes
     path("api/docs", SwaggerUIView.as_view(), name="swagger-ui"),

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Detalhes do Pedido{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Detalhes do Pedido</h2>
+
+    <div class="detail-card">
+        <div class="detail-item">
+            <span class="detail-label">ID do Pedido:</span>
+            <span class="detail-value" id="order-id"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Loja (ID):</span>
+            <span class="detail-value" id="order-store-id"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Viagem (ID):</span>
+            <span class="detail-value" id="order-trip-id"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Status:</span>
+            <span class="detail-value" id="order-status"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Criado em:</span>
+            <span class="detail-value" id="order-created-at"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Peso Total:</span>
+            <span class="detail-value" id="order-total-weight"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Volume Total:</span>
+            <span class="detail-value" id="order-total-volume"></span>
+        </div>
+
+        <div class="detail-item">
+            <span class="detail-label">Total de Caixas:</span>
+            <span class="detail-value" id="order-total-boxes"></span>
+        </div>
+
+        <div class="detail-actions" style="flex-wrap: wrap;">
+            <button class="red-btn" id="add-boxes-btn">Adicionar Caixas</button>
+            <button class="red-btn" id="remove-boxes-btn">Remover Caixas</button>
+            <button class="red-btn" id="delete-order-btn">Excluir Pedido</button>
+            <a href="#" id="back-btn" class="switch-form-link" style="align-self: center;">Voltar</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    const orderId = "{{ order_id|escapejs }}";
+    // Using a default or passed store_id if available, otherwise handled in fetch
+    let storeId = "{{ store_id|escapejs }}";
+
+    const orderIdEl = document.getElementById('order-id');
+    const orderStoreIdEl = document.getElementById('order-store-id');
+    const orderTripIdEl = document.getElementById('order-trip-id');
+    const orderStatusEl = document.getElementById('order-status');
+    const orderCreatedAtEl = document.getElementById('order-created-at');
+    const orderTotalWeightEl = document.getElementById('order-total-weight');
+    const orderTotalVolumeEl = document.getElementById('order-total-volume');
+    const orderTotalBoxesEl = document.getElementById('order-total-boxes');
+    const backBtn = document.getElementById('back-btn');
+
+    const deleteOrderBtn = document.getElementById("delete-order-btn");
+    const addBoxesBtn = document.getElementById("add-boxes-btn");
+    const removeBoxesBtn = document.getElementById("remove-boxes-btn");
+
+    // Helper to translate status
+    const translateStatus = (status) => {
+        const map = {
+            'Pend': 'Pendente',
+            'Sche': 'Agendado',
+            'Ship': 'Enviado',
+            'Deli': 'Entregue',
+            'Canc': 'Cancelado'
+        };
+        return map[status] || status;
+    };
+
+    window.addEventListener("load", async () => {
+        try {
+            const result = await fetch(`/api/order/${orderId}`);
+            const res = await result.json();
+
+            if (!result.ok) {
+                throw new Error("Informações do pedido não encontradas!");
+            }
+
+            const data = res.data || res; // Handle potential response wrapping
+
+            orderIdEl.textContent = data.id;
+            orderStoreIdEl.textContent = data.store; // Assuming API returns ID
+            orderTripIdEl.textContent = data.trip ? data.trip : "Nenhuma";
+            orderStatusEl.textContent = translateStatus(data.status);
+            orderCreatedAtEl.textContent = new Date(data.created_at).toLocaleDateString('pt-BR');
+            orderTotalWeightEl.textContent = `${data.total_weight_kg.toFixed(2)} kg`;
+            orderTotalVolumeEl.textContent = `${parseFloat(data.total_volume_m3).toFixed(2)} m³`;
+            orderTotalBoxesEl.textContent = data.total_boxes;
+
+            if (!storeId && data.store) {
+                storeId = data.store;
+            }
+            backBtn.href = `/store/${storeId}`;
+
+        } catch (err) {
+            alert(err.message);
+            window.location.href = storeId ? `/store/${storeId}` : '/dashboard';
+        }
+    });
+
+    deleteOrderBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        if(!confirm("Tem certeza que deseja excluir este pedido?")) return;
+
+        try {
+            const result = await fetch(`/api/order/${orderId}`, {method: "DELETE"});
+
+            if (!result.ok) {
+                throw new Error("Não foi possível remover o pedido!");
+            }
+
+            alert("Pedido removido com sucesso!");
+            window.location.href = `/store/${storeId}`;
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
+    addBoxesBtn.addEventListener("click", () => {
+         window.location.href = `${orderId}/add-boxes`;
+    });
+
+    removeBoxesBtn.addEventListener("click", () => {
+        window.location.href = `${orderId}/remove-boxes`;
+    });
+
+</script>
+{% endblock %}
