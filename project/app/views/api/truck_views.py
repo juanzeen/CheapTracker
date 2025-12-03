@@ -94,7 +94,6 @@ class TruckByCarrierApiView(CarrierBaseView):
         try:
             carrier = CarrierCrud.read_by_id(kwargs["id"])
             if request.user != carrier.user:
-                print("o erro foi aqui")
                 return self.ErrorJsonResponse("Carrier don't belong to this user", 401)
             trucks = TruckCrud.read_trucks_by_carrier(carrier.id).values()
             return self.SuccessJsonResponse("Trucks successfully retrieved", list(trucks))

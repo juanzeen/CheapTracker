@@ -22,7 +22,7 @@
       {%if user.role == "Shop" %}
       <button id="create-order" class="red-btn">Criar Pedido</button>
       {%elif user.role == "Man"%}
-      <a href="" class="red-btn">Criar Viagem</a>
+      <a href="{{place_id}}/create-trip" class="red-btn">Criar Viagem</a>
       {%elif user.role == "Carr"%}
       <a href="{{place_id}}/create-truck" class="red-btn">Criar caminhão</a>
       {% endif %}

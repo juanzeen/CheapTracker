@@ -75,7 +75,7 @@ class OrdersByTripView(AuthBaseView):
                     "User don't have permission to this action!", 401
                 )
             return self.SuccessJsonResponse(
-                f"Orders for the trip with the truck {trip.truck.plate} successfully retrieved!",
+                f"Orders for the trip with the truck {trip.truck} successfully retrieved!",
                 list(orders),
             )
         except ValueError:

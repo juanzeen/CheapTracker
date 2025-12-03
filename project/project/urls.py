@@ -56,6 +56,7 @@ from app.views.templates_views import (
     CreateTruckTemplateView,
     TruckDetailsTemplateView,
     TripDetailsTemplateView,
+    CreateTripTemplateView,
     SwaggerUIView,
     openapi_yaml_view,
 )
@@ -187,6 +188,16 @@ urlpatterns = [
         name="Generic Depot  Dashboard",
     ),
     path(
+        "depot/<int:place_id>/create-trip",
+        CreateTripTemplateView.as_view(),
+        name="Create Trip View",
+    ),
+        path(
+        "depot/<int:depot_id>/trip/<int:trip_id>",
+        TripDetailsTemplateView.as_view(),
+        name="Trip Details View",
+    ),
+    path(
         "carrier/<int:place_id>",
         PlaceDashboardTemplateView.as_view(),
         name="Generic Carrier Dashboard",
@@ -200,11 +211,6 @@ urlpatterns = [
         "carrier/<int:carrier_id>/truck/<str:plate>",
         TruckDetailsTemplateView.as_view(),
         name="Truck Details View",
-    ),
-        path(
-        "depot/<int:depot_id>/trip/<int:trip_id>",
-        TripDetailsTemplateView.as_view(),
-        name="Trip Details View",
     ),
     path("store/<int:store_id>/order/<int:order_id>/add-boxes", AddBoxTemplateView.as_view(), name="Add Box To The Order Template View"),
     path("store/<int:store_id>/order/<int:order_id>/remove-boxes", RemoveBoxTemplateView.as_view(), name="Remove Box To The Order Template View"),
