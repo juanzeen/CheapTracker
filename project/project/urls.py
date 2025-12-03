@@ -58,6 +58,7 @@ from app.views.templates_views import (
     TripDetailsTemplateView,
     CreateTripTemplateView,
     StartTripTemplateView,
+    SimulateTripTemplateView,
     SwaggerUIView,
     openapi_yaml_view,
 )
@@ -202,6 +203,11 @@ urlpatterns = [
         "depot/<int:depot_id>/trip/<int:trip_id>/start-trip",
         StartTripTemplateView.as_view(),
         name="Start Trip View",
+    ),
+    path(
+        "depot/<int:depot_id>/trip/<int:trip_id>/simulate-trip",
+        SimulateTripTemplateView.as_view(),
+        name="Simulate Trip View",
     ),
     path(
         "carrier/<int:place_id>",

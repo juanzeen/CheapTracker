@@ -3,11 +3,45 @@
 {% block title %}Criar Viagem{% endblock %}
 
 {% block content %}
+<style>
+    /* Loader styles */
+    .loader-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.8);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        border-radius: 8px; /* Match form container's border-radius */
+    }
+
+    .loader {
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #d9534f; /* red-btn color */
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+</style>
 <div class="container">
     <h2 class="page-title">Criar Nova Viagem</h2>
 
-    <form id="create-trip-form" class="form-container" style="max-width: 90%;">
+    <form id="create-trip-form" class="form-container" style="max-width: 90%; position: relative;">
         {% csrf_token %}
+
+        <div id="loader-overlay" class="loader-overlay" style="display: none;">
+            <div class="loader"></div>
+        </div>
 
         <input type="hidden" id="depot-id" value="{{ depot_id }}">
 
@@ -33,10 +67,10 @@
 
 <script>
     const depotId = "{{ place_id|escapejs }}";
-    const truckSelect = document.getElementById('truck-select');
     const ordersContainer = document.getElementById('orders-container');
     const createTripForm = document.getElementById('create-trip-form');
     const backLink = document.getElementById('back-link');
+    const loaderOverlay = document.getElementById('loader-overlay'); // Added this line
 
     const selectedCountEl = document.getElementById('selected-count');
     const selectedWeightEl = document.getElementById('selected-weight');
@@ -49,7 +83,17 @@
         backLink.href = `/depot/${depotId}`;
     }
 
+    // New loader functions
+    function showLoader() {
+        loaderOverlay.style.display = 'flex';
+    }
+
+    function hideLoader() {
+        loaderOverlay.style.display = 'none';
+    }
+
     async function loadPendentOrders() {
+        showLoader(); // Show loader
         try {
             const res = await fetch('/api/pendent-orders');
             const data = await res.json();
@@ -85,6 +129,8 @@
         } catch (err) {
             console.error(err);
             ordersContainer.innerHTML = '<p>Erro ao carregar pedidos.</p>';
+        } finally {
+            hideLoader(); // Hide loader
         }
     }
 
@@ -124,6 +170,8 @@
             return;
         }
 
+        showLoader(); // Show loader
+
         const payload = {
             depot_id: depotId,
             orders: Array.from(selectedOrders)
@@ -149,6 +197,8 @@
 
         } catch (err) {
             alert(err.message);
+        } finally {
+            hideLoader(); // Hide loader
         }
     });
 

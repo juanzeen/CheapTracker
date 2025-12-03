@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+
+{% block title %}Simular Viagem{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Simular Viagem #<span id="trip-id-display">{{ trip_id }}</span></h2>
+
+    <form id="simulate-trip-form" class="form-container" style="max-width: 90%;">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Selecionar Caminhão:</label>
+            <p class="category-specs">Selecione um caminhão para simular a viagem.</p>
+
+            <div id="trucks-container" class="places-cards" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-top: 10px;">
+                <p>Carregando caminhões disponíveis...</p>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Condição do Tráfego:</label>
+            <div class="radio-group">
+                <label class="radio-label">
+                    <input type="radio" name="traffic_status" value="light" required> Leve
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="traffic_status" value="medium" required> Médio
+                </label>
+                <label class="radio-label">
+                    <input type="radio" name="traffic_status" value="heavy" required> Pesado
+                </label>
+            </div>
+        </div>
+
+        <button type="submit" class="red-btn" style="margin-top: 20px;">Simular Viagem</button>
+        <a href="/depot/{{ depot_id }}/trip/{{ trip_id }}" class="switch-form-link" style="text-align: center; margin-top: 10px; display: block;">Voltar para Detalhes da Viagem</a>
+    </form>
+</div>
+
+<script>
+    const tripId = "{{ trip_id|escapejs }}";
+    const depotId = "{{ depot_id|escapejs }}";
+    const trucksContainer = document.getElementById('trucks-container');
+    const simulateTripForm = document.getElementById('simulate-trip-form');
+
+    async function loadAllTrucks() { // Changed from loadInactiveTrucks to loadAllTrucks as simulation can be done with any truck
+        try {
+            const res = await fetch('/api/trucks');
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || "Erro ao buscar caminhões");
+
+            trucksContainer.innerHTML = '';
+            const trucks = data.data || [];
+
+            if (trucks.length === 0) {
+                trucksContainer.innerHTML = '<p>Não há caminhões disponíveis para simulação.</p>';
+                return;
+            }
+
+            trucks.forEach(truck => {
+                const card = document.createElement('div');
+                card.className = 'selectable-card';
+                card.innerHTML = `
+                    <input type="radio" name="truck_plate" value="${truck.plate}" class="truck-radio" required>
+                    <h3>${truck.plate}</h3>
+                    <p>Modelo: ${truck.model || 'Padrão'}</p>
+                    <p>Carga Máx: ${truck.max_payload_kg} kg</p>
+                    <p>Volume: ${parseFloat(truck.cargo_volume_m3).toFixed(2)} m³</p>
+                    <p>Status: ${truck.is_active ? 'Em Uso' : 'Inativo'}</p>
+                `;
+
+                card.addEventListener('click', (e) => {
+                    if(e.target.type !== 'radio') {
+                        card.querySelector('input[name="truck_plate"]').checked = true;
+                    }
+                    document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                });
+
+                trucksContainer.appendChild(card);
+            });
+
+        } catch (err) {
+            console.error(err);
+            trucksContainer.innerHTML = '<p>Erro ao carregar caminhões.</p>';
+        }
+    }
+
+    simulateTripForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const selectedTruck = document.querySelector('input[name="truck_plate"]:checked');
+        const selectedTrafficStatus = document.querySelector('input[name="traffic_status"]:checked');
+
+        if (!selectedTruck) {
+            alert("Por favor, selecione um caminhão.");
+            return;
+        }
+        if (!selectedTrafficStatus) {
+            alert("Por favor, selecione a condição do tráfego.");
+            return;
+        }
+
+        const truckPlate = selectedTruck.value;
+        const trafficStatus = selectedTrafficStatus.value;
+
+        try {
+            const res = await fetch(`/api/trip/${tripId}/simulate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ truck_plate: truckPlate, traffic_status: trafficStatus })
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                 const errorMsg = result.error || result.message || "Erro ao simular viagem.";
+                throw new Error(errorMsg);
+            }
+
+            // Display simulation results (assuming result.data contains simulation details)
+            // For now, a simple alert. A more complex UI might display this in a modal or new section.
+            const simulationData = result.data;
+            let simulationReport = "Simulação da Viagem Concluída!\n\n";
+            simulationReport += `ID da Viagem: ${simulationData.trip_id}\n`;
+            simulationReport += `Placa do Caminhão: ${simulationData.truck_plate}\n`;
+            simulationReport += `Distância Total: ${simulationData.trip_total_distance} km\n`;
+            simulationReport += `Tempo de Viagem: ${simulationData.trip_days} dia(s), ${simulationData.trip_hours} hora(s), ${simulationData.trip_minutes} minuto(s)\n`;
+            simulationReport += `Emissão de Carbono: ${simulationData.trip_carbon_emission} kgCO2\n`;
+
+            alert(simulationReport);
+
+            // Optionally redirect or update UI
+            // window.location.href = `/depot/${depotId}/trip/${tripId}`;
+
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
+    window.addEventListener('load', () => {
+        loadAllTrucks();
+    });
+</script>
+{% endblock %}

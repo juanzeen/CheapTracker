@@ -64,9 +64,17 @@
 
         <div class="detail-actions" style="flex-wrap: wrap;">
             <a href="{{trip_id|escapejs}}/start-trip" class="red-btn" id="start-trip-btn" style="display: none;">Iniciar Viagem</a>
+            <a href="{{trip_id|escapejs}}/simulate-trip" class="red-btn" id="simulate-trip-btn" style="display: none;">Simular Viagem</a>
             <button class="red-btn" id="end-trip-btn" style="display: none;">Finalizar Viagem</button>
             <button class="red-btn" id="cancel-trip-btn" style="display: none;">Cancelar Viagem</button>
             <a href="/depot/{{depot_id|escapejs}}" id="back-btn" class="switch-form-link" style="align-self: center;">Voltar</a>
+        </div>
+    </div>
+
+    <div class="entities-container" id="deliveries-section" style="display: none;">
+        <h2>Entregas Pendentes</h2>
+        <div class="places-cards" id="deliveries-list">
+             <p>Carregando entregas...</p>
         </div>
     </div>
 
@@ -81,6 +89,7 @@
 <script>
     const tripId = "{{ trip_id|escapejs }}";
     const depotId = "{{ depot_id|escapejs }}";
+    let currentTruckPlate = null;
 
     // Selectors
     const tripIdEl = document.getElementById('trip-id');
@@ -96,12 +105,14 @@
     const tripCarbonEl = document.getElementById('trip-carbon');
     const backBtn = document.getElementById('back-btn');
     const ordersListContainer = document.getElementById('orders-list');
+    const deliveriesSection = document.getElementById('deliveries-section');
+    const deliveriesList = document.getElementById('deliveries-list');
 
     const startTripBtn = document.getElementById('start-trip-btn');
+    const simulateTripBtn = document.getElementById('simulate-trip-btn');
     const endTripBtn = document.getElementById('end-trip-btn');
     const cancelTripBtn = document.getElementById('cancel-trip-btn');
 
-    // Helper to translate Trip status
     const translateTripStatus = (status) => {
         const map = {
             'Plan': 'Planejada',
@@ -112,7 +123,6 @@
         return map[status] || status;
     };
 
-    // Helper to translate Order status
     const translateOrderStatus = (status) => {
          const map = {
             'Pend': 'Pendente',
@@ -124,7 +134,6 @@
         return map[status] || status;
     }
 
-    // Helper to format date
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
         return new Date(dateString).toLocaleDateString('pt-BR', {
@@ -145,12 +154,13 @@
 
             tripIdEl.textContent = data.id;
             tripStatusEl.textContent = translateTripStatus(data.status);
-            // Handle truck being null or object
             let truckInfo = "Sem Caminhão";
             if (data.truck) {
-                 truckInfo = typeof data.truck === 'object' ? data.truck.plate : data.truck;
+                 truckInfo = data.truck;
+                 currentTruckPlate = truckInfo;
             } else if (data.truck_id) {
-                 truckInfo = data.truck_id; // Fallback if API returns ID directly
+                 truckInfo = data.truck_id;
+                 currentTruckPlate = truckInfo;
             }
             tripTruckEl.textContent = truckInfo;
 
@@ -161,29 +171,102 @@
             tripTotalWeightEl.textContent = `${data.total_loaded_weight_kg} kg`;
             tripTotalVolumeEl.textContent = `${parseFloat(data.total_loaded_volume_m3).toFixed(2)} m³`;
             tripTotalDistanceEl.textContent = `${data.total_distance_km} km`;
-            tripCarbonEl.textContent = data.carbon_kg_co2 ? `${data.carbon_kg_co2} kg` : "N/A";
+            tripCarbonEl.textContent = data.carbon_kg_co2 ? `${data.carbon_kg_co2.toFixed(2)} kg` : "N/A";
 
-            // Update button visibility based on status
             updateButtonVisibility(data.status);
 
         } catch (err) {
             console.error(err);
             alert("Erro ao carregar detalhes da viagem.");
-            // window.location.href = '/dashboard';
         }
     }
 
     function updateButtonVisibility(status) {
         startTripBtn.style.display = 'none';
+        simulateTripBtn.style.display = 'none';
         endTripBtn.style.display = 'none';
         cancelTripBtn.style.display = 'none';
+        deliveriesSection.style.display = 'none';
 
         if (status === 'Plan') {
             startTripBtn.style.display = 'inline-block';
+            simulateTripBtn.style.display = 'inline-block';
             cancelTripBtn.style.display = 'inline-block';
         } else if (status === 'InTr') {
-            endTripBtn.style.display = 'inline-block';
+             endTripBtn.style.display = 'inline-block';
              cancelTripBtn.style.display = 'inline-block';
+             fetchAndDisplayDeliveries();
+        }
+    }
+
+    async function confirmDelivery(deliveryId) {
+        if(!confirm("Confirmar entrega?")) return;
+        if(!currentTruckPlate) {
+            alert("Erro: Placa do caminhão não identificada.");
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/trip/${tripId}/confirm-delivery/${deliveryId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ truck_plate: currentTruckPlate })
+            });
+
+            if (response.ok) {
+                alert("Entrega confirmada com sucesso!");
+                fetchAndDisplayDeliveries();
+                fetchAndDisplayOrders();
+            } else {
+                const err = await response.json();
+                alert("Erro ao confirmar entrega: " + (err.error || err.message || "Desconhecido"));
+            }
+        } catch (error) {
+            console.error("Erro na requisição:", error);
+            alert("Erro de conexão ao confirmar entrega.");
+        }
+    }
+
+    async function fetchAndDisplayDeliveries() {
+        deliveriesSection.style.display = 'block';
+        try {
+            const result = await fetch(`/api/trip/${tripId}/remaining-deliveries`);
+            const res = await result.json();
+
+            if (!result.ok) {
+                if (result.status === 404) {
+                     deliveriesList.innerHTML = "<p>Todas as entregas foram concluídas!</p>";
+                } else {
+                     deliveriesList.innerHTML = "<p>Não foi possível carregar as entregas.</p>";
+                }
+                return;
+            }
+
+            const deliveries = res.data || [];
+
+            if (deliveries.length === 0) {
+                deliveriesList.innerHTML = "<p>Nenhuma entrega pendente.</p>";
+                return;
+            }
+
+            deliveriesList.innerHTML = '';
+            deliveries.forEach(delivery => {
+                 const deliveryCard = document.createElement("div");
+                 deliveryCard.classList.add("place-card");
+                 deliveryCard.innerHTML = `
+                    <h3>Entrega #${delivery.id}</h3>
+                    <p>Pedido: #${delivery.order}</p>
+                    <p>Loja: #${delivery.store}</p>
+                    <button class="btn" style="margin-top: 10px; background-color: #4CAF50; color: white; padding: 4px 6px;" onclick="confirmDelivery(${delivery.id})">Confirmar Entrega</button>
+                 `;
+                 deliveriesList.appendChild(deliveryCard);
+            });
+
+        } catch (err) {
+            console.error("Erro ao buscar entregas:", err);
+            deliveriesList.innerHTML = "<p>Erro ao buscar entregas.</p>";
         }
     }
 
@@ -226,7 +309,7 @@
     endTripBtn.addEventListener('click', async () => {
          if(!confirm("Finalizar viagem?")) return;
         try {
-             const res = await fetch(`/api/trip/${tripId}/end`, {method: 'POST'});
+             const res = await fetch(`/api/trip/${tripId}/end`, {method: 'POST', body: JSON.stringify({depot_id: depotId})});
              if(res.ok) {
                  alert("Viagem finalizada!");
                  location.reload();

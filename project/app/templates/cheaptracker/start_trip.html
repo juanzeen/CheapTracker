@@ -100,7 +100,7 @@
             if (!res.ok) throw new Error(result.error || "Erro ao iniciar viagem");
 
             alert("Viagem iniciada com sucesso!");
-            window.location.href = `/trip/${tripId}`;
+            window.location.href = `/depot/${depotId}/trip/${tripId}`;
 
         } catch (err) {
             alert(err.message);

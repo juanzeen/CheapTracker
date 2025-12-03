@@ -369,6 +369,7 @@ class TripService:
         trip = TripCrud.read_by_id(trip_id)
         truck = TruckCrud.read_by_plate(truck_plate)
         delivery = DeliveryCrud.read_by_id(delivery_id)
+        order = OrderCrud.read_by_id(delivery.order.id)
 
         if trip.status != "InTr":
             raise StatusError("Trip status must be in transit to confirm a delivery")
@@ -381,6 +382,8 @@ class TripService:
 
         delivery.delivered_at = timezone.now()
         delivery.save()
+        order.status = "Deli"
+        order.save()
 
     @staticmethod
     def simulate_trip(trip_id, truck_plate, traffic_status):
@@ -414,19 +417,6 @@ class TripService:
                 carbon_kg_co2 = trip.total_distance_km * 0.83
             case 6:
                 carbon_kg_co2 = trip.total_distance_km * 0.75
-
-        print(f"Simulating Trip ID:{trip.id} with Truck Plate: {truck.plate}\n\n")
-        print(f"Total distance traveled on the Trip:\n{trip.total_distance_km} kms\n\n")
-        print(
-            f"Departure:\n{departure_date.month} {departure_date.day} at {departure_date.hour}:{departure_date.minute}\n\n"
-        )
-        print(
-            f"Arrival:\n{arrival_date.month} {arrival_date.day} at {arrival_date.hour}:{arrival_date.minute}\n\n"
-        )
-        print(
-            f"Travel time:\n{days} day(s), {hours} hour(s) and {minutes} minute(s)\n\n"
-        )
-        print(f"Carbon emission:\n{carbon_kg_co2} kgCO2\n")
 
         simulation = {
             "trip_id": trip.id,

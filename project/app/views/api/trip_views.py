@@ -209,7 +209,6 @@ class CancelTripAPIView(ManagerBaseView):
         except BelongError as e:
             return self.ErrorJsonResponse(e.args[0], 405)
 
-
 class ConfirmDeliveryInTripAPIView(ManagerBaseView):
     def post(self, request, *args, **kwargs):
         data = json.loads(request.body)
