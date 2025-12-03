@@ -429,3 +429,43 @@ h2 {
   width: 100%;
   text-align: center;
 }
+
+/* Truck styles */
+
+.selectable-card {
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.selectable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
+}
+.selectable-card.selected {
+  border-color: var(--dark-red);
+  background-color: #ffe6e6;
+}
+
+.selectable-card h3 {
+  font-size: 1.1em;
+  color: #333;
+}
+
+.selectable-card p {
+  font-size: 0.9em;
+  margin: 2px 0;
+}
+
+.truck-radio {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  transform: scale(1.5);
+  cursor: pointer;
+}

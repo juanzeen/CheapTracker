@@ -7,8 +7,10 @@ from django.forms.models import model_to_dict
 from django.db import IntegrityError
 
 
-class TrucksApiView(CarrierBaseView):
+class TrucksApiView(AuthBaseView):
     def get(self, request, *args, **kwargs):
+        if request.user.role not in ["Adm", "Man", "Carr"]:
+            return self.ErrorJsonResponse("User don't have permission to this action!", 403)
         trucks = TruckCrud.read().values()
         if not trucks:
             return self.ErrorJsonResponse("Trucks not found!", 404)
@@ -16,6 +18,8 @@ class TrucksApiView(CarrierBaseView):
         return self.SuccessJsonResponse("Trucks successfully retrieved!", list(trucks))
 
     def post(self, request, *args, **kwargs):
+        if request.user.role not in ["Adm", "Carr"]:
+            return self.ErrorJsonResponse("User don't have permission to this action!", 403)
         try:
             data = json.loads(request.body)
             carrier = CarrierCrud.read_by_id(data["carrier_id"])

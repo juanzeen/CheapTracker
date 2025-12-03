@@ -58,6 +58,9 @@ class TripDetailsTemplateView(BaseAuthTemplateView):
 class CreateTripTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/create_trip.html"
 
+class StartTripTemplateView(BaseAuthTemplateView):
+    template_name = "cheaptracker/start_trip.html"
+
 
 
 class SwaggerUIView(TemplateView):

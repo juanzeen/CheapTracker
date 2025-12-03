@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+
+{% block title %}Iniciar Viagem{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="page-title">Iniciar Viagem #<span id="trip-id-display">{{ trip_id }}</span></h2>
+
+    <form id="start-trip-form" class="form-container" style="max-width: 90%;">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label>Selecionar Caminhão Disponível:</label>
+            <p class="category-specs">Selecione um caminhão inativo para realizar a viagem.</p>
+
+            <div id="trucks-container" class="places-cards" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); margin-top: 10px;">
+                <p>Carregando caminhões disponíveis...</p>
+            </div>
+        </div>
+
+        <button type="submit" class="red-btn" style="margin-top: 20px;">Iniciar Viagem</button>
+        <a href="/depot/{{ depot_id }}/trip/{{ trip_id }}" class="switch-form-link" style="text-align: center; margin-top: 10px; display: block;">Voltar para Detalhes da Viagem</a>
+    </form>
+</div>
+
+<script>
+    const tripId = "{{ trip_id|escapejs }}";
+    const depotId = "{{ depot_id|escapejs }}";
+    const trucksContainer = document.getElementById('trucks-container');
+    const startTripForm = document.getElementById('start-trip-form');
+
+    async function loadInactiveTrucks() {
+        try {
+            const res = await fetch('/api/trucks');
+            const data = await res.json();
+
+            if (!res.ok) throw new Error(data.error || "Erro ao buscar caminhões");
+
+            trucksContainer.innerHTML = '';
+            const trucks = data.data || [];
+
+            const inactiveTrucks = trucks.filter(t => t.is_active === false);
+
+            if (inactiveTrucks.length === 0) {
+                trucksContainer.innerHTML = '<p>Não há caminhões disponíveis no momento.</p>';
+                return;
+            }
+
+            inactiveTrucks.forEach(truck => {
+                const card = document.createElement('div');
+                card.className = 'selectable-card';
+                card.innerHTML = `
+                    <input type="radio" name="truck_id" value="${truck.plate}" class="truck-radio">
+                    <h3>${truck.plate}</h3>
+                    <p>Modelo: ${truck.model || 'Padrão'}</p>
+                    <p>Carga Máx: ${truck.max_payload_kg} kg</p>
+                    <p>Volume: ${parseFloat(truck.cargo_volume_m3).toFixed(2)} m³</p>
+                `;
+
+                card.addEventListener('click', (e) => {
+                    if(e.target.type !== 'radio') {
+                        card.querySelector('input').checked = true;
+                    }
+                    document.querySelectorAll('.selectable-card').forEach(c => c.classList.remove('selected'));
+                    card.classList.add('selected');
+                });
+
+                trucksContainer.appendChild(card);
+            });
+
+        } catch (err) {
+            console.error(err);
+            trucksContainer.innerHTML = '<p>Erro ao carregar caminhões.</p>';
+        }
+    }
+
+    startTripForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const selectedTruck = document.querySelector('input[name="truck_id"]:checked');
+
+        if (!selectedTruck) {
+            alert("Por favor, selecione um caminhão.");
+            return;
+        }
+
+        const truckPlate = selectedTruck.value;
+
+        try {
+            const res = await fetch(`/api/trip/${tripId}/start`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ truck_plate: truckPlate, depot_id: depotId })
+            });
+
+            const result = await res.json();
+
+            if (!res.ok) throw new Error(result.error || "Erro ao iniciar viagem");
+
+            alert("Viagem iniciada com sucesso!");
+            window.location.href = `/trip/${tripId}`;
+
+        } catch (err) {
+            alert(err.message);
+        }
+    });
+
+    window.addEventListener('load', () => {
+        loadInactiveTrucks();
+    });
+</script>
+{% endblock %}

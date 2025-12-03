@@ -9,14 +9,12 @@
     <form id="create-trip-form" class="form-container" style="max-width: 90%;">
         {% csrf_token %}
 
-        <!-- Depot ID should be passed from context or URL -->
         <input type="hidden" id="depot-id" value="{{ depot_id }}">
 
         <div class="form-group">
             <label>Selecionar Pedidos Pendentes:</label>
             <p class="category-specs">Clique nos cartões para selecionar os pedidos.</p>
 
-            <!-- Container for selectable order cards -->
             <div id="orders-container" class="places-cards" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-top: 10px;">
                 <p>Carregando pedidos pendentes...</p>
             </div>
@@ -33,39 +31,6 @@
     </form>
 </div>
 
-<style>
-    /* Specific styles for selectable cards */
-    .selectable-card {
-        cursor: pointer;
-        border: 2px solid transparent;
-        transition: all 0.2s;
-        background-color: #fff;
-        padding: 10px;
-        border-radius: 8px;
-        box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .selectable-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 2px 4px 8px rgba(0,0,0,0.15);
-    }
-
-    .selectable-card.selected {
-        border-color: var(--dark-red);
-        background-color: #ffe6e6;
-    }
-
-    .selectable-card h3 {
-        font-size: 1.1em;
-        color: #333;
-    }
-
-    .selectable-card p {
-        font-size: 0.9em;
-        margin: 2px 0;
-    }
-</style>
-
 <script>
     const depotId = "{{ place_id|escapejs }}";
     const truckSelect = document.getElementById('truck-select');
@@ -73,50 +38,17 @@
     const createTripForm = document.getElementById('create-trip-form');
     const backLink = document.getElementById('back-link');
 
-    // Summary elements
     const selectedCountEl = document.getElementById('selected-count');
     const selectedWeightEl = document.getElementById('selected-weight');
     const selectedVolumeEl = document.getElementById('selected-volume');
 
     let selectedOrders = new Set();
-    let ordersData = {}; // Map to store order details for calculation
+    let ordersData = {};
 
     if (depotId) {
-        backLink.href = `/depot/${depotId}`; // Or store/${depotId} depending on view
+        backLink.href = `/depot/${depotId}`;
     }
 
-    // Fetch Trucks
-    async function loadTrucks() {
-        try {
-            const res = await fetch('/api/trucks');
-            const data = await res.json();
-
-            if (!res.ok) throw new Error(data.error || "Erro ao buscar caminhões");
-
-            truckSelect.innerHTML = '<option value="">Selecione um caminhão...</option>';
-
-            const trucks = data.data || [];
-            trucks.forEach(truck => {
-                // Ideally filter for available trucks (is_active=False or based on business logic)
-                // Assuming API returns all, user picks.
-                const option = document.createElement('option');
-                option.value = truck.plate; // Or truck.id if endpoint expects ID. TruckCrud.create uses plate? No, DefineTrip likely uses ID or Plate.
-                // Checking create_trip view/logic would be good. Assuming Truck ID is safer usually, or Plate if unique.
-                // Let's use ID if available, or Plate. Truck model has ID.
-                // Wait, TruckCrud.read returns objects. API usually serializes them.
-                // Let's assume ID for relation.
-                option.value = truck.id;
-                option.textContent = `${truck.plate} - ${truck.model || 'Caminhão'} (${truck.max_payload_kg}kg)`;
-                truckSelect.appendChild(option);
-            });
-
-        } catch (err) {
-            console.error(err);
-            truckSelect.innerHTML = '<option value="">Erro ao carregar caminhões</option>';
-        }
-    }
-
-    // Fetch Pendent Orders
     async function loadPendentOrders() {
         try {
             const res = await fetch('/api/pendent-orders');
@@ -133,7 +65,7 @@
             }
 
             orders.forEach(order => {
-                ordersData[order.id] = order; // Store for calculations
+                ordersData[order.id] = order;
 
                 const card = document.createElement('div');
                 card.className = 'selectable-card';
@@ -193,12 +125,11 @@
         }
 
         const payload = {
-            depot_id: depotId, // Ensure integer if backend expects it
+            depot_id: depotId,
             orders: Array.from(selectedOrders)
         };
 
         try {
-            // Using the DefineTripAPIView endpoint: api/depots/<id>/define-trip
             const res = await fetch(`/api/depot/${depotId}/define-trip`, {
                 method: 'POST',
                 headers: {
@@ -221,7 +152,6 @@
         }
     });
 
-    // Initial Load
     window.addEventListener('load', () => {
         if (!depotId) {
             alert("ID do depósito não encontrado. Verifique se você acessou esta página corretamente.");

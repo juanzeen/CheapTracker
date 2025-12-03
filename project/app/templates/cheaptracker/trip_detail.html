@@ -63,7 +63,7 @@
         </div>
 
         <div class="detail-actions" style="flex-wrap: wrap;">
-            <button class="red-btn" id="start-trip-btn" style="display: none;">Iniciar Viagem</button>
+            <a href="{{trip_id|escapejs}}/start-trip" class="red-btn" id="start-trip-btn" style="display: none;">Iniciar Viagem</a>
             <button class="red-btn" id="end-trip-btn" style="display: none;">Finalizar Viagem</button>
             <button class="red-btn" id="cancel-trip-btn" style="display: none;">Cancelar Viagem</button>
             <a href="/depot/{{depot_id|escapejs}}" id="back-btn" class="switch-form-link" style="align-self: center;">Voltar</a>
@@ -205,13 +205,12 @@
 
             ordersListContainer.innerHTML = ''; // Clear placeholder
             orders.forEach(order => {
-                 const orderCard = document.createElement("a");
-                 orderCard.href = `/order/${order.id}`;
+                 const orderCard = document.createElement("div");
                  orderCard.classList.add("place-card");
-
                  orderCard.innerHTML = `
                     <h3>Pedido #${order.id}</h3>
                     <p>Status: ${translateOrderStatus(order.status)}</p>
+                    <p>Volume: ${order.total_volume_m3.toFixed(2)} m³</p>
                     <p>Peso: ${order.total_weight_kg} kg</p>
                  `;
                  ordersListContainer.appendChild(orderCard);
@@ -222,21 +221,6 @@
             ordersListContainer.innerHTML = "<p>Erro ao buscar pedidos.</p>";
         }
     }
-
-    // Event Listeners for Actions
-    startTripBtn.addEventListener('click', async () => {
-        if(!confirm("Iniciar viagem?")) return;
-        try {
-             const res = await fetch(`/api/trip/${tripId}/start`, {method: 'POST'});
-             if(res.ok) {
-                 alert("Viagem iniciada!");
-                 location.reload();
-             } else {
-                 const err = await res.json();
-                 alert("Erro ao iniciar viagem: " + (err.error || err.message || "Desconhecido"));
-             }
-        } catch(e) { console.error(e); alert("Erro de conexão."); }
-    });
 
     endTripBtn.addEventListener('click', async () => {
          if(!confirm("Finalizar viagem?")) return;
