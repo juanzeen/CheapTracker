@@ -25,6 +25,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 from django.forms.models import model_to_dict
 import os
+import folium
 
 
 def pathing_route_dijkstra(G, start, target, weight="length"):
@@ -221,7 +222,52 @@ class TripService:
                 zorder=10,
             )
 
-        return route_order, total_distance, fig
+        node_lats = [G.nodes[n]["y"] for n in nodes]
+        node_lons = [G.nodes[n]["x"] for n in nodes]
+        center_lat = sum(node_lats) / len(node_lats)
+        center_lon = sum(node_lons) / len(node_lons)
+
+        graph_map = folium.Map(location=[center_lat, center_lon], zoom_start=13)
+
+        folium_colors = [
+            "#00FFFF",
+            "#FFA500",
+            "#00FF00",
+            "#FF00FF",
+            "#FFFF00",
+            "#0000FF",
+        ]
+
+        for i, path in enumerate(segment_paths):
+            c = folium_colors[i % len(folium_colors)]
+            # Extract coordinates for the path
+            route_coords = [(G.nodes[node]["y"], G.nodes[node]["x"]) for node in path]
+
+            folium.PolyLine(
+                route_coords, color=c, weight=5, opacity=0.7
+            ).add_to(graph_map)
+
+        for i, idx in enumerate(route_order):
+            node = nodes[idx]
+            lat = G.nodes[node]["y"]
+            lon = G.nodes[node]["x"]
+
+            if i == 0:
+                folium.Marker(
+                    [lat, lon],
+                    popup=f"Origem/Fim: {addresses[idx]}",
+                    icon=folium.Icon(color="red", icon="home"),
+                ).add_to(graph_map)
+            elif i == len(route_order) - 1:
+                pass
+            else:
+                folium.Marker(
+                    [lat, lon],
+                    popup=f"Parada {i}: {addresses[idx]}",
+                    icon=folium.Icon(color="blue", icon="info-sign"),
+                ).add_to(graph_map)
+
+        return route_order, total_distance, fig, graph_map
 
     @staticmethod
     def define_trip(depot_id, orders_id_list):
@@ -236,7 +282,7 @@ class TripService:
             cargo_weight_kg += order.total_weight_kg
             cargo_volume_m3 += order.total_volume_m3
 
-        route_order, total_distance, fig = TripService.define_route(
+        route_order, total_distance, fig, graph_map = TripService.define_route(
             origin_depot, selected_orders
         )
 
@@ -252,6 +298,10 @@ class TripService:
         os.makedirs(image_path, exist_ok=True)  # Ensure the directory exists
         file_path = os.path.join(image_path, f"trip_{trip.id}.png")
         fig.savefig(file_path, dpi=300)
+
+        # Save HTML map
+        html_path = os.path.join(image_path, f"trip_{trip.id}.html")
+        graph_map.save(html_path)
 
         for order in selected_orders:
             order.status = "Sche"
