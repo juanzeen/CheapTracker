@@ -18,7 +18,7 @@ from app.views.api.places_views import (
     TripsByDepotAPIView,
 )
 
-from app.views.api.truck_views import TrucksApiView, TruckApiView,TruckByCarrierApiView
+from app.views.api.truck_views import TrucksApiView, TruckApiView, TruckByCarrierApiView
 
 from app.views.api.trip_views import (
     TripsAPIView,
@@ -105,7 +105,11 @@ urlpatterns = [
     # carrier routes
     path("api/carriers", CarriersApiView.as_view(), name="Carriers Route"),
     path("api/carrier/<int:id>", CarrierApiView.as_view(), name="Carrier Route"),
-    path("api/carrier/<int:id>/trucks", TruckByCarrierApiView.as_view(), name="Carrier Trucks Route"),
+    path(
+        "api/carrier/<int:id>/trucks",
+        TruckByCarrierApiView.as_view(),
+        name="Carrier Trucks Route",
+    ),
     # truck routes
     path("api/trucks", TrucksApiView.as_view(), name="Trucks Route"),
     path("api/truck/<str:plate>", TruckApiView.as_view(), name="Truck Route"),
@@ -117,7 +121,9 @@ urlpatterns = [
     path("api/orders", OrdersApiView.as_view(), name="Orders Route"),
     path("api/order/<int:id>", OrderApiView.as_view(), name="Order Route"),
     path(
-        "api/order/<int:id>/boxes", BoxesFromOrderView.as_view(), name="Get Order Boxes Route"
+        "api/order/<int:id>/boxes",
+        BoxesFromOrderView.as_view(),
+        name="Get Order Boxes Route",
     ),
     path(
         "api/order/<int:id>/add-box", AddBoxView.as_view(), name="Order Add Box Route"
@@ -194,7 +200,7 @@ urlpatterns = [
         CreateTripTemplateView.as_view(),
         name="Create Trip View",
     ),
-        path(
+    path(
         "depot/<int:depot_id>/trip/<int:trip_id>",
         TripDetailsTemplateView.as_view(),
         name="Trip Details View",
@@ -224,8 +230,16 @@ urlpatterns = [
         TruckDetailsTemplateView.as_view(),
         name="Truck Details View",
     ),
-    path("store/<int:store_id>/order/<int:order_id>/add-boxes", AddBoxTemplateView.as_view(), name="Add Box To The Order Template View"),
-    path("store/<int:store_id>/order/<int:order_id>/remove-boxes", RemoveBoxTemplateView.as_view(), name="Remove Box To The Order Template View"),
+    path(
+        "store/<int:store_id>/order/<int:order_id>/add-boxes",
+        AddBoxTemplateView.as_view(),
+        name="Add Box To The Order Template View",
+    ),
+    path(
+        "store/<int:store_id>/order/<int:order_id>/remove-boxes",
+        RemoveBoxTemplateView.as_view(),
+        name="Remove Box To The Order Template View",
+    ),
     # Swagger-UI routes
     path("api/docs", SwaggerUIView.as_view(), name="swagger-ui"),
     path("openapi.yaml", openapi_yaml_view, name="openapi-yaml"),

@@ -42,9 +42,7 @@ class OrderApiView(ShopkeeperBaseView):
                 return self.ErrorJsonResponse(
                     "User store don't match to the order!", 401
                 )
-            return self.SuccessJsonResponse(
-                "Order successfully retrieved!", order_dict
-            )
+            return self.SuccessJsonResponse("Order successfully retrieved!", order_dict)
         except ValueError:
             return self.ErrorJsonResponse("Order not founded!", 404)
 
@@ -118,7 +116,7 @@ class AddBoxView(ShopkeeperBaseView):
                 return self.ErrorJsonResponse("Order's Store don't match to user!", 401)
             if data["box_size"] == "custom":
                 box = OrderService.add_box(
-                   order_id=kwargs["id"],
+                    order_id=kwargs["id"],
                     box_size=data["box_size"],
                     quantity=data["quantity"],
                     length=data["length"],
@@ -130,7 +128,9 @@ class AddBoxView(ShopkeeperBaseView):
                     "Custom box successfully added!", model_to_dict(box), 201
                 )
             if data["box_size"] != "custom":
-                box = OrderService.add_box(kwargs["id"], data["box_size"], data["quantity"])
+                box = OrderService.add_box(
+                    kwargs["id"], data["box_size"], data["quantity"]
+                )
                 return self.SuccessJsonResponse(
                     f"{data["box_size"]} box successfully added!",
                     model_to_dict(box),
@@ -163,6 +163,7 @@ class RemoveBoxView(ShopkeeperBaseView):
             return self.ErrorJsonResponse(f"The {e.args} field was not received!")
         except StatusError as e:
             return self.ErrorJsonResponse(e.args[0])
+
 
 class BoxesFromOrderView(ShopkeeperBaseView):
     def get(self, request, *args, **kwargs):

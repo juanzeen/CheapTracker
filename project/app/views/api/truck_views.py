@@ -10,7 +10,9 @@ from django.db import IntegrityError
 class TrucksApiView(AuthBaseView):
     def get(self, request, *args, **kwargs):
         if request.user.role not in ["Adm", "Man", "Carr"]:
-            return self.ErrorJsonResponse("User don't have permission to this action!", 403)
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 403
+            )
         trucks = TruckCrud.read().values()
         if not trucks:
             return self.ErrorJsonResponse("Trucks not found!", 404)
@@ -19,7 +21,9 @@ class TrucksApiView(AuthBaseView):
 
     def post(self, request, *args, **kwargs):
         if request.user.role not in ["Adm", "Carr"]:
-            return self.ErrorJsonResponse("User don't have permission to this action!", 403)
+            return self.ErrorJsonResponse(
+                "User don't have permission to this action!", 403
+            )
         try:
             data = json.loads(request.body)
             carrier = CarrierCrud.read_by_id(data["carrier_id"])
@@ -93,6 +97,7 @@ class TruckApiView(CarrierBaseView):
         except Truck.DoesNotExist:
             return self.ErrorJsonResponse("Truck not found", 404)
 
+
 class TruckByCarrierApiView(CarrierBaseView):
     def get(self, request, *args, **kwargs):
         try:
@@ -100,6 +105,8 @@ class TruckByCarrierApiView(CarrierBaseView):
             if request.user != carrier.user:
                 return self.ErrorJsonResponse("Carrier don't belong to this user", 401)
             trucks = TruckCrud.read_trucks_by_carrier(carrier.id).values()
-            return self.SuccessJsonResponse("Trucks successfully retrieved", list(trucks))
+            return self.SuccessJsonResponse(
+                "Trucks successfully retrieved", list(trucks)
+            )
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])

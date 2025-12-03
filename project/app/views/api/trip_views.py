@@ -59,9 +59,7 @@ class TripAPIView(AuthBaseView):
                 return self.ErrorJsonResponse(
                     "User's depots don't match to the trip!", 401
                 )
-            return self.SuccessJsonResponse(
-                "Trip successfully retrieved!", dict_trip
-            )
+            return self.SuccessJsonResponse("Trip successfully retrieved!", dict_trip)
         except ValueError as e:
             return self.ErrorJsonResponse(e.args[0])
 
@@ -208,6 +206,7 @@ class CancelTripAPIView(ManagerBaseView):
             return self.ErrorJsonResponse(e.args[0])
         except BelongError as e:
             return self.ErrorJsonResponse(e.args[0], 405)
+
 
 class ConfirmDeliveryInTripAPIView(ManagerBaseView):
     def post(self, request, *args, **kwargs):

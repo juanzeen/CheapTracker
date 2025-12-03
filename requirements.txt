@@ -10,3 +10,4 @@ matplotlib==3.10.7
 osmnx==2.0.6
 scikit-learn==1.7.2
 mpld3==0.5.12
+folium==0.20.0

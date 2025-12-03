@@ -107,7 +107,7 @@
         }
       })
 
-      const result = res.json()
+      const result = await res.json()
 
       if(!res.ok){
         throw new Error(result.error || "Erro as resgatas todas as lojas")
@@ -117,7 +117,7 @@
       window.location.href = "/dashboard";
 
     } catch (error) {
-      alert(error);
+      alert(error.message);
     }
   });
 </script>

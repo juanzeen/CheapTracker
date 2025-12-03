@@ -243,9 +243,9 @@ class TripService:
             # Extract coordinates for the path
             route_coords = [(G.nodes[node]["y"], G.nodes[node]["x"]) for node in path]
 
-            folium.PolyLine(
-                route_coords, color=c, weight=5, opacity=0.7
-            ).add_to(graph_map)
+            folium.PolyLine(route_coords, color=c, weight=5, opacity=0.7).add_to(
+                graph_map
+            )
 
         for i, idx in enumerate(route_order):
             node = nodes[idx]

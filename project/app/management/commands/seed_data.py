@@ -449,4 +449,3 @@ class Command(BaseCommand):
         self.stdout.write(
             self.style.SUCCESS("Database seeded successfully with comprehensive data!")
         )
-

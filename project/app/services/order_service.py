@@ -6,7 +6,13 @@ from ..exception_errors import StatusError, BelongError
 class OrderService:
     @staticmethod
     def add_box(
-        order_id, box_size, quantity, length=None, width=None, height=None, payload_kg=None
+        order_id,
+        box_size,
+        quantity,
+        length=None,
+        width=None,
+        height=None,
+        payload_kg=None,
     ):
         order = OrderCrud.read_by_id(order_id)
 
@@ -18,13 +24,13 @@ class OrderService:
 
         for _ in range(quantity):
             box = BoxCrud.create(
-            order_id=order_id,
-            size=box_size,
-            length=length,
-            width=width,
-            height=height,
-            payload_kg=payload_kg,
-        )
+                order_id=order_id,
+                size=box_size,
+                length=length,
+                width=width,
+                height=height,
+                payload_kg=payload_kg,
+            )
             order.total_weight_kg += box.payload_kg
             order.total_volume_m3 += box.volume_m3
             order.total_boxes += 1

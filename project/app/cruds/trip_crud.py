@@ -46,7 +46,7 @@ class TripCrud:
     @staticmethod
     def read_trips_by_depot(depot_id):
         depot = DepotCrud.read_by_id(depot_id)
-        return Trip.objects.filter(origin_depot=depot).order_by('-created_at')
+        return Trip.objects.filter(origin_depot=depot).order_by("-created_at")
 
     @staticmethod
     def delete(trip_id):

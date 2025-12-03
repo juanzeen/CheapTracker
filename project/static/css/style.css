@@ -468,3 +468,375 @@ h2 {
   transform: scale(1.5);
   cursor: pointer;
 }
+
+/* From Home Template */
+/* General container adjustments */
+.container {
+  padding: 40px 20px;
+  gap: 60px;
+}
+
+/* Home Title */
+.home-title-container {
+  gap: 20px;
+  padding: 30px 0;
+  border-bottom: 2px solid rgba(162, 44, 44, 0.2); /* Subtle red border */
+  width: 100%;
+  max-width: 800px;
+}
+
+.home-title-container h1 {
+  font-size: 4.5em; /* Larger title */
+  color: var(--dark-red);
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+}
+
+.home-title-container p {
+  font-size: 1.5em; /* Larger subtitle */
+  color: #555;
+  text-align: center;
+  max-width: 600px;
+}
+
+/* Main Info Section */
+.main-infos-container h2 {
+  font-size: 2.2em; /* Larger heading */
+  color: #333;
+  margin-bottom: 30px;
+}
+
+.roles-infos-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+  gap: 30px;
+  width: 100%;
+  max-width: 1000px; /* Max width for the grid */
+  padding: 0 20px;
+}
+
+.role-card {
+  width: 100%; /* Take full width of grid column */
+  height: 300px; /* Fixed height for all cards */
+  padding: 25px;
+  border-radius: 15px; /* More rounded */
+  background-color: #ffffff; /* White background */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Softer, larger shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+}
+
+.role-card:hover {
+  transform: translateY(-8px); /* Lift effect */
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15); /* More prominent shadow on hover */
+}
+
+.role-card h3 {
+  font-size: 1.8em; /* Larger role title */
+  color: var(--dark-red);
+  margin-bottom: 5px;
+}
+
+.role-card p {
+  font-size: 1em;
+  color: #666;
+  line-height: 1.6;
+}
+
+.role-card .icon {
+  font-size: 3em; /* Icon size */
+  color: var(--acent-red);
+  margin-bottom: 10px;
+}
+
+/* Auth Container */
+.auth-container {
+  width: 100%;
+  max-width: 700px;
+  padding: 40px;
+  background-color: #ffffff;
+  border-radius: 15px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  gap: 25px;
+}
+
+.auth-container h2 {
+  font-size: 2.2em;
+  color: #333;
+  border-bottom: none; /* Remove old border */
+  padding-bottom: 0;
+  margin-bottom: 15px;
+}
+
+.auth-container > p {
+  font-size: 1em;
+  color: #666;
+  line-height: 1.6;
+  text-align: center;
+  max-width: 500px;
+}
+
+.auth-buttons-container {
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  justify-content: space-around;
+  gap: 20px; /* Space between buttons */
+  margin-top: 20px;
+}
+
+.auth-button {
+  flex: 1; /* Make buttons take equal width */
+  padding: 15px 25px;
+  background-color: var(--dark-red);
+  color: white;
+  border: none;
+  border-radius: 8px; /* Consistent with other forms */
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  text-align: center;
+  text-decoration: none; /* For the <a> tag acting as button */
+  display: block; /* For the <a> tag */
+}
+
+.auth-button:hover {
+  background-color: var(--acent-red);
+  transform: translateY(-2px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .home-title-container h1 {
+    font-size: 3.5em;
+  }
+  .home-title-container p {
+    font-size: 1.2em;
+  }
+  .roles-infos-container {
+    grid-template-columns: 1fr; /* Stack cards on smaller screens */
+  }
+  .auth-buttons-container {
+    flex-direction: column; /* Stack buttons */
+  }
+  .auth-container, .home-title-container {
+    padding: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .home-title-container h1 {
+    font-size: 2.5em;
+  }
+  .home-title-container p {
+    font-size: 1em;
+  }
+  .auth-container {
+    padding: 20px;
+  }
+}
+
+/* From Login Template */
+.login-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.login-header h3 {
+  color: #a22c2c; /* dark-red from style.css */
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  color: #666;
+  font-size: 0.9em;
+}
+
+.form-group {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: #333;
+  font-weight: 500;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.input-wrapper input {
+  width: 100%;
+  padding: 12px 15px;
+  padding-left: 40px; /* Space for icon */
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1em;
+  transition: border-color 0.3s;
+}
+
+.input-wrapper input:focus {
+  border-color: #a22c2c;
+  outline: none;
+}
+
+.input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 12px;
+  background-color: #a22c2c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1.1em;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 10px;
+}
+
+.submit-btn:hover {
+  background-color: #ff3131; /* acent-red */
+}
+
+.switch-link {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 0.9em;
+  color: #666;
+  font-weight: bold;
+}
+
+.switch-link a {
+  color: #a22c2c;
+  text-decoration: none;
+}
+
+.switch-link a:hover {
+  text-decoration: underline;
+}
+
+/* From Register Template */
+.register-container {
+  background: white;
+  padding: 40px;
+  border-radius: 15px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 500px; /* Slightly wider for registration */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.register-header {
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.register-header h3 {
+  color: #a22c2c;
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.register-header p {
+  color: #666;
+  font-size: 0.9em;
+}
+
+/* Radio button styling */
+.role-selection {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.role-option {
+  flex: 1;
+  position: relative;
+}
+
+.role-option input[type="radio"] {
+  display: none;
+}
+
+.role-option label {
+  display: block;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9em;
+}
+
+.role-option input[type="radio"]:checked + label {
+  background-color: #ffe6e6;
+  border-color: #a22c2c;
+  color: #a22c2c;
+  font-weight: bold;
+}
+
+.role-option label:hover {
+  border-color: #a22c2c;
+}
+
+/* Loader styles */
+.loader-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    border-radius: 8px; /* Match form container's border-radius */
+}
+
+.loader {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #d9534f; /* red-btn color */
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}

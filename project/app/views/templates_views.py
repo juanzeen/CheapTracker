@@ -31,39 +31,49 @@ class CreatePlaceTemplateView(BaseAuthTemplateView):
 class PlaceDashboardTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/place_dashboard.html"
 
+
 class CreateOrderTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/create_order.html"
+
 
 class OrderDetailsTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/order_detail.html"
 
+
 class AddBoxTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/add_box.html"
+
 
 class RemoveBoxTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/remove_box.html"
 
+
 class CreateTruckTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/create_truck.html"
+
 
 class TruckDetailsTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/truck_detail.html"
 
+
 class CreateTripTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/create_trip.html"
+
 
 class TripDetailsTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/trip_detail.html"
 
+
 class CreateTripTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/create_trip.html"
+
 
 class StartTripTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/start_trip.html"
 
+
 class SimulateTripTemplateView(BaseAuthTemplateView):
     template_name = "cheaptracker/simulate_trip.html"
-
 
 
 class SwaggerUIView(TemplateView):
